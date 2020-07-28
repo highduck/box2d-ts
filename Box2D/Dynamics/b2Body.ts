@@ -18,7 +18,6 @@
 
 // DEBUG: import { b2Assert } from "../Common/b2Settings.js";
 // DEBUG: import { b2IsValid } from "../Common/b2Math.js";
-import { b2Maybe } from "../Common/b2Settings.js";
 import { b2Vec2, b2Rot, b2Transform, b2Sweep, XY } from "../Common/b2Math.js";
 import { b2Shape, b2MassData } from "../Collision/Shapes/b2Shape.js";
 import { b2ContactEdge } from "./Contacts/b2Contact.js";
@@ -33,7 +32,7 @@ import { b2ControllerEdge } from "../Controllers/b2Controller.js";
 /// static: zero mass, zero velocity, may be manually moved
 /// kinematic: zero mass, non-zero velocity set by user, moved by solver
 /// dynamic: positive mass, non-zero velocity determined by forces, moved by solver
-export enum b2BodyType {
+export const enum b2BodyType {
   b2_unknown = -1,
   b2_staticBody = 0,
   b2_kinematicBody = 1,
@@ -157,7 +156,7 @@ export class b2BodyDef implements b2IBodyDef {
 
 /// A rigid body. These are created via b2World::CreateBody.
 export class b2Body {
-  public m_type: b2BodyType = b2BodyType.b2_staticBody;
+  public m_type: b2BodyType;
 
   public m_islandFlag: boolean = false;
   public m_awakeFlag: boolean = false;
@@ -176,10 +175,10 @@ export class b2Body {
   public readonly m_sweep: b2Sweep = new b2Sweep();    // the swept motion for CCD
 
   public readonly m_linearVelocity: b2Vec2 = new b2Vec2();
-  public m_angularVelocity: number = 0;
+  public m_angularVelocity: number = NaN;
 
   public readonly m_force: b2Vec2 = new b2Vec2();
-  public m_torque: number = 0;
+  public m_torque: number = NaN;
 
   public m_world: b2World;
   public m_prev: b2Body | null = null;
@@ -191,18 +190,18 @@ export class b2Body {
   public m_jointList: b2JointEdge | null = null;
   public m_contactList: b2ContactEdge | null = null;
 
-  public m_mass: number = 1;
-  public m_invMass: number = 1;
+  public m_mass: number = NaN;
+  public m_invMass: number = NaN;
 
   // Rotational inertia about the center of mass.
-  public m_I: number = 0;
-  public m_invI: number = 0;
+  public m_I: number = NaN;
+  public m_invI: number = NaN;
 
-  public m_linearDamping: number = 0;
-  public m_angularDamping: number = 0;
-  public m_gravityScale: number = 1;
+  public m_linearDamping: number = NaN;
+  public m_angularDamping: number = NaN;
+  public m_gravityScale: number = NaN;
 
-  public m_sleepTime: number = 0;
+  public m_sleepTime: number = NaN;
 
   public m_userData: any = null;
 
@@ -212,17 +211,17 @@ export class b2Body {
   // #endif
 
   constructor(bd: b2IBodyDef, world: b2World) {
-    this.m_bulletFlag = b2Maybe(bd.bullet, false);
-    this.m_fixedRotationFlag = b2Maybe(bd.fixedRotation, false);
-    this.m_autoSleepFlag = b2Maybe(bd.allowSleep, true);
-    this.m_awakeFlag = b2Maybe(bd.awake, true);
-    this.m_activeFlag = b2Maybe(bd.active, true);
+    this.m_bulletFlag = bd.bullet ?? false;
+    this.m_fixedRotationFlag = bd.fixedRotation ?? false;
+    this.m_autoSleepFlag = bd.allowSleep ??  true;
+    this.m_awakeFlag = bd.awake ??  true;
+    this.m_activeFlag = bd.active ?? true;
 
     this.m_world = world;
 
-    this.m_xf.p.Copy(b2Maybe(bd.position, b2Vec2.ZERO));
+    this.m_xf.p.Copy(bd.position ?? b2Vec2.ZERO);
     // DEBUG: b2Assert(this.m_xf.p.IsValid());
-    this.m_xf.q.SetAngle(b2Maybe(bd.angle, 0));
+    this.m_xf.q.SetAngle(bd.angle ?? 0.0);
     // DEBUG: b2Assert(b2IsValid(this.m_xf.q.GetAngle()));
     // #if B2_ENABLE_PARTICLE
     this.m_xf0.Copy(this.m_xf);
@@ -234,35 +233,35 @@ export class b2Body {
     this.m_sweep.a0 = this.m_sweep.a = this.m_xf.q.GetAngle();
     this.m_sweep.alpha0 = 0;
 
-    this.m_linearVelocity.Copy(b2Maybe(bd.linearVelocity, b2Vec2.ZERO));
+    this.m_linearVelocity.Copy(bd.linearVelocity ?? b2Vec2.ZERO);
     // DEBUG: b2Assert(this.m_linearVelocity.IsValid());
-    this.m_angularVelocity = b2Maybe(bd.angularVelocity, 0);
+    this.m_angularVelocity = bd.angularVelocity ??  0;
     // DEBUG: b2Assert(b2IsValid(this.m_angularVelocity));
 
-    this.m_linearDamping = b2Maybe(bd.linearDamping, 0);
-    this.m_angularDamping = b2Maybe(bd.angularDamping, 0);
-    this.m_gravityScale = b2Maybe(bd.gravityScale, 1);
+    this.m_linearDamping = bd.linearDamping ?? 0.0;
+    this.m_angularDamping = bd.angularDamping ?? 0.0;
+    this.m_gravityScale = bd.gravityScale ?? 1.0;
     // DEBUG: b2Assert(b2IsValid(this.m_gravityScale) && this.m_gravityScale >= 0);
     // DEBUG: b2Assert(b2IsValid(this.m_angularDamping) && this.m_angularDamping >= 0);
     // DEBUG: b2Assert(b2IsValid(this.m_linearDamping) && this.m_linearDamping >= 0);
 
     this.m_force.SetZero();
-    this.m_torque = 0;
+    this.m_torque = 0.0;
 
-    this.m_sleepTime = 0;
+    this.m_sleepTime = 0.0;
 
-    this.m_type = b2Maybe(bd.type, b2BodyType.b2_staticBody);
+    this.m_type = bd.type ?? b2BodyType.b2_staticBody;
 
     if (bd.type === b2BodyType.b2_dynamicBody) {
-      this.m_mass = 1;
-      this.m_invMass = 1;
+      this.m_mass = 1.0;
+      this.m_invMass = 1.0;
     } else {
-      this.m_mass = 0;
-      this.m_invMass = 0;
+      this.m_mass = 0.0;
+      this.m_invMass = 0.0;
     }
 
-    this.m_I = 0;
-    this.m_invI = 0;
+    this.m_I = 0.0;
+    this.m_invI = 0.0;
 
     this.m_userData = bd.userData;
 
@@ -478,16 +477,20 @@ export class b2Body {
   /// Set the linear velocity of the center of mass.
   /// @param v the new linear velocity of the center of mass.
   public SetLinearVelocity(v: XY): void {
-    if (this.m_type === b2BodyType.b2_staticBody) {
-      return;
-    }
-
-    if (b2Vec2.DotVV(v, v) > 0) {
-      this.SetAwake(true);
-    }
-
-    this.m_linearVelocity.Copy(v);
+      this.SetLinearVelocityXY(v.x, v.y);
   }
+
+    public SetLinearVelocityXY(x: number, y:number): void {
+        if (this.m_type === b2BodyType.b2_staticBody) {
+            return;
+        }
+
+        if (x * x + y * y > 0) {
+            this.SetAwake(true);
+        }
+
+        this.m_linearVelocity.Set(x, y);
+    }
 
   /// Get the linear velocity of the center of mass.
   /// @return the linear velocity of the center of mass.

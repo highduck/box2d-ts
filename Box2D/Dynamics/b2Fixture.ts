@@ -17,7 +17,6 @@
 */
 
 // DEBUG: import { b2Assert } from "../Common/b2Settings.js";
-import { b2Maybe } from "../Common/b2Settings.js";
 import { b2Vec2, b2Transform, XY } from "../Common/b2Math.js";
 import { b2AABB, b2RayCastInput, b2RayCastOutput } from "../Collision/b2Collision.js";
 import { b2TreeNode } from "../Collision/b2DynamicTree.js";
@@ -63,7 +62,7 @@ export class b2Filter implements b2IFilter {
     // DEBUG: b2Assert(this !== other);
     this.categoryBits = other.categoryBits;
     this.maskBits = other.maskBits;
-    this.groupIndex = other.groupIndex || 0;
+    this.groupIndex = other.groupIndex ?? 0;
     return this;
   }
 }
@@ -100,19 +99,19 @@ export interface b2IFixtureDef {
 export class b2FixtureDef implements b2IFixtureDef {
   /// The shape, this must be set. The shape will be cloned, so you
   /// can create the shape on the stack.
-  public shape!: b2Shape;
+  public shape: b2Shape = null as unknown as b2Shape;
 
   /// Use this to store application specific fixture data.
   public userData: any = null;
 
   /// The friction coefficient, usually in the range [0,1].
-  public friction: number = 0.2;
+  friction = NaN;
 
   /// The restitution (elasticity) usually in the range [0,1].
-  public restitution: number = 0;
+  restitution = NaN;
 
   /// The density, usually in kg/m^2.
-  public density: number = 0;
+  density = NaN;
 
   /// A sensor shape collects contact information but never generates a collision
   /// response.
@@ -120,11 +119,17 @@ export class b2FixtureDef implements b2IFixtureDef {
 
   /// Contact filtering data.
   public readonly filter: b2Filter = new b2Filter();
+
+  constructor() {
+    this.friction = 0.2;
+    this.restitution = 0.0;
+    this.density = 0.0;
+  }
 }
 
 /// This proxy is used internally to connect fixtures to the broad-phase.
 export class b2FixtureProxy {
-  public readonly aabb: b2AABB = new b2AABB();
+  public readonly aabb = new b2AABB();
   public readonly fixture: b2Fixture;
   public readonly childIndex: number = 0;
   public treeNode: b2TreeNode<b2FixtureProxy>;
@@ -164,15 +169,15 @@ export class b2FixtureProxy {
 /// Fixtures are created via b2Body::CreateFixture.
 /// @warning you cannot reuse fixtures.
 export class b2Fixture {
-  public m_density: number = 0;
+  m_density = NaN;
+  m_friction = NaN;
+  m_restitution = NaN;
 
   public m_next: b2Fixture | null = null;
   public readonly m_body: b2Body;
-
   public readonly m_shape: b2Shape;
-
-  public m_friction: number = 0;
-  public m_restitution: number = 0;
+    _shapeType:b2ShapeType;
+    _shapeRadius = NaN;
 
   public readonly m_proxies: b2FixtureProxy[] = [];
   public get m_proxyCount(): number { return this.m_proxies.length; }
@@ -184,14 +189,17 @@ export class b2Fixture {
   public m_userData: any = null;
 
   constructor(body: b2Body, def: b2IFixtureDef) {
+    this.m_density = def.density ?? 0.0;
+    this.m_friction = def.friction ??  0.2;
+    this.m_restitution = def.restitution ?? 0.0;
     this.m_body = body;
     this.m_shape = def.shape.Clone();
-    this.m_userData = b2Maybe(def.userData, null);
-    this.m_friction = b2Maybe(def.friction,  0.2);
-    this.m_restitution = b2Maybe(def.restitution, 0);
-    this.m_filter.Copy(b2Maybe(def.filter, b2Filter.DEFAULT));
-    this.m_isSensor = b2Maybe(def.isSensor, false);
-    this.m_density = b2Maybe(def.density, 0);
+    this._shapeType = def.shape.m_type;
+      // TODO: need to  sync radius if shape is changed by user!
+    this._shapeRadius = def.shape.m_radius;
+    this.m_userData = def.userData ?? null;
+    this.m_filter.Copy(def.filter ?? b2Filter.DEFAULT);
+    this.m_isSensor = def.isSensor ?? false;
   }
 
   public Reset(): void {
@@ -202,7 +210,7 @@ export class b2Fixture {
   /// Get the type of the child shape. You can use this to down cast to the concrete shape.
   /// @return the shape type.
   public GetType(): b2ShapeType {
-    return this.m_shape.GetType();
+    return this._shapeType;
   }
 
   /// Get the child shape. You can modify the child shape, however you should not change the
@@ -382,21 +390,21 @@ export class b2Fixture {
 
   public DestroyProxies(): void {
     // Destroy proxies in the broad-phase.
-    for (const proxy of this.m_proxies) {
-      proxy.Reset();
+    for (let i = 0; i < this.m_proxies.length; ++i) {
+        this.m_proxies[i].Reset();
     }
     this.m_proxies.length = 0;
   }
 
   public TouchProxies(): void {
-    for (const proxy of this.m_proxies) {
-      proxy.Touch();
-    }
+      for (let i = 0; i < this.m_proxies.length; ++i) {
+          this.m_proxies[i].Touch();
+      }
   }
 
   public SynchronizeProxies(transform1: b2Transform, transform2: b2Transform, displacement: b2Vec2): void {
-    for (const proxy of this.m_proxies) {
-      proxy.Synchronize(transform1, transform2, displacement);
-    }
+      for (let i = 0; i < this.m_proxies.length; ++i) {
+          this.m_proxies[i].Synchronize(transform1, transform2, displacement);
+      }
   }
 }

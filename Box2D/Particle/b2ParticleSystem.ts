@@ -21,7 +21,20 @@
 // DEBUG: import { b2Assert, b2_maxParticleIndex } from "../Common/b2Settings.js";
 import { b2_linearSlop, b2_maxFloat, b2_invalidParticleIndex, b2_minParticleSystemBufferCapacity, b2_maxTriadDistanceSquared, b2_barrierCollisionTime, b2MakeArray, b2Maybe } from "../Common/b2Settings.js";
 import { b2_maxParticlePressure, b2_minParticleWeight, b2_maxParticleForce, b2_particleStride } from "../Common/b2Settings.js";
-import { b2Min, b2Max, b2Abs, b2Clamp, b2Sqrt, b2InvSqrt, b2Vec2, b2Rot, b2Transform, XY } from "../Common/b2Math.js";
+import {
+    b2Min,
+    b2Max,
+    b2Abs,
+    b2Clamp,
+    b2Sqrt,
+    b2InvSqrt,
+    b2Vec2,
+    b2Rot,
+    b2Transform,
+    XY,
+    b2MinInt,
+    b2MaxInt
+} from "../Common/b2Math.js";
 import { b2Color } from "../Common/b2Draw.js";
 import { b2AABB, b2RayCastInput, b2RayCastOutput } from "../Collision/b2Collision.js";
 import { b2ShapeType, b2Shape, b2MassData } from "../Collision/Shapes/b2Shape.js";
@@ -1331,11 +1344,12 @@ export class b2ParticleSystem {
 
   public SetPositionBuffer(buffer: b2Vec2[] | Float32Array): void {
     if (buffer instanceof Float32Array) {
-      if (buffer.length % 2 !== 0) { throw new Error(); }
+      if ((buffer.length & 1) !== 0) { throw new Error(); }
       const count: number = buffer.length / 2;
       const array: b2Vec2[] = new Array(count);
+      let ptr = 0;
       for (let i = 0; i < count; ++i) {
-        array[i] = new b2Vec2(buffer.subarray(i * 2, i * 2 + 2));
+        array[i] = new b2Vec2(buffer[ptr++], buffer[ptr++]);
       }
       buffer = array;
     }
@@ -1344,11 +1358,12 @@ export class b2ParticleSystem {
 
   public SetVelocityBuffer(buffer: b2Vec2[] | Float32Array): void {
     if (buffer instanceof Float32Array) {
-      if (buffer.length % 2 !== 0) { throw new Error(); }
+      if ((buffer.length & 1) !== 0) { throw new Error(); }
       const count: number = buffer.length / 2;
       const array: b2Vec2[] = new Array(count);
+      let ptr = 0;
       for (let i = 0; i < count; ++i) {
-        array[i] = new b2Vec2(buffer.subarray(i * 2, i * 2 + 2));
+        array[i] = new b2Vec2(buffer[ptr++], buffer[ptr++]);
       }
       buffer = array;
     }
@@ -1357,11 +1372,17 @@ export class b2ParticleSystem {
 
   public SetColorBuffer(buffer: b2Color[] | Float32Array): void {
     if (buffer instanceof Float32Array) {
-      if (buffer.length % 4 !== 0) { throw new Error(); }
+      if ((buffer.length & 3) !== 0) { throw new Error(); }
       const count: number = buffer.length / 4;
       const array: b2Color[] = new Array(count);
+      let ptr = 0;
       for (let i = 0; i < count; ++i) {
-        array[i] = new b2Color(buffer.subarray(i * 4, i * 4 + 4));
+        array[i] = new b2Color(
+            buffer[ptr++],
+            buffer[ptr++],
+            buffer[ptr++],
+            buffer[ptr++]
+        );
       }
       buffer = array;
     }
@@ -4129,8 +4150,8 @@ export class b2ParticleSystem {
       for (let i = group.m_firstIndex; i < group.m_lastIndex; i++) {
         const j = newIndices[i];
         if (j >= 0) {
-          firstIndex = b2Min(firstIndex, j);
-          lastIndex = b2Max(lastIndex, j + 1);
+          firstIndex = b2MinInt(firstIndex, j);
+          lastIndex = b2MaxInt(lastIndex, j + 1);
         } else {
           modified = true;
         }
@@ -4926,10 +4947,10 @@ export class b2ParticleSystem_JoinParticleGroupsFilter extends b2ParticleSystem_
 }
 
 export class b2ParticleSystem_CompositeShape extends b2Shape {
-  constructor(shapes: b2Shape[], shapeCount: number = shapes.length) {
-    super(b2ShapeType.e_unknown, 0);
+  constructor(shapes: b2Shape[], shapeCount?: number) {
+    super(b2ShapeType.e_unknown, 0.0);
     this.m_shapes = shapes;
-    this.m_shapeCount = shapeCount;
+    this.m_shapeCount = shapeCount ?? shapes.length;
   }
 
   public m_shapes: b2Shape[];

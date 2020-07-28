@@ -84,9 +84,9 @@ export class b2TensorDampingController extends b2Controller {
       this.T.ey.x = 0;
       this.T.ey.y = (-yDamping);
       if (xDamping > 0 || yDamping > 0) {
-        this.maxTimestep = 1 / b2Max(xDamping, yDamping);
+        this.maxTimestep = 1.0 / b2Max(xDamping, yDamping);
       } else {
-        this.maxTimestep = 0;
+        this.maxTimestep = 0.0;
       }
     }
 }

@@ -17,18 +17,18 @@
 */
 
 // DEBUG: import { b2Assert } from "./b2Settings.js";
-import { b2MakeArray } from "./b2Settings.js";
+import {b2MakeNullArray} from "./b2Settings.js";
 
 /// This is a growable LIFO stack with an initial capacity of N.
 /// If the stack size exceeds the initial capacity, the heap is used
 /// to increase the size of the stack.
 
 export class b2GrowableStack<T> {
-  public m_stack: Array<T | null> = [];
-  public m_count: number = 0;
+  public m_stack: Array<T | null>;
+  public m_count: number;
 
   constructor(N: number) {
-    this.m_stack = b2MakeArray(N, (index) => null);
+    this.m_stack = b2MakeNullArray(N);
     this.m_count = 0;
   }
 
@@ -38,16 +38,23 @@ export class b2GrowableStack<T> {
   }
 
   public Push(element: T): void {
-    this.m_stack[this.m_count] = element;
-    this.m_count++;
+      if(this.m_count < this.m_stack.length) {
+          this.m_stack[this.m_count] = element;
+      }
+      else {
+          this.m_stack.push(element);
+      }
+    ++this.m_count;
   }
 
   public Pop(): T {
     // DEBUG: b2Assert(this.m_count > 0);
-    this.m_count--;
-    const element: T | null = this.m_stack[this.m_count];
+      if(this.m_count === 0) {
+          throw new Error();
+      }
+    --this.m_count;
+    const element = this.m_stack[this.m_count]!;
     this.m_stack[this.m_count] = null;
-    if (element === null) { throw new Error(); }
     return element;
   }
 

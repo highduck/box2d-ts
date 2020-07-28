@@ -26,7 +26,7 @@ import { b2Distance, b2DistanceInput, b2DistanceOutput, b2SimplexCache } from ".
 /// Structures and functions used for computing contact points, distance
 /// queries, and TOI queries.
 
-export enum b2ContactFeatureType {
+export const enum b2ContactFeatureType {
   e_vertex = 0,
   e_face = 1,
 }
@@ -35,7 +35,7 @@ export enum b2ContactFeatureType {
 /// This must be 4 bytes or less.
 export class b2ContactFeature {
   private _key: number = 0;
-  private _key_invalid = false;
+  private _key_invalid = 0;
   private _indexA: number = 0;
   private _indexB: number = 0;
   private _typeA: b2ContactFeatureType = 0;
@@ -43,7 +43,7 @@ export class b2ContactFeature {
 
   public get key(): number {
     if (this._key_invalid) {
-      this._key_invalid = false;
+      this._key_invalid = 0;
       this._key = this._indexA | (this._indexB << 8) | (this._typeA << 16) | (this._typeB << 24);
     }
     return this._key;
@@ -51,11 +51,11 @@ export class b2ContactFeature {
 
   public set key(value: number) {
     this._key = value;
-    this._key_invalid = false;
-    this._indexA = this._key & 0xff;
-    this._indexB = (this._key >> 8) & 0xff;
-    this._typeA = (this._key >> 16) & 0xff;
-    this._typeB = (this._key >> 24) & 0xff;
+    this._key_invalid = 0;
+    this._indexA = this._key & 0xFF;
+    this._indexB = (this._key >>> 8) & 0xFF;
+    this._typeA = (this._key >>> 16) & 0xFF;
+    this._typeB = (this._key >>> 24) & 0xFF;
   }
 
   public get indexA(): number {
@@ -64,7 +64,7 @@ export class b2ContactFeature {
 
   public set indexA(value: number) {
     this._indexA = value;
-    this._key_invalid = true;
+    this._key_invalid = 1;
   }
 
   public get indexB(): number {
@@ -73,7 +73,7 @@ export class b2ContactFeature {
 
   public set indexB(value: number) {
     this._indexB = value;
-    this._key_invalid = true;
+    this._key_invalid = 1;
   }
 
   public get typeA(): number {
@@ -82,7 +82,7 @@ export class b2ContactFeature {
 
   public set typeA(value: number) {
     this._typeA = value;
-    this._key_invalid = true;
+    this._key_invalid = 1;
   }
 
   public get typeB(): number {
@@ -91,7 +91,7 @@ export class b2ContactFeature {
 
   public set typeB(value: number) {
     this._typeB = value;
-    this._key_invalid = true;
+    this._key_invalid = 1;
   }
 }
 
@@ -129,18 +129,22 @@ export class b2ContactID {
 /// provide reliable contact forces, especially for high speed collisions.
 export class b2ManifoldPoint {
   public readonly localPoint: b2Vec2 = new b2Vec2();  ///< usage depends on manifold type
-  public normalImpulse: number = 0;      ///< the non-penetration impulse
-  public tangentImpulse: number = 0;      ///< the friction impulse
+  public normalImpulse: number = NaN;      ///< the non-penetration impulse
+  public tangentImpulse: number = NaN;      ///< the friction impulse
   public readonly id: b2ContactID = new b2ContactID(); ///< uniquely identifies a contact point between two shapes
 
+    constructor() {
+        this.normalImpulse = 0.0;
+        this.tangentImpulse = 0.0;
+    }
   public static MakeArray(length: number): b2ManifoldPoint[] {
     return b2MakeArray(length, (i: number): b2ManifoldPoint => new b2ManifoldPoint());
   }
 
   public Reset(): void {
     this.localPoint.SetZero();
-    this.normalImpulse = 0;
-    this.tangentImpulse = 0;
+    this.normalImpulse = 0.0;
+    this.tangentImpulse = 0.0;
     this.id.key = 0;
   }
 
@@ -153,7 +157,7 @@ export class b2ManifoldPoint {
   }
 }
 
-export enum b2ManifoldType {
+export const enum b2ManifoldType {
   e_unknown = -1,
   e_circles = 0,
   e_faceA = 1,
@@ -227,60 +231,53 @@ export class b2WorldManifold {
       return;
     }
 
-    switch (manifold.type) {
-    case b2ManifoldType.e_circles: {
+    if(manifold.type === b2ManifoldType.e_circles) {
         this.normal.Set(1, 0);
         const pointA: b2Vec2 = b2Transform.MulXV(xfA, manifold.localPoint, b2WorldManifold.Initialize_s_pointA);
         const pointB: b2Vec2 = b2Transform.MulXV(xfB, manifold.points[0].localPoint, b2WorldManifold.Initialize_s_pointB);
         if (b2Vec2.DistanceSquaredVV(pointA, pointB) > b2_epsilon_sq) {
-          b2Vec2.SubVV(pointB, pointA, this.normal).SelfNormalize();
+            b2Vec2.SubVV(pointB, pointA, this.normal).SelfNormalize();
         }
 
         const cA: b2Vec2 = b2Vec2.AddVMulSV(pointA, radiusA, this.normal, b2WorldManifold.Initialize_s_cA);
         const cB: b2Vec2 = b2Vec2.SubVMulSV(pointB, radiusB, this.normal, b2WorldManifold.Initialize_s_cB);
         b2Vec2.MidVV(cA, cB, this.points[0]);
         this.separations[0] = b2Vec2.DotVV(b2Vec2.SubVV(cB, cA, b2Vec2.s_t0), this.normal); // b2Dot(cB - cA, normal);
-        break;
-      }
-
-    case b2ManifoldType.e_faceA: {
+    }
+    else if(manifold.type === b2ManifoldType.e_faceA) {
         b2Rot.MulRV(xfA.q, manifold.localNormal, this.normal);
         const planePoint: b2Vec2 = b2Transform.MulXV(xfA, manifold.localPoint, b2WorldManifold.Initialize_s_planePoint);
 
         for (let i: number = 0; i < manifold.pointCount; ++i) {
-          const clipPoint: b2Vec2 = b2Transform.MulXV(xfB, manifold.points[i].localPoint, b2WorldManifold.Initialize_s_clipPoint);
-          const s: number = radiusA - b2Vec2.DotVV(b2Vec2.SubVV(clipPoint, planePoint, b2Vec2.s_t0), this.normal);
-          const cA: b2Vec2 = b2Vec2.AddVMulSV(clipPoint, s, this.normal, b2WorldManifold.Initialize_s_cA);
-          const cB: b2Vec2 = b2Vec2.SubVMulSV(clipPoint, radiusB, this.normal, b2WorldManifold.Initialize_s_cB);
-          b2Vec2.MidVV(cA, cB, this.points[i]);
-          this.separations[i] = b2Vec2.DotVV(b2Vec2.SubVV(cB, cA, b2Vec2.s_t0), this.normal); // b2Dot(cB - cA, normal);
+            const clipPoint: b2Vec2 = b2Transform.MulXV(xfB, manifold.points[i].localPoint, b2WorldManifold.Initialize_s_clipPoint);
+            const s: number = radiusA - b2Vec2.DotVV(b2Vec2.SubVV(clipPoint, planePoint, b2Vec2.s_t0), this.normal);
+            const cA: b2Vec2 = b2Vec2.AddVMulSV(clipPoint, s, this.normal, b2WorldManifold.Initialize_s_cA);
+            const cB: b2Vec2 = b2Vec2.SubVMulSV(clipPoint, radiusB, this.normal, b2WorldManifold.Initialize_s_cB);
+            b2Vec2.MidVV(cA, cB, this.points[i]);
+            this.separations[i] = b2Vec2.DotVV(b2Vec2.SubVV(cB, cA, b2Vec2.s_t0), this.normal); // b2Dot(cB - cA, normal);
         }
-        break;
-      }
-
-    case b2ManifoldType.e_faceB: {
+    }
+    else if(manifold.type === b2ManifoldType.e_faceB) {
         b2Rot.MulRV(xfB.q, manifold.localNormal, this.normal);
         const planePoint: b2Vec2 = b2Transform.MulXV(xfB, manifold.localPoint, b2WorldManifold.Initialize_s_planePoint);
 
         for (let i: number = 0; i < manifold.pointCount; ++i) {
-          const clipPoint: b2Vec2 = b2Transform.MulXV(xfA, manifold.points[i].localPoint, b2WorldManifold.Initialize_s_clipPoint);
-          const s: number = radiusB - b2Vec2.DotVV(b2Vec2.SubVV(clipPoint, planePoint, b2Vec2.s_t0), this.normal);
-          const cB: b2Vec2 = b2Vec2.AddVMulSV(clipPoint, s, this.normal, b2WorldManifold.Initialize_s_cB);
-          const cA: b2Vec2 = b2Vec2.SubVMulSV(clipPoint, radiusA, this.normal, b2WorldManifold.Initialize_s_cA);
-          b2Vec2.MidVV(cA, cB, this.points[i]);
-          this.separations[i] = b2Vec2.DotVV(b2Vec2.SubVV(cA, cB, b2Vec2.s_t0), this.normal); // b2Dot(cA - cB, normal);
+            const clipPoint: b2Vec2 = b2Transform.MulXV(xfA, manifold.points[i].localPoint, b2WorldManifold.Initialize_s_clipPoint);
+            const s: number = radiusB - b2Vec2.DotVV(b2Vec2.SubVV(clipPoint, planePoint, b2Vec2.s_t0), this.normal);
+            const cB: b2Vec2 = b2Vec2.AddVMulSV(clipPoint, s, this.normal, b2WorldManifold.Initialize_s_cB);
+            const cA: b2Vec2 = b2Vec2.SubVMulSV(clipPoint, radiusA, this.normal, b2WorldManifold.Initialize_s_cA);
+            b2Vec2.MidVV(cA, cB, this.points[i]);
+            this.separations[i] = b2Vec2.DotVV(b2Vec2.SubVV(cA, cB, b2Vec2.s_t0), this.normal); // b2Dot(cA - cB, normal);
         }
 
         // Ensure normal points from A to B.
         this.normal.SelfNeg();
-        break;
-      }
     }
   }
 }
 
 /// This is used for determining the state of contact points.
-export enum b2PointState {
+export const enum b2PointState {
   b2_nullState = 0, ///< point does not exist
   b2_addState = 1, ///< point was added in the update
   b2_persistState = 2, ///< point persisted across the update
@@ -348,7 +345,11 @@ export class b2ClipVertex {
 export class b2RayCastInput {
   public readonly p1: b2Vec2 = new b2Vec2();
   public readonly p2: b2Vec2 = new b2Vec2();
-  public maxFraction: number = 1;
+  maxFraction = NaN;
+
+  constructor() {
+      this.maxFraction = 1.0;
+  }
 
   public Copy(o: b2RayCastInput): b2RayCastInput {
     this.p1.Copy(o.p1);
@@ -362,8 +363,11 @@ export class b2RayCastInput {
 /// come from b2RayCastInput.
 export class b2RayCastOutput {
   public readonly normal: b2Vec2 = new b2Vec2();
-  public fraction: number = 0;
+  fraction = NaN;
 
+  constructor() {
+      this.fraction = 0.0;
+  }
   public Copy(o: b2RayCastOutput): b2RayCastOutput {
     this.normal.Copy(o.normal);
     this.fraction = o.fraction;
@@ -371,13 +375,14 @@ export class b2RayCastOutput {
   }
 }
 
+
 /// An axis aligned bounding box.
 export class b2AABB {
   public readonly lowerBound: b2Vec2 = new b2Vec2(); ///< the lower vertex
   public readonly upperBound: b2Vec2 = new b2Vec2(); ///< the upper vertex
 
-  private readonly m_cache_center: b2Vec2 = new b2Vec2(); // access using GetCenter()
-  private readonly m_cache_extent: b2Vec2 = new b2Vec2(); // access using GetExtents()
+  readonly m_cache_center: b2Vec2 = new b2Vec2(); // access using GetCenter()
+  readonly m_cache_extent: b2Vec2 = new b2Vec2(); // access using GetExtents()
 
   public Copy(o: b2AABB): b2AABB {
     this.lowerBound.Copy(o.lowerBound);

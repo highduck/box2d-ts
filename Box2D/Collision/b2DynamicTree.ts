@@ -18,35 +18,36 @@
 
 // DEBUG: import { b2Assert } from "../Common/b2Settings.js";
 import { b2_aabbExtension, b2_aabbMultiplier } from "../Common/b2Settings.js";
-import { b2Abs, b2Min, b2Max, b2Vec2, XY } from "../Common/b2Math.js";
+import {b2Abs, b2Min, b2Max, b2Vec2, XY, b2MaxInt, b2AbsInt} from "../Common/b2Math.js";
 import { b2GrowableStack } from "../Common/b2GrowableStack.js";
 import { b2AABB, b2RayCastInput, b2TestOverlapAABB } from "./b2Collision.js";
 
 function verify<T>(value: T | null): T {
   if (value === null) { throw new Error(); }
-  return value;
+  return value!;
 }
 
 /// A node in the dynamic tree. The client does not interact with this directly.
 export class b2TreeNode<T> {
-  public readonly m_id: number = 0;
+  public readonly m_id: number;
   public readonly aabb: b2AABB = new b2AABB();
-  private _userData: T | null = null;
-  public get userData(): T {
-    if (this._userData === null) { throw new Error(); }
-    return this._userData;
-  }
-  public set userData(value: T) {
-    if (this._userData !== null) { throw new Error(); }
-    this._userData = value;
-  }
   public parent: b2TreeNode<T> | null = null; // or next
   public child1: b2TreeNode<T> | null = null;
   public child2: b2TreeNode<T> | null = null;
   public height: number = 0; // leaf = 0, free node = -1
 
-  constructor(id: number = 0) {
-    this.m_id = id;
+  private _userData: T | null = null;
+  public get userData(): T {
+      if (this._userData === null) { throw new Error(); }
+      return this._userData;
+  }
+  public set userData(value: T) {
+      if (this._userData !== null) { throw new Error(); }
+      this._userData = value;
+  }
+
+  constructor(id: number) {
+    this.m_id = id|0;
   }
 
   public Reset(): void {
@@ -66,8 +67,6 @@ export class b2DynamicTree<T> {
   // int32 public m_nodeCapacity;
 
   public m_freeList: b2TreeNode<T> | null = null;
-
-  public m_path: number = 0;
 
   public m_insertionCount: number = 0;
 
@@ -113,6 +112,27 @@ export class b2DynamicTree<T> {
       }
     }
   }
+
+public Query_(aabb: b2AABB, out: b2TreeNode<T>[]): void {
+    const stack: b2GrowableStack<b2TreeNode<T> | null> = this.m_stack.Reset();
+    stack.Push(this.m_root);
+
+    while (stack.GetCount() > 0) {
+        const node: b2TreeNode<T> | null = stack.Pop();
+        if (node === null) {
+            continue;
+        }
+
+        if (node.aabb.TestOverlap(aabb)) {
+            if (node.IsLeaf()) {
+                out[out.length] = node;
+            } else {
+                stack.Push(node.child1);
+                stack.Push(node.child2);
+            }
+        }
+    }
+}
 
   public QueryPoint(point: XY, callback: (node: b2TreeNode<T>) => boolean): void {
     const stack: b2GrowableStack<b2TreeNode<T> | null> = this.m_stack.Reset();
@@ -402,15 +422,15 @@ export class b2DynamicTree<T> {
     // Walk back up the tree fixing heights and AABBs
     let node: b2TreeNode<T> | null = leaf.parent;
     while (node !== null) {
-      node = this.Balance(node);
+      const n = this.Balance(node);
 
-      const child1: b2TreeNode<T> = verify(node.child1);
-      const child2: b2TreeNode<T> = verify(node.child2);
+      const child1: b2TreeNode<T> = verify(n.child1);
+      const child2: b2TreeNode<T> = verify(n.child2);
 
-      node.height = 1 + b2Max(child1.height, child2.height);
-      node.aabb.Combine2(child1.aabb, child2.aabb);
+        n.height = 1 + b2MaxInt(child1.height, child2.height);
+        n.aabb.Combine2(child1.aabb, child2.aabb);
 
-      node = node.parent;
+      node = n.parent;
     }
 
     // this.Validate();
@@ -445,7 +465,7 @@ export class b2DynamicTree<T> {
         const child2: b2TreeNode<T> = verify(index.child2);
 
         index.aabb.Combine2(child1.aabb, child2.aabb);
-        index.height = 1 + b2Max(child1.height, child2.height);
+        index.height = 1 + b2MaxInt(child1.height, child2.height);
 
         index = index.parent;
       }
@@ -472,99 +492,105 @@ export class b2DynamicTree<T> {
 
     // Rotate C up
     if (balance > 1) {
-      const F: b2TreeNode<T> = verify(C.child1);
-      const G: b2TreeNode<T> = verify(C.child2);
-
-      // Swap A and C
-      C.child1 = A;
-      C.parent = A.parent;
-      A.parent = C;
-
-      // A's old parent should point to C
-      if (C.parent !== null) {
-        if (C.parent.child1 === A) {
-          C.parent.child1 = C;
-        } else {
-          // DEBUG: b2Assert(C.parent.child2 === A);
-          C.parent.child2 = C;
-        }
-      } else {
-        this.m_root = C;
-      }
-
-      // Rotate
-      if (F.height > G.height) {
-        C.child2 = F;
-        A.child2 = G;
-        G.parent = A;
-        A.aabb.Combine2(B.aabb, G.aabb);
-        C.aabb.Combine2(A.aabb, F.aabb);
-
-        A.height = 1 + b2Max(B.height, G.height);
-        C.height = 1 + b2Max(A.height, F.height);
-      } else {
-        C.child2 = G;
-        A.child2 = F;
-        F.parent = A;
-        A.aabb.Combine2(B.aabb, F.aabb);
-        C.aabb.Combine2(A.aabb, G.aabb);
-
-        A.height = 1 + b2Max(B.height, F.height);
-        C.height = 1 + b2Max(A.height, G.height);
-      }
-
-      return C;
+        return this.Rotate_C_Up(A, B, C);
     }
 
     // Rotate B up
-    if (balance < -1) {
-      const D: b2TreeNode<T> = verify(B.child1);
-      const E: b2TreeNode<T> = verify(B.child2);
-
-      // Swap A and B
-      B.child1 = A;
-      B.parent = A.parent;
-      A.parent = B;
-
-      // A's old parent should point to B
-      if (B.parent !== null) {
-        if (B.parent.child1 === A) {
-          B.parent.child1 = B;
-        } else {
-          // DEBUG: b2Assert(B.parent.child2 === A);
-          B.parent.child2 = B;
-        }
-      } else {
-        this.m_root = B;
-      }
-
-      // Rotate
-      if (D.height > E.height) {
-        B.child2 = D;
-        A.child1 = E;
-        E.parent = A;
-        A.aabb.Combine2(C.aabb, E.aabb);
-        B.aabb.Combine2(A.aabb, D.aabb);
-
-        A.height = 1 + b2Max(C.height, E.height);
-        B.height = 1 + b2Max(A.height, D.height);
-      } else {
-        B.child2 = E;
-        A.child1 = D;
-        D.parent = A;
-        A.aabb.Combine2(C.aabb, D.aabb);
-        B.aabb.Combine2(A.aabb, E.aabb);
-
-        A.height = 1 + b2Max(C.height, D.height);
-        B.height = 1 + b2Max(A.height, E.height);
-      }
-
-      return B;
+    else if (balance < -1) {
+      return this.Rotate_B_Up(A, B, C);
     }
 
     return A;
   }
 
+    public Rotate_C_Up(A:b2TreeNode<T>, B: b2TreeNode<T>, C: b2TreeNode<T>): b2TreeNode<T> {
+        const F: b2TreeNode<T> = verify(C.child1);
+        const G: b2TreeNode<T> = verify(C.child2);
+
+        // Swap A and C
+        C.child1 = A;
+        C.parent = A.parent;
+        A.parent = C;
+
+        // A's old parent should point to C
+        if (C.parent !== null) {
+            if (C.parent.child1 === A) {
+                C.parent.child1 = C;
+            } else {
+                // DEBUG: b2Assert(C.parent.child2 === A);
+                C.parent.child2 = C;
+            }
+        } else {
+            this.m_root = C;
+        }
+
+        // Rotate
+        if (F.height > G.height) {
+            C.child2 = F;
+            A.child2 = G;
+            G.parent = A;
+            A.aabb.Combine2(B.aabb, G.aabb);
+            C.aabb.Combine2(A.aabb, F.aabb);
+
+            A.height = 1 + b2MaxInt(B.height, G.height);
+            C.height = 1 + b2MaxInt(A.height, F.height);
+        } else {
+            C.child2 = G;
+            A.child2 = F;
+            F.parent = A;
+            A.aabb.Combine2(B.aabb, F.aabb);
+            C.aabb.Combine2(A.aabb, G.aabb);
+
+            A.height = 1 + b2MaxInt(B.height, F.height);
+            C.height = 1 + b2MaxInt(A.height, G.height);
+        }
+
+        return C;
+    }
+    public Rotate_B_Up(A:b2TreeNode<T>, B: b2TreeNode<T>, C: b2TreeNode<T>): b2TreeNode<T> {
+        const D: b2TreeNode<T> = verify(B.child1);
+        const E: b2TreeNode<T> = verify(B.child2);
+
+        // Swap A and B
+        B.child1 = A;
+        B.parent = A.parent;
+        A.parent = B;
+
+        // A's old parent should point to B
+        if (B.parent !== null) {
+            if (B.parent.child1 === A) {
+                B.parent.child1 = B;
+            } else {
+                // DEBUG: b2Assert(B.parent.child2 === A);
+                B.parent.child2 = B;
+            }
+        } else {
+            this.m_root = B;
+        }
+
+        // Rotate
+        if (D.height > E.height) {
+            B.child2 = D;
+            A.child1 = E;
+            E.parent = A;
+            A.aabb.Combine2(C.aabb, E.aabb);
+            B.aabb.Combine2(A.aabb, D.aabb);
+
+            A.height = 1 + b2MaxInt(C.height, E.height);
+            B.height = 1 + b2MaxInt(A.height, D.height);
+        } else {
+            B.child2 = E;
+            A.child1 = D;
+            D.parent = A;
+            A.aabb.Combine2(C.aabb, D.aabb);
+            B.aabb.Combine2(A.aabb, E.aabb);
+
+            A.height = 1 + b2MaxInt(C.height, D.height);
+            B.height = 1 + b2MaxInt(A.height, E.height);
+        }
+
+        return B;
+    }
   public GetHeight(): number {
     if (this.m_root === null) {
       return 0;
@@ -615,17 +641,13 @@ export class b2DynamicTree<T> {
   }
 
   public static ComputeHeightNode<T>(node: b2TreeNode<T> | null): number {
-    if (node === null) {
-      return 0;
-    }
-
-    if (node.IsLeaf()) {
+    if (node === null || node.IsLeaf()) {
       return 0;
     }
 
     const height1: number = b2DynamicTree.ComputeHeightNode(node.child1);
     const height2: number = b2DynamicTree.ComputeHeightNode(node.child2);
-    return 1 + b2Max(height1, height2);
+    return 1 + b2MaxInt(height1, height2);
   }
 
   public ComputeHeight(): number {
@@ -718,8 +740,8 @@ export class b2DynamicTree<T> {
 
     const child1: b2TreeNode<T> = verify(node.child1);
     const child2: b2TreeNode<T> = verify(node.child2);
-    const balance: number = b2Abs(child2.height - child1.height);
-    return b2Max(maxBalance, balance);
+    const balance: number = b2AbsInt(child2.height - child1.height);
+    return b2MaxInt(maxBalance, balance);
   }
 
   public GetMaxBalance(): number {

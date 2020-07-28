@@ -28,7 +28,7 @@ import { b2Shape, b2ShapeType } from "./b2Shape.js";
 export class b2CircleShape extends b2Shape {
   public readonly m_p: b2Vec2 = new b2Vec2();
 
-  constructor(radius: number = 0) {
+  constructor(radius: number = 0.0) {
     super(b2ShapeType.e_circleShape, radius);
   }
 

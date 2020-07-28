@@ -1,19 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2016",
+    "target": "esnext",
     "module": "esnext",
     "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "inlineSourceMap": true,
-    "rootDirs": [ ".." ],
-    "baseUrl": ".",
-    "paths": {
-      "@box2d": [ "../index.ts" ]
-    },
-    "outDir": "./dist/esm"
+    "outDir": "../dist/esm"
   },
   "include": [
     "**/*.ts"

@@ -17,11 +17,11 @@
 */
 
 // DEBUG: import { b2Assert } from "../Common/b2Settings.js";
-import { b2_maxFloat, b2_timeToSleep } from "../Common/b2Settings.js";
+import {b2_maxFloat, b2_timeToSleep } from "../Common/b2Settings.js";
 import { b2_maxTranslation, b2_maxTranslationSquared } from "../Common/b2Settings.js";
 import { b2_maxRotation, b2_maxRotationSquared } from "../Common/b2Settings.js";
 import { b2_linearSleepTolerance, b2_angularSleepTolerance } from "../Common/b2Settings.js";
-import { b2Abs, b2Min, b2Max, b2Vec2 } from "../Common/b2Math.js";
+import {b2Abs, b2Min, b2Vec2, b2MaxInt} from "../Common/b2Math.js";
 import { b2Timer } from "../Common/b2Timer.js";
 import { b2Contact } from "./Contacts/b2Contact.js";
 import { b2ContactSolver, b2ContactSolverDef } from "./Contacts/b2ContactSolver.js";
@@ -150,11 +150,11 @@ However, we can compute sin+cos of the same angle fast.
 */
 
 export class b2Island {
-  public m_listener!: b2ContactListener;
+  public m_listener = b2ContactListener.b2_defaultListener;
 
-  public readonly m_bodies: b2Body[] = [/*1024*/]; // TODO: b2Settings
-  public readonly m_contacts: b2Contact[] = [/*1024*/]; // TODO: b2Settings
-  public readonly m_joints: b2Joint[] = [/*1024*/]; // TODO: b2Settings
+  public readonly m_bodies: b2Body[] = /*1024*/[null]as unknown as b2Body[]; // TODO: b2Settings
+  public readonly m_contacts: b2Contact[] = /*1024*/[null]as unknown as b2Contact[]; // TODO: b2Settings
+  public readonly m_joints: b2Joint[] = /*1024*/[null] as unknown as b2Joint[]; // TODO: b2Settings
 
   public readonly m_positions: b2Position[] = b2Position.MakeArray(1024); // TODO: b2Settings
   public readonly m_velocities: b2Velocity[] = b2Velocity.MakeArray(1024); // TODO: b2Settings
@@ -168,9 +168,9 @@ export class b2Island {
   public m_jointCapacity: number = 0;
 
   public Initialize(bodyCapacity: number, contactCapacity: number, jointCapacity: number, listener: b2ContactListener): void {
-    this.m_bodyCapacity = bodyCapacity;
-    this.m_contactCapacity = contactCapacity;
-    this.m_jointCapacity = jointCapacity;
+    this.m_bodyCapacity = bodyCapacity|0;
+    this.m_contactCapacity = contactCapacity|0;
+    this.m_jointCapacity = jointCapacity|0;
     this.m_bodyCount = 0;
     this.m_contactCount = 0;
     this.m_jointCount = 0;
@@ -178,28 +178,28 @@ export class b2Island {
     this.m_listener = listener;
 
     // TODO:
-    // while (this.m_bodies.length < bodyCapacity) {
-    //   this.m_bodies[this.m_bodies.length] = null;
-    // }
+    while (this.m_bodies.length < bodyCapacity) {
+      this.m_bodies[this.m_bodies.length] = null as unknown as b2Body;
+    }
     // TODO:
-    // while (this.m_contacts.length < contactCapacity) {
-    //   this.m_contacts[this.m_contacts.length] = null;
-    // }
+    while (this.m_contacts.length < contactCapacity) {
+      this.m_contacts[this.m_contacts.length] = null as unknown as b2Contact;
+    }
     // TODO:
-    // while (this.m_joints.length < jointCapacity) {
-    //   this.m_joints[this.m_joints.length] = null;
-    // }
+    while (this.m_joints.length < jointCapacity) {
+      this.m_joints[this.m_joints.length] = null as unknown as b2Joint;
+    }
 
     // TODO:
     if (this.m_positions.length < bodyCapacity) {
-      const new_length = b2Max(this.m_positions.length * 2, bodyCapacity);
+      const new_length = b2MaxInt(this.m_positions.length << 1, bodyCapacity);
       while (this.m_positions.length < new_length) {
         this.m_positions[this.m_positions.length] = new b2Position();
       }
     }
     // TODO:
     if (this.m_velocities.length < bodyCapacity) {
-      const new_length = b2Max(this.m_velocities.length * 2, bodyCapacity);
+      const new_length = b2MaxInt(this.m_velocities.length << 1, bodyCapacity);
       while (this.m_velocities.length < new_length) {
         this.m_velocities[this.m_velocities.length] = new b2Velocity();
       }
@@ -236,16 +236,21 @@ export class b2Island {
   public Solve(profile: b2Profile, step: b2TimeStep, gravity: b2Vec2, allowSleep: boolean): void {
     const timer: b2Timer = b2Island.s_timer.Reset();
 
+      const bodyCount = this.m_bodyCount;
+      const m_bodies = this.m_bodies;
+      const m_positions = this.m_positions;
+      const m_velocities = this.m_velocities;
+
     const h: number = step.dt;
 
     // Integrate velocities and apply damping. Initialize the body state.
-    for (let i: number = 0; i < this.m_bodyCount; ++i) {
-      const b: b2Body = this.m_bodies[i];
+    for (let i: number = 0; i < bodyCount; ++i) {
+      const b: b2Body = m_bodies[i];
 
       // const c: b2Vec2 =
-      this.m_positions[i].c.Copy(b.m_sweep.c);
+      m_positions[i].c.Copy(b.m_sweep.c);
       const a: number = b.m_sweep.a;
-      const v: b2Vec2 = this.m_velocities[i].v.Copy(b.m_linearVelocity);
+      const v: b2Vec2 = m_velocities[i].v.Copy(b.m_linearVelocity);
       let w: number = b.m_angularVelocity;
 
       // Store positions for continuous collision.
@@ -270,9 +275,9 @@ export class b2Island {
       }
 
       // this.m_positions[i].c = c;
-      this.m_positions[i].a = a;
+      m_positions[i].a = a;
       // this.m_velocities[i].v = v;
-      this.m_velocities[i].w = w;
+      m_velocities[i].w = w;
     }
 
     timer.Reset();
@@ -298,11 +303,9 @@ export class b2Island {
       contactSolver.WarmStart();
     }
 
-    for (let i: number = 0; i < this.m_jointCount; ++i) {
-      this.m_joints[i].InitVelocityConstraints(solverData);
-    }
+    this._SolveInitJoints(solverData);
 
-    profile.solveInit = timer.GetMilliseconds();
+    profile.solveInit += timer.GetMilliseconds();
 
     // Solve velocity constraints.
     timer.Reset();
@@ -316,14 +319,14 @@ export class b2Island {
 
     // Store impulses for warm starting
     contactSolver.StoreImpulses();
-    profile.solveVelocity = timer.GetMilliseconds();
+    profile.solveVelocity += timer.GetMilliseconds();
 
     // Integrate positions.
-    for (let i: number = 0; i < this.m_bodyCount; ++i) {
-      const c: b2Vec2 = this.m_positions[i].c;
-      let a: number = this.m_positions[i].a;
-      const v: b2Vec2 = this.m_velocities[i].v;
-      let w: number = this.m_velocities[i].w;
+    for (let i: number = 0; i < bodyCount; ++i) {
+      const c: b2Vec2 = m_positions[i].c;
+      let a: number = m_positions[i].a;
+      const v: b2Vec2 = m_velocities[i].v;
+      let w: number = m_velocities[i].w;
 
       // Check for large velocities
       const translation: b2Vec2 = b2Vec2.MulSV(h, v, b2Island.s_translation);
@@ -344,74 +347,93 @@ export class b2Island {
       a += h * w;
 
       // this.m_positions[i].c = c;
-      this.m_positions[i].a = a;
+      m_positions[i].a = a;
       // this.m_velocities[i].v = v;
-      this.m_velocities[i].w = w;
+      m_velocities[i].w = w;
     }
 
     // Solve position constraints
     timer.Reset();
-    let positionSolved: boolean = false;
-    for (let i: number = 0; i < step.positionIterations; ++i) {
-      const contactsOkay: boolean = contactSolver.SolvePositionConstraints();
-
-      let jointsOkay: boolean = true;
-      for (let j: number = 0; j < this.m_jointCount; ++j) {
-        const jointOkay: boolean = this.m_joints[j].SolvePositionConstraints(solverData);
-        jointsOkay = jointsOkay && jointOkay;
-      }
-
-      if (contactsOkay && jointsOkay) {
-        // Exit early if the position errors are small.
-        positionSolved = true;
-        break;
-      }
-    }
+    const positionSolved: boolean = this._SolvePositionsConstraits(step.positionIterations, contactSolver, solverData);
 
     // Copy state buffers back to the bodies
-    for (let i: number = 0; i < this.m_bodyCount; ++i) {
-      const body: b2Body = this.m_bodies[i];
-      body.m_sweep.c.Copy(this.m_positions[i].c);
-      body.m_sweep.a = this.m_positions[i].a;
-      body.m_linearVelocity.Copy(this.m_velocities[i].v);
-      body.m_angularVelocity = this.m_velocities[i].w;
+    for (let i: number = 0; i < bodyCount; ++i) {
+      const body: b2Body = m_bodies[i];
+      body.m_sweep.c.Copy(m_positions[i].c);
+      body.m_sweep.a = m_positions[i].a;
+      body.m_linearVelocity.Copy(m_velocities[i].v);
+      body.m_angularVelocity = m_velocities[i].w;
       body.SynchronizeTransform();
     }
 
-    profile.solvePosition = timer.GetMilliseconds();
+    profile.solvePosition += timer.GetMilliseconds();
 
     this.Report(contactSolver.m_velocityConstraints);
 
     if (allowSleep) {
+        this._SolveLast(h, positionSolved);
+    }
+  }
+
+  _SolvePositionsConstraits(iterations: number, contactSolver:b2ContactSolver, solverData: b2SolverData):boolean {
+      const jointsCount = this.m_jointCount;
+      const joints = this.m_joints;
+      for (let i: number = 0; i < iterations; ++i) {
+          const contactsOkay: boolean = contactSolver.SolvePositionConstraints();
+
+          let jointsOkay: boolean = true;
+          for (let j: number = 0; j < jointsCount; ++j) {
+              const jointOkay: boolean = joints[j].SolvePositionConstraints(solverData);
+              jointsOkay = jointsOkay && jointOkay;
+          }
+
+          if (contactsOkay && jointsOkay) {
+              // Exit early if the position errors are small.
+              return true;
+          }
+      }
+      return false;
+  }
+
+  _SolveInitJoints(solverData:b2SolverData) {
+      const count = this.m_jointCount;
+      const list = this.m_joints;
+      for (let i: number = 0; i < count; ++i) {
+          list[i].InitVelocityConstraints(solverData);
+      }
+  }
+
+  _SolveLast(h:number, positionSolved:boolean) {
       let minSleepTime: number = b2_maxFloat;
 
       const linTolSqr: number = b2_linearSleepTolerance * b2_linearSleepTolerance;
       const angTolSqr: number = b2_angularSleepTolerance * b2_angularSleepTolerance;
 
       for (let i: number = 0; i < this.m_bodyCount; ++i) {
-        const b: b2Body = this.m_bodies[i];
-        if (b.GetType() === b2BodyType.b2_staticBody) {
-          continue;
-        }
+          const b: b2Body = this.m_bodies[i];
+          if (b.GetType() === b2BodyType.b2_staticBody) {
+              continue;
+          }
 
-        if (!b.m_autoSleepFlag ||
-          b.m_angularVelocity * b.m_angularVelocity > angTolSqr ||
-          b2Vec2.DotVV(b.m_linearVelocity, b.m_linearVelocity) > linTolSqr) {
-          b.m_sleepTime = 0;
-          minSleepTime = 0;
-        } else {
-          b.m_sleepTime += h;
-          minSleepTime = b2Min(minSleepTime, b.m_sleepTime);
-        }
+          if (!b.m_autoSleepFlag ||
+              b.m_angularVelocity * b.m_angularVelocity > angTolSqr ||
+              b2Vec2.DotVV(b.m_linearVelocity, b.m_linearVelocity) > linTolSqr) {
+              b.m_sleepTime = 0;
+              minSleepTime = 0;
+          } else {
+              b.m_sleepTime += h;
+              minSleepTime = b2Min(minSleepTime, b.m_sleepTime);
+          }
       }
+
 
       if (minSleepTime >= b2_timeToSleep && positionSolved) {
-        for (let i: number = 0; i < this.m_bodyCount; ++i) {
-          const b: b2Body = this.m_bodies[i];
-          b.SetAwake(false);
-        }
+          const list = this.m_bodies;
+          const count = this.m_bodyCount;
+          for (let i: number = 0; i < count; ++i) {
+              list[i].SetAwake(false);
+          }
       }
-    }
   }
 
   public SolveTOI(subStep: b2TimeStep, toiIndexA: number, toiIndexB: number): void {

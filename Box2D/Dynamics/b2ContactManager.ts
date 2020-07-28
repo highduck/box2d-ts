@@ -138,10 +138,18 @@ export class b2ContactManager {
     ++this.m_contactCount;
   }
 
+    static s_updatePairs_proxyA: b2FixtureProxy[] = [];
+    static s_updatePairs_proxyB: b2FixtureProxy[] = [];
   public FindNewContacts(): void {
-    this.m_broadPhase.UpdatePairs((proxyA: b2FixtureProxy, proxyB: b2FixtureProxy): void => {
-      this.AddPair(proxyA, proxyB);
-    });
+      const listA = b2ContactManager.s_updatePairs_proxyA;
+      const listB = b2ContactManager.s_updatePairs_proxyB;
+      listA.length = 0;
+      listB.length = 0;
+    this.m_broadPhase.UpdatePairs_(listA, listB);
+
+    for(let i = 0; i < listA.length; ++i) {
+        this.AddPair(listA[i], listB[i]);
+    }
   }
 
   public Destroy(c: b2Contact): void {

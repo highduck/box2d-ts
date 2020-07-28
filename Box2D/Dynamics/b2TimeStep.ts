@@ -16,7 +16,6 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-import { b2MakeArray } from "../Common/b2Settings.js";
 import { b2Vec2 } from "../Common/b2Math.js";
 
 /// Profiling data. Times are in milliseconds.
@@ -45,15 +44,21 @@ export class b2Profile {
 
 /// This is an internal structure.
 export class b2TimeStep {
-  public dt: number = 0; // time step
-  public inv_dt: number = 0; // inverse time step (0 if dt == 0).
-  public dtRatio: number = 0; // dt * inv_dt0
+  public dt: number = NaN; // time step
+  public inv_dt: number = NaN; // inverse time step (0 if dt == 0).
+  public dtRatio: number = NaN; // dt * inv_dt0
   public velocityIterations: number = 0;
   public positionIterations: number = 0;
   // #if B2_ENABLE_PARTICLE
   public particleIterations: number = 0;
   // #endif
   public warmStarting: boolean = false;
+
+  constructor() {
+      this.dt = 0.0;
+      this.inv_dt = 0.0;
+      this.dtRatio = 0.0;
+  }
 
   public Copy(step: b2TimeStep): b2TimeStep {
     this.dt = step.dt;
@@ -70,25 +75,41 @@ export class b2TimeStep {
 }
 
 export class b2Position {
-  public readonly c: b2Vec2 = new b2Vec2();
-  public a: number = 0;
+  readonly c = new b2Vec2();
+  a = NaN;
+
+  constructor() {
+      this.a = 0.0;
+  }
 
   public static MakeArray(length: number): b2Position[] {
-    return b2MakeArray(length, (i: number): b2Position => new b2Position());
+      const arr = [];
+      for(let i = 0; i < length; ++i) {
+          arr.push(new b2Position());
+      }
+      return arr;
   }
 }
 
 export class b2Velocity {
-  public readonly v: b2Vec2 = new b2Vec2();
-  public w: number = 0;
+  readonly v = new b2Vec2();
+  w = NaN;
+
+  constructor() {
+      this.w = 0.0;
+  }
 
   public static MakeArray(length: number): b2Velocity[] {
-    return b2MakeArray(length, (i: number): b2Velocity => new b2Velocity());
+      const arr = [];
+      for(let i = 0; i < length; ++i) {
+          arr.push(new b2Velocity());
+      }
+      return arr;
   }
 }
 
 export class b2SolverData {
   public readonly step: b2TimeStep = new b2TimeStep();
-  public positions!: b2Position[];
-  public velocities!: b2Velocity[];
+  public positions: b2Position[] = [null] as unknown as b2Position[];
+  public velocities: b2Velocity[] = [null] as unknown as b2Velocity[];
 }

@@ -29,8 +29,8 @@ import { b2Shape, b2ShapeType } from "./b2Shape.js";
 /// In most cases you should not need many vertices for a convex polygon.
 export class b2PolygonShape extends b2Shape {
   public readonly m_centroid: b2Vec2 = new b2Vec2(0, 0);
-  public m_vertices: b2Vec2[] = [];
-  public m_normals: b2Vec2[] = [];
+  public m_vertices: b2Vec2[] = [new b2Vec2()];
+  public m_normals: b2Vec2[] = [new b2Vec2()];
   public m_count: number = 0;
 
   constructor() {
@@ -197,8 +197,8 @@ export class b2PolygonShape extends b2Shape {
   /// @param angle the rotation of the box in local coordinates.
   public SetAsBox(hx: number, hy: number, center?: XY, angle: number = 0): b2PolygonShape {
     this.m_count = 4;
-    this.m_vertices = b2Vec2.MakeArray(this.m_count);
-    this.m_normals = b2Vec2.MakeArray(this.m_count);
+    this.m_vertices = b2Vec2.MakeArray(4);
+    this.m_normals = b2Vec2.MakeArray(4);
     this.m_vertices[0].Set((-hx), (-hy));
     this.m_vertices[1].Set(hx, (-hy));
     this.m_vertices[2].Set(hx, hy);

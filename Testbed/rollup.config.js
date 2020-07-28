@@ -1,5 +1,6 @@
 import typescript from "rollup-plugin-typescript2";
 
+console.log("default config");
 export default {
   input: "Testbed.ts",
   output: {

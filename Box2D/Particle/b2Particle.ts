@@ -26,7 +26,7 @@ import { b2ParticleGroup } from "./b2ParticleGroup.js";
 /**
  * The particle type. Can be combined with the | operator.
  */
-export enum b2ParticleFlag {
+export const enum b2ParticleFlag {
   /// Water particle.
   b2_waterParticle = 0,
   /// Removed after next simulation step.

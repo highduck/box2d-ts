@@ -90,7 +90,7 @@ export class b2World {
 
   // This is used to compute the time step ratio to
   // support a variable time step.
-  public m_inv_dt0: number = 0;
+  public m_inv_dt0: number = NaN;
 
   // These are for debugging the solver.
   public m_warmStarting: boolean = true;
@@ -103,7 +103,7 @@ export class b2World {
 
   public readonly m_island: b2Island = new b2Island();
 
-  public readonly s_stack: Array<b2Body | null> = [];
+  public readonly s_stack: Array<b2Body | null> = [null];
 
   // #if B2_ENABLE_CONTROLLER
   public m_controllerList: b2Controller | null = null;
@@ -113,6 +113,7 @@ export class b2World {
   /// Construct a world object.
   /// @param gravity the world gravity vector.
   constructor(gravity: XY) {
+      this.m_inv_dt0 = 0.0;
     this.m_gravity.Copy(gravity);
   }
 
@@ -1395,11 +1396,10 @@ export class b2World {
         }
       }
 
-      const profile: b2Profile = new b2Profile();
-      island.Solve(profile, step, this.m_gravity, this.m_allowSleep);
-      this.m_profile.solveInit += profile.solveInit;
-      this.m_profile.solveVelocity += profile.solveVelocity;
-      this.m_profile.solvePosition += profile.solvePosition;
+      island.Solve(this.m_profile, step, this.m_gravity, this.m_allowSleep);
+      if(this.m_allowSleep) {
+
+      }
 
       // Post solve cleanup.
       for (let i: number = 0; i < island.m_bodyCount; ++i) {
@@ -1416,26 +1416,33 @@ export class b2World {
       stack[i] = null;
     }
 
-    const timer: b2Timer = new b2Timer();
+    // TODO: static timer
+    // const timer: b2Timer = new b2Timer();
 
     // Synchronize fixtures, check for out of range bodies.
-    for (let b = this.m_bodyList; b; b = b.m_next) {
-      // If a body was not in an island then it did not move.
-      if (!b.m_islandFlag) {
-        continue;
-      }
-
-      if (b.GetType() === b2BodyType.b2_staticBody) {
-        continue;
-      }
-
-      // Update fixtures (for broad-phase).
-      b.SynchronizeFixtures();
-    }
+    this._SynchronizeFixturesCheck();
 
     // Look for new contacts.
     this.m_contactManager.FindNewContacts();
-    this.m_profile.broadphase = timer.GetMilliseconds();
+    // TODO: static timer
+    //this.m_profile.broadphase = timer.GetMilliseconds();
+  }
+
+  _SynchronizeFixturesCheck() {
+      // Synchronize fixtures, check for out of range bodies.
+      for (let b = this.m_bodyList; b; b = b.m_next) {
+          // If a body was not in an island then it did not move.
+          if (!b.m_islandFlag) {
+              continue;
+          }
+
+          if (b.GetType() === b2BodyType.b2_staticBody) {
+              continue;
+          }
+
+          // Update fixtures (for broad-phase).
+          b.SynchronizeFixtures();
+      }
   }
 
   private static SolveTOI_s_subStep = new b2TimeStep();
@@ -1446,7 +1453,7 @@ export class b2World {
   private static SolveTOI_s_toi_output = new b2TOIOutput();
   public SolveTOI(step: b2TimeStep): void {
     const island: b2Island = this.m_island;
-    island.Initialize(2 * b2_maxTOIContacts, b2_maxTOIContacts, 0, this.m_contactManager.m_contactListener);
+    island.Initialize(b2_maxTOIContacts << 1, b2_maxTOIContacts, 0, this.m_contactManager.m_contactListener);
 
     if (this.m_stepComplete) {
       for (let b: b2Body | null = this.m_bodyList; b; b = b.m_next) {
@@ -1459,7 +1466,7 @@ export class b2World {
         c.m_toiFlag = false;
         c.m_islandFlag = false;
         c.m_toiCount = 0;
-        c.m_toi = 1;
+        c.m_toi = 1.0;
       }
     }
 

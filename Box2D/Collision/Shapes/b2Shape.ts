@@ -33,7 +33,7 @@ export class b2MassData {
   public I: number = 0;
 }
 
-export enum b2ShapeType {
+export const enum b2ShapeType {
   e_unknown = -1,
   e_circleShape = 0,
   e_edgeShape = 1,
@@ -46,14 +46,15 @@ export enum b2ShapeType {
 /// Shapes used for simulation in b2World are created automatically when a b2Fixture
 /// is created. Shapes may encapsulate a one or more child shapes.
 export abstract class b2Shape {
-  public readonly m_type: b2ShapeType = b2ShapeType.e_unknown;
+    readonly m_type: b2ShapeType;
 
 	/// Radius of a shape. For polygonal shapes this must be b2_polygonRadius. There is no support for
 	/// making rounded polygons.
-  public m_radius: number = 0;
+  m_radius: number;
 
   constructor(type: b2ShapeType, radius: number) {
     this.m_type = type;
+    this.m_radius = NaN;
     this.m_radius = radius;
   }
 

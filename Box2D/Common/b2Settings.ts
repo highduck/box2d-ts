@@ -198,7 +198,7 @@ export function b2ParseUInt(v: string): number {
 }
 
 export function b2MakeArray<T>(length: number, init: (i: number) => T): T[] {
-  const a: T[] = new Array<T>(length);
+  const a: T[] = [];
   for (let i: number = 0; i < length; ++i) {
     a[i] = init(i);
   }
@@ -206,17 +206,25 @@ export function b2MakeArray<T>(length: number, init: (i: number) => T): T[] {
 }
 
 export function b2MakeNullArray<T>(length: number): Array<T | null> {
-  const a: Array<T | null> = new Array<T | null>(length);
+  const a: Array<T | null> = [null];
   for (let i: number = 0; i < length; ++i) {
     a[i] = null;
   }
   return a;
 }
 
-export function b2MakeNumberArray(length: number, init: number = 0): number[] {
-  const a: number[] = new Array<number>(length);
+export function b2MakeIntArray(length: number): number[] {
+    const a: number[] = [0];
+    for (let i: number = 0; i < length; ++i) {
+        a[i] = 0;
+    }
+    return a;
+}
+
+export function b2MakeNumberArray(length: number): number[] {
+  const a = [NaN];
   for (let i: number = 0; i < length; ++i) {
-    a[i] = init;
+    a[i] = 0.0;
   }
   return a;
 }

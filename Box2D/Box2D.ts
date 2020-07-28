@@ -59,13 +59,6 @@ export * from "./Dynamics/b2ContactManager.js";
 export * from "./Dynamics/Contacts/b2Contact.js";
 export * from "./Dynamics/Contacts/b2ContactFactory.js";
 export * from "./Dynamics/Contacts/b2ContactSolver.js";
-export * from "./Dynamics/Contacts/b2CircleContact.js";
-export * from "./Dynamics/Contacts/b2PolygonContact.js";
-export * from "./Dynamics/Contacts/b2PolygonAndCircleContact.js";
-export * from "./Dynamics/Contacts/b2EdgeAndCircleContact.js";
-export * from "./Dynamics/Contacts/b2EdgeAndPolygonContact.js";
-export * from "./Dynamics/Contacts/b2ChainAndCircleContact.js";
-export * from "./Dynamics/Contacts/b2ChainAndPolygonContact.js";
 
 export * from "./Dynamics/Joints/b2Joint.js";
 export * from "./Dynamics/Joints/b2AreaJoint.js";
