@@ -1,0 +1,45 @@
+{
+  "name": "@highduck/box2d",
+  "version": "1.0.1",
+  "description": "A TypeScript port of Box2D",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist",
+    "watch": "tsc -b -w -v tsconfig.project.json",
+
+    "build": "npm run build-testbed",
+    "build-all": "npm run build-box2d && npm run build-helloworld && npm run build-testbed",
+    "start": "http-server -c-1 -o",
+    "dist": "npm run dist-box2d && npm run dist-helloworld && npm run dist-testbed",
+    "build-box2d": "tsc -p Box2D",
+    "build-box2d-esm": "tsc -p Box2D/tsconfig.esm.json",
+    "watch-box2d": "tsc -p Box2D --watch",
+    "watch-box2d-esm": "tsc -p Box2D/tsconfig.esm.json --watch",
+    "dist-box2d": "(cd Box2D && rollup -c)",
+    "build-helloworld": "tsc -p HelloWorld",
+    "watch-helloworld": "tsc -p HelloWorld --watch",
+    "dist-helloworld": "(cd HelloWorld && rollup -c)",
+    "build-testbed": "tsc -p Testbed",
+    "watch-testbed": "tsc -p Testbed --watch",
+    "dist-testbed": "(cd Testbed && rollup -c)",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flyover/box2d.ts.git"
+  },
+  "author": "Isaac Burns <isaacburns@gmail.com>",
+  "license": "Zlib",
+  "bugs": {
+    "url": "https://github.com/flyover/box2d.ts/issues"
+  },
+  "homepage": "https://github.com/flyover/box2d.ts#readme",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "^3.9.6",
+    "rimraf": "^3.0.2"
+  }
+}

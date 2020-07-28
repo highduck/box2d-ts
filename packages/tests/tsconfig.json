@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "inlineSourceMap": true,
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@highduck/box2d-testbed": [
+        "../testbed/src/index.ts"
+      ]
+    },
+    "outDir": "./dist/esm"
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
+}

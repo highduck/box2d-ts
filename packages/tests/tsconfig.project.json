@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "inlineSourceMap": true,
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "outDir": "./dist/esm"
+  },
+  "references": [
+    {
+      "path": "../testbed/tsconfig.project.json"
+    }
+  ],
+  "include": [
+    "./src/**/*.ts"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@highduck/box2d-tests",
+  "private": true,
+  "version": "1.0.1",
+  "description": "Hello World application for Box2D",
+  "main": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist",
+    "watch": "tsc -b -w -v tsconfig.project.json",
+    "rollup": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flyover/box2d.ts.git"
+  },
+  "author": "Isaac Burns <isaacburns@gmail.com>",
+  "license": "Zlib",
+  "bugs": {
+    "url": "https://github.com/flyover/box2d.ts/issues"
+  },
+  "homepage": "https://github.com/flyover/box2d.ts#readme",
+  "dependencies": {
+    "@highduck/box2d-testbed": "1.0.1",
+    "@highduck/box2d": "1.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.6",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.23.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-babel": "^5.1.0",
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "core-js": "^3.6.5"
+  }
+}
