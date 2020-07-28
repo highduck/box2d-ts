@@ -1,3 +1,17 @@
+- Project Struxture remade to monorepo
+- yarn
+- TS projects and root solution
+- TS -> ESM -> ROLLUP to anything
+
+Code style changes:
+- [ ] make it simple (declarations)
+- [x] no namespaces
+- [ ] remove prefixes
+- [ ] remove simple get/set methods
+- [x] remove `.js` from all imports
+- [ ] 
+
+some of optimizations:
 - [x] add `b2Body::SetLinearVelocityXY(x, y)`
 - [x] remove TypedArray and custom constructors from: `b2Vec2`, `b2Vec3`, `b2Mat22`, `b2Mat33`, `b2Color`
 - [x] remove `subarray` allocations from set buffer functions in `b2ParticleSystem`

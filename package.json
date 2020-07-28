@@ -1,13 +1,8 @@
 {
   "scripts": {
     "upgrade": "yarn upgrade-interactive",
-    "all:build": "yarn workspaces foreach --topological-dev -p -v run build",
-    "all:ci": "yarn workspaces foreach --topological-dev -p -v run ci",
-    "all:clean": "yarn workspaces foreach -p -v run clean && run clean:ts",
-    "clean:ts": "rimraf packages/**/*.tsbuildinfo",
-    "rebuild-solution": "run clean:ts && tsc -b -v tsconfig.solution.json",
-    "watch-solution": "run clean:ts && tsc -b -w -v tsconfig.solution.json",
-    "clean-tjs": "rimraf packages/*/src/**/*.js"
+    "clean-ts-build-info": "rimraf packages/**/*.tsbuildinfo",
+    "watch-solution": "yarn clean-ts-build-info && tsc -b -w -v tsconfig.solution.json"
   },
   "private": true,
   "workspaces": [

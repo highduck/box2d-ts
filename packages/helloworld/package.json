@@ -8,7 +8,8 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf dist",
-    "watch": "tsc -b -w -v tsconfig.project.json"
+    "watch": "tsc -b -w -v tsconfig.project.json",
+    "rollup": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,13 @@
   },
   "devDependencies": {
     "typescript": "^3.9.6",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "rollup": "^2.23.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-babel": "^5.1.0",
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "core-js": "^3.6.5"
   }
 }

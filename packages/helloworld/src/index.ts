@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
+* Copyright (c) 2006-2007 Erin Catto http://www.org
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -16,87 +16,83 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-import * as box2d from "@highduck/box2d";
-
 // This is a simple example of building and running a simulation
-// using Box2D. Here we create a large ground box and a small dynamic
+// using  Here we create a large ground box and a small dynamic
 // box.
 // There are no graphics for this example. Box2D is meant to be used
 // with your rendering engine in your game engine.
-export function main(): number {
-  // Define the gravity vector.
-  const gravity: box2d.b2Vec2 = new box2d.b2Vec2(0, -10);
+import {b2BodyDef, b2BodyType, b2FixtureDef, b2PolygonShape, b2Vec2, b2World} from "@highduck/box2d";
 
-  // Construct a world object, which will hold and simulate the rigid bodies.
-  const world: box2d.b2World = new box2d.b2World(gravity);
+// Define the gravity vector.
+const gravity = new b2Vec2(0, -10);
 
-  // Define the ground body.
-  const groundBodyDef: box2d.b2BodyDef = new box2d.b2BodyDef();
-  groundBodyDef.position.Set(0, -10);
+// Construct a world object, which will hold and simulate the rigid bodies.
+const world = new b2World(gravity);
 
-  // Call the body factory which allocates memory for the ground body
-  // from a pool and creates the ground box shape (also from a pool).
-  // The body is also added to the world.
-  const groundBody: box2d.b2Body = world.CreateBody(groundBodyDef);
+// Define the ground body.
+const groundBodyDef = new b2BodyDef();
+groundBodyDef.position.Set(0, -10);
 
-  // Define the ground box shape.
-  const groundBox: box2d.b2PolygonShape = new box2d.b2PolygonShape();
+// Call the body factory which allocates memory for the ground body
+// from a pool and creates the ground box shape (also from a pool).
+// The body is also added to the world.
+const groundBody = world.CreateBody(groundBodyDef);
 
-  // The extents are the half-widths of the box.
-  groundBox.SetAsBox(50, 10);
+// Define the ground box shape.
+const groundBox = new b2PolygonShape();
 
-  // Add the ground fixture to the ground body.
-  groundBody.CreateFixture(groundBox, 0);
+// The extents are the half-widths of the box.
+groundBox.SetAsBox(50, 10);
 
-  // Define the dynamic body. We set its position and call the body factory.
-  const bodyDef: box2d.b2BodyDef = new box2d.b2BodyDef();
-  bodyDef.type = box2d.b2BodyType.b2_dynamicBody;
-  bodyDef.position.Set(0, 4);
-  const body: box2d.b2Body = world.CreateBody(bodyDef);
+// Add the ground fixture to the ground body.
+groundBody.CreateFixture(groundBox, 0);
 
-  // Define another box shape for our dynamic body.
-  const dynamicBox: box2d.b2PolygonShape = new box2d.b2PolygonShape();
-  dynamicBox.SetAsBox(1, 1);
+// Define the dynamic body. We set its position and call the body factory.
+const bodyDef = new b2BodyDef();
+bodyDef.type = b2BodyType.b2_dynamicBody;
+bodyDef.position.Set(0, 4);
+const body = world.CreateBody(bodyDef);
 
-  // Define the dynamic body fixture.
-  const fixtureDef: box2d.b2FixtureDef = new box2d.b2FixtureDef();
-  fixtureDef.shape = dynamicBox;
+// Define another box shape for our dynamic body.
+const dynamicBox = new b2PolygonShape();
+dynamicBox.SetAsBox(1, 1);
 
-  // Set the box density to be non-zero, so it will be dynamic.
-  fixtureDef.density = 1;
+// Define the dynamic body fixture.
+const fixtureDef = new b2FixtureDef();
+fixtureDef.shape = dynamicBox;
 
-  // Override the default friction.
-  fixtureDef.friction = 0.3;
+// Set the box density to be non-zero, so it will be dynamic.
+fixtureDef.density = 1;
 
-  // Add the shape to the body.
-  const fixture: box2d.b2Fixture = body.CreateFixture(fixtureDef);
+// Override the default friction.
+fixtureDef.friction = 0.3;
 
-  // Prepare for simulation. Typically we use a time step of 1/60 of a
-  // second (60Hz) and 10 iterations. This provides a high quality simulation
-  // in most game scenarios.
-  const timeStep: number = 1 / 60;
-  const velocityIterations: number = 6;
-  const positionIterations: number = 2;
+// Add the shape to the body.
+const fixture = body.CreateFixture(fixtureDef);
 
-  // This is our little game loop.
-  for (let i: number = 0; i < 60; ++i) {
+// Prepare for simulation. Typically we use a time step of 1/60 of a
+// second (60Hz) and 10 iterations. This provides a high quality simulation
+// in most game scenarios.
+const timeStep = 1 / 60;
+const velocityIterations = 6;
+const positionIterations = 2;
+
+// This is our little game loop.
+for (let i = 0; i < 60; ++i) {
     // Instruct the world to perform a single step of simulation.
     // It is generally best to keep the time step and iterations fixed.
     world.Step(timeStep, velocityIterations, positionIterations);
 
     // Now print the position and angle of the body.
-    const position: box2d.b2Vec2 = body.GetPosition();
-    const angle: number = body.GetAngle();
+    const position = body.GetPosition();
+    const angle = body.GetAngle();
 
     console.log(position.x.toFixed(2), position.y.toFixed(2), angle.toFixed(2));
-  }
-
-  // When the world destructor is called, all bodies and joints are freed. This can
-  // create orphaned pointers, so be careful about your world management.
-
-  body.DestroyFixture(fixture);
-
-  world.DestroyBody(body);
-
-  return 0;
 }
+
+// When the world destructor is called, all bodies and joints are freed. This can
+// create orphaned pointers, so be careful about your world management.
+
+body.DestroyFixture(fixture);
+
+world.DestroyBody(body);

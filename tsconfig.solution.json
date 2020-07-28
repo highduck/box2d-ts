@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "packages/testbed/tsconfig.project.json"
+    },
+    {
+      "path": "packages/box2d/tsconfig.project.json"
+    },
+    {
+      "path": "packages/helloworld/tsconfig.project.json"
+    },
+    {
+      "path": "packages/tests/tsconfig.project.json"
+    }
+  ],
+  "files": []
+}

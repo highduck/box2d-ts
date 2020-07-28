@@ -1,2 +1,6 @@
-/node_modules/
+node_modules/
+dist/
+.idea/
 package-lock.json
+yarn.lock
+yarn-error.log

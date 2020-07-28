@@ -25,68 +25,68 @@
 
 // These include files constitute the main Box2D API
 
-export * from "./Common/b2Settings.js";
-export * from "./Common/b2Math.js";
-export * from "./Common/b2Draw.js";
-export * from "./Common/b2Timer.js";
-export * from "./Common/b2GrowableStack.js";
-export * from "./Common/b2BlockAllocator.js";
-export * from "./Common/b2StackAllocator.js";
+export * from "./common/b2Settings";
+export * from "./common/b2Math";
+export * from "./common/b2Draw";
+export * from "./common/b2Timer";
+export * from "./common/b2GrowableStack";
+export * from "./common/b2BlockAllocator";
+export * from "./common/b2StackAllocator";
 
-export * from "./Collision/b2Collision.js";
-export * from "./Collision/b2Distance.js";
-export * from "./Collision/b2BroadPhase.js";
-export * from "./Collision/b2DynamicTree.js";
-export * from "./Collision/b2TimeOfImpact.js";
-export * from "./Collision/b2CollideCircle.js";
-export * from "./Collision/b2CollidePolygon.js";
-export * from "./Collision/b2CollideEdge.js";
+export * from "./collision/b2Collision";
+export * from "./collision/b2Distance";
+export * from "./collision/b2BroadPhase";
+export * from "./collision/b2DynamicTree";
+export * from "./collision/b2TimeOfImpact";
+export * from "./collision/b2CollideCircle";
+export * from "./collision/b2CollidePolygon";
+export * from "./collision/b2CollideEdge";
 
-export * from "./Collision/Shapes/b2Shape.js";
-export * from "./Collision/Shapes/b2CircleShape.js";
-export * from "./Collision/Shapes/b2PolygonShape.js";
-export * from "./Collision/Shapes/b2EdgeShape.js";
-export * from "./Collision/Shapes/b2ChainShape.js";
+export * from "./collision/shapes/b2Shape";
+export * from "./collision/shapes/b2CircleShape";
+export * from "./collision/shapes/b2PolygonShape";
+export * from "./collision/shapes/b2EdgeShape";
+export * from "./collision/shapes/b2ChainShape";
 
-export * from "./Dynamics/b2Fixture.js";
-export * from "./Dynamics/b2Body.js";
-export * from "./Dynamics/b2World.js";
-export * from "./Dynamics/b2WorldCallbacks.js";
-export * from "./Dynamics/b2Island.js";
-export * from "./Dynamics/b2TimeStep.js";
-export * from "./Dynamics/b2ContactManager.js";
+export * from "./dynamics/b2Fixture";
+export * from "./dynamics/b2Body";
+export * from "./dynamics/b2World";
+export * from "./dynamics/b2WorldCallbacks";
+export * from "./dynamics/b2Island";
+export * from "./dynamics/b2TimeStep";
+export * from "./dynamics/b2ContactManager";
 
-export * from "./Dynamics/Contacts/b2Contact.js";
-export * from "./Dynamics/Contacts/b2ContactFactory.js";
-export * from "./Dynamics/Contacts/b2ContactSolver.js";
+export * from "./dynamics/contacts/b2Contact";
+export * from "./dynamics/contacts/b2ContactFactory";
+export * from "./dynamics/contacts/b2ContactSolver";
 
-export * from "./Dynamics/Joints/b2Joint.js";
-export * from "./Dynamics/Joints/b2AreaJoint.js";
-export * from "./Dynamics/Joints/b2DistanceJoint.js";
-export * from "./Dynamics/Joints/b2FrictionJoint.js";
-export * from "./Dynamics/Joints/b2GearJoint.js";
-export * from "./Dynamics/Joints/b2MotorJoint.js";
-export * from "./Dynamics/Joints/b2MouseJoint.js";
-export * from "./Dynamics/Joints/b2PrismaticJoint.js";
-export * from "./Dynamics/Joints/b2PulleyJoint.js";
-export * from "./Dynamics/Joints/b2RevoluteJoint.js";
-export * from "./Dynamics/Joints/b2RopeJoint.js";
-export * from "./Dynamics/Joints/b2WeldJoint.js";
-export * from "./Dynamics/Joints/b2WheelJoint.js";
+export * from "./dynamics/joints/b2Joint";
+export * from "./dynamics/joints/b2AreaJoint";
+export * from "./dynamics/joints/b2DistanceJoint";
+export * from "./dynamics/joints/b2FrictionJoint";
+export * from "./dynamics/joints/b2GearJoint";
+export * from "./dynamics/joints/b2MotorJoint";
+export * from "./dynamics/joints/b2MouseJoint";
+export * from "./dynamics/joints/b2PrismaticJoint";
+export * from "./dynamics/joints/b2PulleyJoint";
+export * from "./dynamics/joints/b2RevoluteJoint";
+export * from "./dynamics/joints/b2RopeJoint";
+export * from "./dynamics/joints/b2WeldJoint";
+export * from "./dynamics/joints/b2WheelJoint";
 
 // #if B2_ENABLE_CONTROLLER
-export * from "./Controllers/b2Controller.js";
-export * from "./Controllers/b2BuoyancyController.js";
-export * from "./Controllers/b2ConstantAccelController.js";
-export * from "./Controllers/b2ConstantForceController.js";
-export * from "./Controllers/b2GravityController.js";
-export * from "./Controllers/b2TensorDampingController.js";
+export * from "./controllers/b2Controller";
+export * from "./controllers/b2BuoyancyController";
+export * from "./controllers/b2ConstantAccelController";
+export * from "./controllers/b2ConstantForceController";
+export * from "./controllers/b2GravityController";
+export * from "./controllers/b2TensorDampingController";
 // #endif
 
 // #if B2_ENABLE_PARTICLE
-export * from "./Particle/b2Particle.js";
-export * from "./Particle/b2ParticleGroup.js";
-export * from "./Particle/b2ParticleSystem.js";
+export * from "./particle/b2Particle";
+export * from "./particle/b2ParticleGroup";
+export * from "./particle/b2ParticleSystem";
 // #endif
 
-export * from "./Rope/b2Rope.js";
+export * from "./rope/b2Rope";
