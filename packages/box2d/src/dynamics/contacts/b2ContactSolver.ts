@@ -16,7 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
+
 import {
     b2_baumgarte,
     b2_linearSlop,
@@ -24,6 +24,7 @@ import {
     b2_maxManifoldPoints,
     b2_toiBaumgarte,
     b2_velocityThreshold,
+    b2Assert,
     b2MakeArray
 } from "../../common/b2Settings";
 import {b2Clamp, b2Mat22, b2Max, b2MaxInt, b2Min, b2Rot, b2Transform, b2Vec2} from "../../common/b2Math";
@@ -149,7 +150,7 @@ export class b2PositionSolverManifold {
         const planePoint: b2Vec2 = b2PositionSolverManifold.Initialize_s_planePoint;
         const clipPoint: b2Vec2 = b2PositionSolverManifold.Initialize_s_clipPoint;
 
-        // DEBUG: b2Assert(pc.pointCount > 0);
+        !!B2_DEBUG && b2Assert(pc.pointCount > 0);
 
         if (pc.type === b2ManifoldType.e_circles) {
             // b2Vec2 pointA = b2Mul(xfA, pc->localPoint);
@@ -244,7 +245,7 @@ export class b2ContactSolver {
             const manifold: b2Manifold = contact.GetManifold();
 
             const pointCount: number = manifold.pointCount;
-            // DEBUG: b2Assert(pointCount > 0);
+            !!B2_DEBUG && b2Assert(pointCount > 0);
 
             const vc: b2ContactVelocityConstraint = this.m_velocityConstraints[i];
             vc.friction = contact.m_friction;
@@ -305,11 +306,11 @@ export class b2ContactSolver {
     private static InitializeVelocityConstraints_s_worldManifold = new b2WorldManifold();
 
     InitializeVelocityConstraints(): void {
-        const xfA: b2Transform = b2ContactSolver.InitializeVelocityConstraints_s_xfA;
-        const xfB: b2Transform = b2ContactSolver.InitializeVelocityConstraints_s_xfB;
-        const worldManifold: b2WorldManifold = b2ContactSolver.InitializeVelocityConstraints_s_worldManifold;
+        const xfA = b2ContactSolver.InitializeVelocityConstraints_s_xfA;
+        const xfB = b2ContactSolver.InitializeVelocityConstraints_s_xfB;
+        const worldManifold = b2ContactSolver.InitializeVelocityConstraints_s_worldManifold;
 
-        const k_maxConditionNumber: number = 1000.0;
+        const k_maxConditionNumber = 1000.0;
 
         for (let i = 0; i < this.m_count; ++i) {
             const vc: b2ContactVelocityConstraint = this.m_velocityConstraints[i];
@@ -339,7 +340,7 @@ export class b2ContactSolver {
             const vB: b2Vec2 = this.m_velocities[indexB].v;
             const wB: number = this.m_velocities[indexB].w;
 
-            // DEBUG: b2Assert(manifold.pointCount > 0);
+            !!B2_DEBUG && b2Assert(manifold.pointCount > 0);
 
             xfA.q.SetAngle(aA);
             xfB.q.SetAngle(aB);
@@ -518,7 +519,7 @@ export class b2ContactSolver {
             const tangent: b2Vec2 = vc.tangent; // precomputed from normal
             const friction: number = vc.friction;
 
-            // DEBUG: b2Assert(pointCount === 1 || pointCount === 2);
+            !!B2_DEBUG && b2Assert(pointCount === 1 || pointCount === 2);
 
             // Solve tangent constraints first because non-penetration is more important
             // than friction.
@@ -633,7 +634,7 @@ export class b2ContactSolver {
 
                 // b2Vec2 a(cp1->normalImpulse, cp2->normalImpulse);
                 a.Set(cp1.normalImpulse, cp2.normalImpulse);
-                // DEBUG: b2Assert(a.x >= 0 && a.y >= 0);
+                !!B2_DEBUG && b2Assert(a.x >= 0 && a.y >= 0);
 
                 // Relative velocity at contact
                 // b2Vec2 dv1 = vB + b2Cross(wB, cp1->rB) - vA - b2Cross(wA, cp1->rA);

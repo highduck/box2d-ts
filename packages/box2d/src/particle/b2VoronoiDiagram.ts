@@ -16,10 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// #if B2_ENABLE_PARTICLE
-
-// DEBUG: import { b2Assert } from "../common/b2Settings";
-import {b2_maxFloat, b2MakeArray} from "../common/b2Settings";
+import {b2_maxFloat, b2Assert, b2MakeArray} from "../common/b2Settings";
 import {b2Vec2} from "../common/b2Math";
 import {b2StackQueue} from "./b2StackQueue";
 
@@ -47,7 +44,7 @@ export class b2VoronoiDiagram {
      * @param necessary whether to callback for nodes associated with the generator.
      */
     AddGenerator(center: b2Vec2, tag: number, necessary: boolean): void {
-        // DEBUG: b2Assert(this.m_generatorCount < this.m_generatorCapacity);
+        !!B2_DEBUG && b2Assert(this.m_generatorCount < this.m_generatorCapacity);
         const g = this.m_generatorBuffer[this.m_generatorCount++];
         g.center.Copy(center);
         g.tag = tag;
@@ -216,15 +213,15 @@ export class b2VoronoiDiagram {
 export type b2VoronoiDiagram_NodeCallback = (a: number, b: number, c: number) => void;
 
 export class b2VoronoiDiagram_Generator {
-    center: b2Vec2 = new b2Vec2();
-    tag: number = 0;
-    necessary: boolean = false;
+    center = new b2Vec2();
+    tag = 0;
+    necessary = false;
 }
 
 export class b2VoronoiDiagram_Task {
-    m_x: number;
-    m_y: number;
-    m_i: number;
+    m_x: number; // int
+    m_y: number; // int
+    m_i: number; // int
     m_generator: b2VoronoiDiagram_Generator;
 
     constructor(x: number, y: number, i: number, g: b2VoronoiDiagram_Generator) {
@@ -234,5 +231,3 @@ export class b2VoronoiDiagram_Task {
         this.m_generator = g;
     }
 }
-
-// #endif

@@ -16,9 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// #if B2_ENABLE_PARTICLE
-
-// DEBUG: import { b2Assert } from "../common/b2Settings";
+import { b2Assert } from "../common/b2Settings";
 import {b2Transform, b2Vec2, XY} from "../common/b2Math";
 import {b2Color, RGBA} from "../common/b2Draw";
 import {b2Shape} from "../collision/shapes/b2Shape";
@@ -26,6 +24,8 @@ import {b2ParticleFlag} from "./b2Particle";
 import {b2ParticleSystem} from "./b2ParticleSystem";
 
 export const enum b2ParticleGroupFlag {
+    none = 0,
+
     /// Prevents overlapping or leaking.
     b2_solidParticleGroup = 1 << 0,
     /// Keeps its shape.
@@ -139,7 +139,7 @@ export class b2ParticleGroup {
     }
 
     SetGroupFlags(flags: number): void {
-        // DEBUG: b2Assert((flags & b2ParticleGroupFlag.b2_particleGroupInternalMask) === 0);
+        !!B2_DEBUG && b2Assert((flags & b2ParticleGroupFlag.b2_particleGroupInternalMask) === 0);
         flags |= this.m_groupFlags & b2ParticleGroupFlag.b2_particleGroupInternalMask;
         this.m_system.SetGroupFlags(this, flags);
     }
@@ -262,5 +262,3 @@ export class b2ParticleGroup {
         }
     }
 }
-
-// #endif

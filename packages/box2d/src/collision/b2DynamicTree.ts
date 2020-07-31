@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../common/b2Settings";
-import {b2_aabbExtension, b2_aabbMultiplier} from "../common/b2Settings";
+import {b2_aabbExtension, b2_aabbMultiplier, b2Assert} from "../common/b2Settings";
 import {b2Abs, b2AbsInt, b2Max, b2MaxInt, b2Min, b2Vec2, XY} from "../common/b2Math";
 import {b2GrowableStack} from "../common/b2GrowableStack";
 import {b2AABB, b2RayCastInput, b2TestOverlapAABB} from "./b2Collision";
@@ -86,12 +85,12 @@ export class b2DynamicTree<T> {
     static readonly s_aabb = new b2AABB();
 
     // GetUserData(node: b2TreeNode<T>): T {
-    //   // DEBUG: b2Assert(node !== null);
+    //   !!B2_DEBUG && b2Assert(node !== null);
     //   return node.userData;
     // }
 
     // GetFatAABB(node: b2TreeNode<T>): b2AABB {
-    //   // DEBUG: b2Assert(node !== null);
+    //   !!B2_DEBUG && b2Assert(node !== null);
     //   return node.aabb;
     // }
 
@@ -107,7 +106,7 @@ export class b2DynamicTree<T> {
 
             if (node.aabb.TestOverlap(aabb)) {
                 if (node.IsLeaf()) {
-                    const proceed: boolean = callback(node);
+                    const proceed = callback(node);
                     if (!proceed) {
                         return;
                     }
@@ -131,7 +130,7 @@ export class b2DynamicTree<T> {
 
             if (node.aabb.TestOverlap(aabb)) {
                 if (node.IsLeaf()) {
-                    out[out.length] = node;
+                    out.push(node);
                 } else {
                     stack.Push(node.child1);
                     stack.Push(node.child2);
@@ -152,7 +151,7 @@ export class b2DynamicTree<T> {
 
             if (node.aabb.TestContain(point)) {
                 if (node.IsLeaf()) {
-                    const proceed: boolean = callback(node);
+                    const proceed = callback(node);
                     if (!proceed) {
                         return;
                     }
@@ -168,7 +167,7 @@ export class b2DynamicTree<T> {
         const p1: b2Vec2 = input.p1;
         const p2: b2Vec2 = input.p2;
         const r: b2Vec2 = b2Vec2.SubVV(p2, p1, b2DynamicTree.s_r);
-        // DEBUG: b2Assert(r.LengthSquared() > 0);
+        !!B2_DEBUG && b2Assert(r.LengthSquared() > 0);
         r.Normalize();
 
         // v is perpendicular to the segment.
@@ -286,14 +285,14 @@ export class b2DynamicTree<T> {
     }
 
     DestroyProxy(node: b2TreeNode<T>): void {
-        // DEBUG: b2Assert(node.IsLeaf());
+        !!B2_DEBUG && b2Assert(node.IsLeaf());
 
         this.RemoveLeaf(node);
         this.FreeNode(node);
     }
 
     MoveProxy(node: b2TreeNode<T>, aabb: b2AABB, displacement: b2Vec2): boolean {
-        // DEBUG: b2Assert(node.IsLeaf());
+        !!B2_DEBUG && b2Assert(node.IsLeaf());
 
         if (node.aabb.Contains(aabb)) {
             return false;
@@ -485,7 +484,7 @@ export class b2DynamicTree<T> {
     }
 
     Balance(A: b2TreeNode<T>): b2TreeNode<T> {
-        // DEBUG: b2Assert(A !== null);
+        !!B2_DEBUG && b2Assert(A !== null);
 
         if (A.IsLeaf() || A.height < 2) {
             return A;
@@ -523,7 +522,7 @@ export class b2DynamicTree<T> {
             if (C.parent.child1 === A) {
                 C.parent.child1 = C;
             } else {
-                // DEBUG: b2Assert(C.parent.child2 === A);
+                !!B2_DEBUG && b2Assert(C.parent.child2 === A);
                 C.parent.child2 = C;
             }
         } else {
@@ -568,7 +567,7 @@ export class b2DynamicTree<T> {
             if (B.parent.child1 === A) {
                 B.parent.child1 = B;
             } else {
-                // DEBUG: b2Assert(B.parent.child2 === A);
+                !!B2_DEBUG && b2Assert(B.parent.child2 === A);
                 B.parent.child2 = B;
             }
         } else {
@@ -669,21 +668,26 @@ export class b2DynamicTree<T> {
         }
 
         if (node === this.m_root) {
-            // DEBUG: b2Assert(node.parent === null);
+            !!B2_DEBUG && b2Assert(node.parent === null);
         }
 
         if (node.IsLeaf()) {
-            // DEBUG: b2Assert(node.child1 === null);
-            // DEBUG: b2Assert(node.child2 === null);
-            // DEBUG: b2Assert(node.height === 0);
+            if (!!B2_DEBUG) {
+                b2Assert(node.child1 === null);
+                b2Assert(node.child2 === null);
+                b2Assert(node.height === 0);
+            }
             return;
         }
 
         const child1: b2TreeNode<T> = verify(node.child1);
         const child2: b2TreeNode<T> = verify(node.child2);
 
-        // DEBUG: b2Assert(child1.parent === index);
-        // DEBUG: b2Assert(child2.parent === index);
+        if (!!B2_DEBUG) {
+            // TODO: index
+            // b2Assert(child1.parent === index);
+            // b2Assert(child2.parent === index);
+        }
 
         this.ValidateStructure(child1);
         this.ValidateStructure(child2);
@@ -695,33 +699,39 @@ export class b2DynamicTree<T> {
         }
 
         if (node.IsLeaf()) {
-            // DEBUG: b2Assert(node.child1 === null);
-            // DEBUG: b2Assert(node.child2 === null);
-            // DEBUG: b2Assert(node.height === 0);
+            if (!!B2_DEBUG) {
+                b2Assert(node.child1 === null);
+                b2Assert(node.child2 === null);
+                b2Assert(node.height === 0);
+            }
             return;
         }
 
         const child1: b2TreeNode<T> = verify(node.child1);
         const child2: b2TreeNode<T> = verify(node.child2);
 
-        // DEBUG: const height1: number = child1.height;
-        // DEBUG: const height2: number = child2.height;
-        // DEBUG: const height: number = 1 + b2Max(height1, height2);
-        // DEBUG: b2Assert(node.height === height);
+        if (!!B2_DEBUG) {
+            const height1 = child1.height;
+            const height2 = child2.height;
+            const height = 1 + b2MaxInt(height1, height2);
+            b2Assert(node.height === height);
+        }
 
         const aabb: b2AABB = b2DynamicTree.s_aabb;
         aabb.Combine2(child1.aabb, child2.aabb);
 
-        // DEBUG: b2Assert(aabb.lowerBound === node.aabb.lowerBound);
-        // DEBUG: b2Assert(aabb.upperBound === node.aabb.upperBound);
+        if (!!B2_DEBUG) {
+            b2Assert(aabb.lowerBound === node.aabb.lowerBound);
+            b2Assert(aabb.upperBound === node.aabb.upperBound);
+        }
 
         this.ValidateMetrics(child1);
         this.ValidateMetrics(child2);
     }
 
     Validate(): void {
-        // DEBUG: this.ValidateStructure(this.m_root);
-        // DEBUG: this.ValidateMetrics(this.m_root);
+        !!B2_DEBUG && this.ValidateStructure(this.m_root);
+        !!B2_DEBUG && this.ValidateMetrics(this.m_root);
 
         // let freeCount: number = 0;
         // let freeIndex: b2TreeNode<T> | null = this.m_freeList;
@@ -730,7 +740,7 @@ export class b2DynamicTree<T> {
         //   ++freeCount;
         // }
 
-        // DEBUG: b2Assert(this.GetHeight() === this.ComputeHeight());
+        !!B2_DEBUG && b2Assert(this.GetHeight() === this.ComputeHeight());
 
         // b2Assert(this.m_nodeCount + freeCount === this.m_nodeCapacity);
     }
@@ -744,7 +754,7 @@ export class b2DynamicTree<T> {
             return maxBalance;
         }
 
-        // DEBUG: b2Assert(!node.IsLeaf());
+        !!B2_DEBUG && b2Assert(!node.IsLeaf());
 
         const child1: b2TreeNode<T> = verify(node.child1);
         const child2: b2TreeNode<T> = verify(node.child2);
@@ -852,7 +862,7 @@ export class b2DynamicTree<T> {
             return;
         }
 
-        // DEBUG: b2Assert(!node.IsLeaf());
+        !!B2_DEBUG && b2Assert(!node.IsLeaf());
 
         const child1: b2TreeNode<T> | null = node.child1;
         const child2: b2TreeNode<T> | null = node.child2;

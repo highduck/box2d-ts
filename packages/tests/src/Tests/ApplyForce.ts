@@ -110,7 +110,7 @@ export class ApplyForce extends Test {
       /*b2FixtureDef*/
       const sd2 = new b2FixtureDef();
       sd2.shape = poly2;
-      sd2.density = 2.0;
+      sd2.density = 4.0;
 
       /*b2BodyDef*/
       const bd = new b2BodyDef();

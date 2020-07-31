@@ -16,12 +16,15 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
-import {b2_epsilon, b2_pi} from "../../common/b2Settings";
+
+import {b2_epsilon, b2_pi, b2Assert} from "../../common/b2Settings";
 import {b2Asin, b2Pow, b2Sq, b2Sqrt, b2Transform, b2Vec2, XY} from "../../common/b2Math";
 import {b2AABB, b2RayCastInput, b2RayCastOutput} from "../b2Collision";
 import {b2DistanceProxy} from "../b2Distance";
 import {b2MassData, b2Shape, b2ShapeType} from "./b2Shape";
+
+/// @see b2Shape::ComputeDistance
+const ComputeDistance_s_center = new b2Vec2();
 
 /// A circle shape.
 export class b2CircleShape extends b2Shape {
@@ -45,7 +48,7 @@ export class b2CircleShape extends b2Shape {
     Copy(other: b2CircleShape): b2CircleShape {
         super.Copy(other);
 
-        // DEBUG: b2Assert(other instanceof b2CircleShape);
+        !!B2_DEBUG && b2Assert(other instanceof b2CircleShape);
 
         this.m_p.Copy(other.m_p);
         return this;
@@ -66,17 +69,16 @@ export class b2CircleShape extends b2Shape {
         return b2Vec2.DotVV(d, d) <= b2Sq(this.m_radius);
     }
 
-    // #if B2_ENABLE_PARTICLE
-    /// @see b2Shape::ComputeDistance
-    private static ComputeDistance_s_center = new b2Vec2();
-
     ComputeDistance(xf: b2Transform, p: b2Vec2, normal: b2Vec2, childIndex: number): number {
-        const center = b2Transform.MulXV(xf, this.m_p, b2CircleShape.ComputeDistance_s_center);
-        b2Vec2.SubVV(p, center, normal);
-        return normal.Normalize() - this.m_radius;
+        if(B2_ENABLE_PARTICLE) {
+            const center = b2Transform.MulXV(xf, this.m_p, ComputeDistance_s_center);
+            b2Vec2.SubVV(p, center, normal);
+            return normal.Normalize() - this.m_radius;
+        }
+        else {
+            return 0.0;
+        }
     }
-
-    // #endif
 
     /// Implement b2Shape.
     // Collision Detection in Interactive 3D Environments by Gino van den Bergen
@@ -167,11 +169,5 @@ export class b2CircleShape extends b2Shape {
         c.y = p.y + normal.y * com;
 
         return area;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        log("    const shape: b2CircleShape = new b2CircleShape();\n");
-        log("    shape.m_radius = %.15f;\n", this.m_radius);
-        log("    shape.m_p.Set(%.15f, %.15f);\n", this.m_p.x, this.m_p.y);
     }
 }

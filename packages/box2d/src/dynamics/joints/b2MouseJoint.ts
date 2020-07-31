@@ -16,10 +16,8 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert, b2_epsilon } from "../../common/b2Settings";
-// DEBUG: import { b2IsValid } from "../../common/b2Math";
-import {b2_pi, b2Maybe} from "../../common/b2Settings";
-import {b2Mat22, b2Rot, b2Transform, b2Vec2, XY} from "../../common/b2Math";
+import {b2_epsilon, b2_pi, b2Assert, b2Maybe} from "../../common/b2Settings";
+import {b2IsValid, b2Mat22, b2Rot, b2Transform, b2Vec2, XY} from "../../common/b2Math";
 import {b2IJointDef, b2Joint, b2JointDef, b2JointType} from "./b2Joint";
 import {b2SolverData} from "../b2TimeStep";
 
@@ -78,17 +76,17 @@ export class b2MouseJoint extends b2Joint {
         super(def);
 
         this.m_targetA.Copy(b2Maybe(def.target, b2Vec2.ZERO));
-        // DEBUG: b2Assert(this.m_targetA.IsValid());
+        !!B2_DEBUG && b2Assert(this.m_targetA.IsValid());
         b2Transform.MulTXV(this.m_bodyB.GetTransform(), this.m_targetA, this.m_localAnchorB);
 
         this.m_maxForce = b2Maybe(def.maxForce, 0);
-        // DEBUG: b2Assert(b2IsValid(this.m_maxForce) && this.m_maxForce >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_maxForce) && this.m_maxForce >= 0);
         this.m_impulse.SetZero();
 
         this.m_frequencyHz = b2Maybe(def.frequencyHz, 0);
-        // DEBUG: b2Assert(b2IsValid(this.m_frequencyHz) && this.m_frequencyHz >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_frequencyHz) && this.m_frequencyHz >= 0);
         this.m_dampingRatio = b2Maybe(def.dampingRatio, 0);
-        // DEBUG: b2Assert(b2IsValid(this.m_dampingRatio) && this.m_dampingRatio >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_dampingRatio) && this.m_dampingRatio >= 0);
 
         this.m_beta = 0;
         this.m_gamma = 0;
@@ -135,29 +133,29 @@ export class b2MouseJoint extends b2Joint {
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIB = this.m_bodyB.m_invI;
 
-        const cB: b2Vec2 = data.positions[this.m_indexB].c;
-        const aB: number = data.positions[this.m_indexB].a;
-        const vB: b2Vec2 = data.velocities[this.m_indexB].v;
-        let wB: number = data.velocities[this.m_indexB].w;
+        const cB = data.positions[this.m_indexB].c;
+        const aB = data.positions[this.m_indexB].a;
+        const vB = data.velocities[this.m_indexB].v;
+        let wB = data.velocities[this.m_indexB].w;
 
         const qB = this.m_qB.SetAngle(aB);
 
-        const mass: number = this.m_bodyB.GetMass();
+        const mass = this.m_bodyB.GetMass();
 
         // Frequency
-        const omega: number = 2 * b2_pi * this.m_frequencyHz;
+        const omega = 2 * b2_pi * this.m_frequencyHz;
 
         // Damping coefficient
-        const d: number = 2 * mass * this.m_dampingRatio * omega;
+        const d = 2 * mass * this.m_dampingRatio * omega;
 
         // Spring stiffness
-        const k: number = mass * (omega * omega);
+        const k = mass * (omega * omega);
 
         // magic formulas
         // gamma has units of inverse mass.
         // beta has units of inverse time.
-        const h: number = data.step.dt;
-        // DEBUG: b2Assert(d + h * k > b2_epsilon);
+        const h = data.step.dt;
+        !!B2_DEBUG && b2Assert(d + h * k > b2_epsilon);
         this.m_gamma = h * (d + h * k);
         if (this.m_gamma !== 0) {
             this.m_gamma = 1 / this.m_gamma;
@@ -263,10 +261,6 @@ export class b2MouseJoint extends b2Joint {
 
     GetReactionTorque(inv_dt: number): number {
         return 0;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void) {
-        log("Mouse joint dumping is not supported.\n");
     }
 
     ShiftOrigin(newOrigin: b2Vec2) {

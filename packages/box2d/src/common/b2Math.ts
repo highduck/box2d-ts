@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "./b2Settings";
-import {b2_epsilon, b2_pi} from "./b2Settings";
+import {b2_epsilon, b2_pi, b2Assert} from "./b2Settings";
 
 export const b2_pi_over_180: number = b2_pi / 180;
 export const b2_180_over_pi: number = 180 / b2_pi;
@@ -52,8 +51,12 @@ export function b2Clamp(a: number, lo: number, hi: number): number {
     return (a < lo) ? (lo) : ((a > hi) ? (hi) : (a));
 }
 
+export function b2ClampInt(a: number, lo: number, hi: number): number {
+    return (a < lo) ? (lo) : ((a > hi) ? (hi) : (a));
+}
+
 export function b2Swap<T>(a: T[], b: T[]): void {
-    // DEBUG: b2Assert(false);
+    !!B2_DEBUG && b2Assert(false);
     const tmp: T = a[0];
     a[0] = b[0];
     b[0] = tmp;
@@ -1129,7 +1132,7 @@ export class b2Sweep {
     }
 
     Advance(alpha: number): void {
-        // DEBUG: b2Assert(this.alpha0 < 1);
+        !!B2_DEBUG && b2Assert(this.alpha0 < 1);
         const beta: number = (alpha - this.alpha0) / (1 - this.alpha0);
         const one_minus_beta: number = (1 - beta);
         this.c0.x = one_minus_beta * this.c0.x + beta * this.c.x;

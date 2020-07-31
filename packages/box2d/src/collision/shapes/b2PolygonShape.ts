@@ -16,12 +16,76 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert, b2_epsilon_sq } from "../../common/b2Settings";
-import {b2_epsilon, b2_linearSlop, b2_maxFloat, b2_polygonRadius} from "../../common/b2Settings";
+import {
+    b2_epsilon,
+    b2_epsilon_sq,
+    b2_linearSlop,
+    b2_maxFloat,
+    b2_polygonRadius,
+    b2Assert
+} from "../../common/b2Settings";
 import {b2Rot, b2Transform, b2Vec2, XY} from "../../common/b2Math";
 import {b2AABB, b2RayCastInput, b2RayCastOutput} from "../b2Collision";
 import {b2DistanceProxy} from "../b2Distance";
 import {b2MassData, b2Shape, b2ShapeType} from "./b2Shape";
+
+/// @see b2Shape::ComputeDistance
+const ComputeDistance_s_pLocal = new b2Vec2();
+const ComputeDistance_s_normalForMaxDistance = new b2Vec2();
+const ComputeDistance_s_minDistance = new b2Vec2();
+const ComputeDistance_s_distance = new b2Vec2();
+
+// ComputeCentroid
+const ComputeCentroid_s_pRef = new b2Vec2();
+const ComputeCentroid_s_e1 = new b2Vec2();
+const ComputeCentroid_s_e2 = new b2Vec2();
+
+function ComputeCentroid(vs: b2Vec2[], count: number, out: b2Vec2): b2Vec2 {
+    !!B2_DEBUG && b2Assert(count >= 3);
+
+    const c: b2Vec2 = out;
+    c.SetZero();
+    let area = 0.0;
+
+    // s is the reference point for forming triangles.
+    // It's location doesn't change the result (except for rounding error).
+    const pRef = ComputeCentroid_s_pRef.SetZero();
+    /*
+#if 0
+    // This code would put the reference point inside the polygon.
+    for (let i = 0; i < count; ++i) {
+      pRef.SelfAdd(vs[i]);
+    }
+    pRef.SelfMul(1 / count);
+#endif
+    */
+
+    const inv3 = 1.0 / 3.0;
+
+    for (let i = 0; i < count; ++i) {
+        // Triangle vertices.
+        const p1 = pRef;
+        const p2 = vs[i];
+        const p3 = vs[(i + 1) % count];
+
+        const e1 = b2Vec2.SubVV(p2, p1, ComputeCentroid_s_e1);
+        const e2 = b2Vec2.SubVV(p3, p1, ComputeCentroid_s_e2);
+
+        const D = b2Vec2.CrossVV(e1, e2);
+
+        const triangleArea: number = 0.5 * D;
+        area += triangleArea;
+
+        // Area weighted centroid
+        c.x += triangleArea * inv3 * (p1.x + p2.x + p3.x);
+        c.y += triangleArea * inv3 * (p1.y + p2.y + p3.y);
+    }
+
+    // Centroid
+    !!B2_DEBUG && b2Assert(area > b2_epsilon);
+    c.SelfMul(1.0 / area);
+    return c;
+}
 
 /// A convex polygon. It is assumed that the interior of the polygon is to
 /// the left of each edge.
@@ -44,7 +108,7 @@ export class b2PolygonShape extends b2Shape {
     Copy(other: b2PolygonShape): b2PolygonShape {
         super.Copy(other);
 
-        // DEBUG: b2Assert(other instanceof b2PolygonShape);
+        !!B2_DEBUG && b2Assert(other instanceof b2PolygonShape);
 
         this.m_centroid.Copy(other.m_centroid);
         this.m_count = other.m_count;
@@ -91,7 +155,7 @@ export class b2PolygonShape extends b2Shape {
 
     _Set(vertices: (index: number) => XY, count: number): b2PolygonShape {
 
-        // DEBUG: b2Assert(3 <= count);
+        !!B2_DEBUG && b2Assert(3 <= count);
         if (count < 3) {
             return this.SetAsBox(1, 1);
         }
@@ -119,7 +183,7 @@ export class b2PolygonShape extends b2Shape {
         n = ps.length;
         if (n < 3) {
             // Polygon is degenerate.
-            // DEBUG: b2Assert(false);
+            !!B2_DEBUG && b2Assert(false);
             return this.SetAsBox(1.0, 1.0);
         }
 
@@ -186,12 +250,12 @@ export class b2PolygonShape extends b2Shape {
             const vertexi1: b2Vec2 = this.m_vertices[i];
             const vertexi2: b2Vec2 = this.m_vertices[(i + 1) % m];
             const edge: b2Vec2 = b2Vec2.SubVV(vertexi2, vertexi1, b2Vec2.s_t0); // edge uses s_t0
-            // DEBUG: b2Assert(edge.LengthSquared() > b2_epsilon_sq);
+            !!B2_DEBUG && b2Assert(edge.LengthSquared() > b2_epsilon_sq);
             b2Vec2.CrossVOne(edge, this.m_normals[i]).SelfNormalize();
         }
 
         // Compute the polygon centroid.
-        b2PolygonShape.ComputeCentroid(this.m_vertices, m, this.m_centroid);
+        ComputeCentroid(this.m_vertices, m, this.m_centroid);
 
         return this;
     }
@@ -248,48 +312,43 @@ export class b2PolygonShape extends b2Shape {
         return true;
     }
 
-    // #if B2_ENABLE_PARTICLE
-    /// @see b2Shape::ComputeDistance
-    private static ComputeDistance_s_pLocal = new b2Vec2();
-    private static ComputeDistance_s_normalForMaxDistance = new b2Vec2();
-    private static ComputeDistance_s_minDistance = new b2Vec2();
-    private static ComputeDistance_s_distance = new b2Vec2();
-
     ComputeDistance(xf: b2Transform, p: b2Vec2, normal: b2Vec2, childIndex: number): number {
-        const pLocal = b2Transform.MulTXV(xf, p, b2PolygonShape.ComputeDistance_s_pLocal);
-        let maxDistance = -b2_maxFloat;
-        const normalForMaxDistance = b2PolygonShape.ComputeDistance_s_normalForMaxDistance.Copy(pLocal);
+        if (B2_ENABLE_PARTICLE) {
+            const pLocal = b2Transform.MulTXV(xf, p, ComputeDistance_s_pLocal);
+            let maxDistance = -b2_maxFloat;
+            const normalForMaxDistance = ComputeDistance_s_normalForMaxDistance.Copy(pLocal);
 
-        for (let i = 0; i < this.m_count; ++i) {
-            const dot = b2Vec2.DotVV(this.m_normals[i], b2Vec2.SubVV(pLocal, this.m_vertices[i], b2Vec2.s_t0));
-            if (dot > maxDistance) {
-                maxDistance = dot;
-                normalForMaxDistance.Copy(this.m_normals[i]);
-            }
-        }
-
-        if (maxDistance > 0) {
-            const minDistance = b2PolygonShape.ComputeDistance_s_minDistance.Copy(normalForMaxDistance);
-            let minDistance2 = maxDistance * maxDistance;
             for (let i = 0; i < this.m_count; ++i) {
-                const distance = b2Vec2.SubVV(pLocal, this.m_vertices[i], b2PolygonShape.ComputeDistance_s_distance);
-                const distance2 = distance.LengthSquared();
-                if (minDistance2 > distance2) {
-                    minDistance.Copy(distance);
-                    minDistance2 = distance2;
+                const dot = b2Vec2.DotVV(this.m_normals[i], b2Vec2.SubVV(pLocal, this.m_vertices[i], b2Vec2.s_t0));
+                if (dot > maxDistance) {
+                    maxDistance = dot;
+                    normalForMaxDistance.Copy(this.m_normals[i]);
                 }
             }
 
-            b2Rot.MulRV(xf.q, minDistance, normal);
-            normal.Normalize();
-            return Math.sqrt(minDistance2);
+            if (maxDistance > 0) {
+                const minDistance = ComputeDistance_s_minDistance.Copy(normalForMaxDistance);
+                let minDistance2 = maxDistance * maxDistance;
+                for (let i = 0; i < this.m_count; ++i) {
+                    const distance = b2Vec2.SubVV(pLocal, this.m_vertices[i], ComputeDistance_s_distance);
+                    const distance2 = distance.LengthSquared();
+                    if (minDistance2 > distance2) {
+                        minDistance.Copy(distance);
+                        minDistance2 = distance2;
+                    }
+                }
+
+                b2Rot.MulRV(xf.q, minDistance, normal);
+                normal.Normalize();
+                return Math.sqrt(minDistance2);
+            } else {
+                b2Rot.MulRV(xf.q, normalForMaxDistance, normal);
+                return maxDistance;
+            }
         } else {
-            b2Rot.MulRV(xf.q, normalForMaxDistance, normal);
-            return maxDistance;
+            return 0.0;
         }
     }
-
-    // #endif
 
     /// Implement b2Shape.
     private static RayCast_s_p1 = new b2Vec2();
@@ -343,7 +402,7 @@ export class b2PolygonShape extends b2Shape {
             }
         }
 
-        // DEBUG: b2Assert(0 <= lower && lower <= input.maxFraction);
+        !!B2_DEBUG && b2Assert(0 <= lower && lower <= input.maxFraction);
 
         if (index >= 0) {
             output.fraction = lower;
@@ -403,7 +462,7 @@ export class b2PolygonShape extends b2Shape {
         //
         // The rest of the derivation is handled by computer algebra.
 
-        // DEBUG: b2Assert(this.m_count >= 3);
+        !!B2_DEBUG && b2Assert(this.m_count >= 3);
 
         const center: b2Vec2 = b2PolygonShape.ComputeMass_s_center.SetZero();
         let area: number = 0;
@@ -449,7 +508,7 @@ export class b2PolygonShape extends b2Shape {
         massData.mass = density * area;
 
         // Center of mass
-        // DEBUG: b2Assert(area > b2_epsilon);
+        !!B2_DEBUG && b2Assert(area > b2_epsilon);
         center.SelfMul(1 / area);
         b2Vec2.AddVV(center, s, massData.center);
 
@@ -589,66 +648,6 @@ export class b2PolygonShape extends b2Shape {
         b2Transform.MulXV(xf, center, c);
 
         return area;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        log("    const shape: b2PolygonShape = new b2PolygonShape();\n");
-        log("    const vs: b2Vec2[] = [];\n");
-        for (let i = 0; i < this.m_count; ++i) {
-            log("    vs[%d] = new b2Vec2(%.15f, %.15f);\n", i, this.m_vertices[i].x, this.m_vertices[i].y);
-        }
-        log("    shape.Set(vs, %d);\n", this.m_count);
-    }
-
-    private static ComputeCentroid_s_pRef = new b2Vec2();
-    private static ComputeCentroid_s_e1 = new b2Vec2();
-    private static ComputeCentroid_s_e2 = new b2Vec2();
-
-    static ComputeCentroid(vs: b2Vec2[], count: number, out: b2Vec2): b2Vec2 {
-        // DEBUG: b2Assert(count >= 3);
-
-        const c: b2Vec2 = out;
-        c.SetZero();
-        let area: number = 0;
-
-        // s is the reference point for forming triangles.
-        // It's location doesn't change the result (except for rounding error).
-        const pRef: b2Vec2 = b2PolygonShape.ComputeCentroid_s_pRef.SetZero();
-        /*
-    #if 0
-        // This code would put the reference point inside the polygon.
-        for (let i = 0; i < count; ++i) {
-          pRef.SelfAdd(vs[i]);
-        }
-        pRef.SelfMul(1 / count);
-    #endif
-        */
-
-        const inv3: number = 1 / 3;
-
-        for (let i = 0; i < count; ++i) {
-            // Triangle vertices.
-            const p1: b2Vec2 = pRef;
-            const p2: b2Vec2 = vs[i];
-            const p3: b2Vec2 = vs[(i + 1) % count];
-
-            const e1: b2Vec2 = b2Vec2.SubVV(p2, p1, b2PolygonShape.ComputeCentroid_s_e1);
-            const e2: b2Vec2 = b2Vec2.SubVV(p3, p1, b2PolygonShape.ComputeCentroid_s_e2);
-
-            const D: number = b2Vec2.CrossVV(e1, e2);
-
-            const triangleArea: number = 0.5 * D;
-            area += triangleArea;
-
-            // Area weighted centroid
-            c.x += triangleArea * inv3 * (p1.x + p2.x + p3.x);
-            c.y += triangleArea * inv3 * (p1.y + p2.y + p3.y);
-        }
-
-        // Centroid
-        // DEBUG: b2Assert(area > b2_epsilon);
-        c.SelfMul(1 / area);
-        return c;
     }
 
     /*

@@ -16,10 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// #if B2_ENABLE_PARTICLE
-
-import {b2_invalidParticleIndex} from "../common/b2Settings";
-import {b2Clamp, b2Vec2, XY} from "../common/b2Math";
+import {b2_invalidParticleIndex} from "../common/b2SettingsParticleSystem";
+import {b2ClampInt, b2Vec2, XY} from "../common/b2Math";
 import {b2Color, RGBA} from "../common/b2Draw";
 import {b2ParticleGroup} from "./b2ParticleGroup";
 
@@ -27,8 +25,9 @@ import {b2ParticleGroup} from "./b2ParticleGroup";
  * The particle type. Can be combined with the | operator.
  */
 export const enum b2ParticleFlag {
+    none = 0,
     /// Water particle.
-    b2_waterParticle = 0,
+    b2_waterParticle = 1 << 0,
     /// Removed after next simulation step.
     b2_zombieParticle = 1 << 1,
     /// Zero velocity.
@@ -85,13 +84,18 @@ export interface b2IParticleDef {
 }
 
 export class b2ParticleDef implements b2IParticleDef {
-    flags: b2ParticleFlag = 0;
-    readonly position: b2Vec2 = new b2Vec2();
-    readonly velocity: b2Vec2 = new b2Vec2();
-    readonly color: b2Color = new b2Color(0, 0, 0, 0);
-    lifetime: number = 0.0;
+    flags = b2ParticleFlag.none;
+    readonly position = new b2Vec2();
+    readonly velocity = new b2Vec2();
+    readonly color = new b2Color(0, 0, 0, 0);
+    lifetime = NaN;
     userData: any = null;
     group: b2ParticleGroup | null = null;
+
+    constructor() {
+        this.lifetime = 0.0;
+    }
+
 }
 
 export function b2CalculateParticleIterations(gravity: number, radius: number, timeStep: number): number {
@@ -100,19 +104,17 @@ export function b2CalculateParticleIterations(gravity: number, radius: number, t
     const B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS = 8;
     const B2_RADIUS_THRESHOLD = 0.01;
     const iterations = Math.ceil(Math.sqrt(gravity / (B2_RADIUS_THRESHOLD * radius)) * timeStep);
-    return b2Clamp(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
+    return b2ClampInt(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
 }
 
 export class b2ParticleHandle {
-    m_index: number = b2_invalidParticleIndex;
+    index = b2_invalidParticleIndex;
 
     GetIndex(): number {
-        return this.m_index;
+        return this.index;
     }
 
     SetIndex(index: number): void {
-        this.m_index = index;
+        this.index = index;
     }
 }
-
-// #endif

@@ -1,7 +1,8 @@
 import {g_debugDraw} from "./DebugDraw";
-// #if B2_ENABLE_PARTICLE
 import {FullScreenUI} from "./FullscreenUI";
+// #if B2_ENABLE_PARTICLE
 import {ParticleParameter, ParticleParameterDefinition, ParticleParameterValue} from "./ParticleParameter";
+// #endif
 import {
     b2AABB,
     b2Body,
@@ -37,7 +38,7 @@ import {
     b2World,
     b2WorldManifold
 } from "@highduck/box2d";
-// #endif
+import {drawDebugData} from "@highduck/box2d";
 
 export const DRAW_STRING_NEW_LINE: number = 16;
 
@@ -48,37 +49,37 @@ export function RandomFloat(lo: number = -1, hi: number = 1) {
 }
 
 export class Settings {
-    public hz: number = 60;
-    public velocityIterations: number = 8;
-    public positionIterations: number = 3;
+    hz = 60;
+    velocityIterations = 8;
+    positionIterations = 3;
     // #if B2_ENABLE_PARTICLE
     // Particle iterations are needed for numerical stability in particle
     // simulations with small particles and relatively high gravity.
     // b2CalculateParticleIterations helps to determine the number.
-    public particleIterations: number = b2CalculateParticleIterations(10, 0.04, 1 / this.hz);
+    particleIterations = b2CalculateParticleIterations(10, 0.04, 1 / this.hz);
     // #endif
-    public drawShapes: boolean = true;
+    drawShapes = true;
     // #if B2_ENABLE_PARTICLE
-    public drawParticles: boolean = true;
+    drawParticles = true;
     // #endif
-    public drawJoints: boolean = true;
-    public drawAABBs: boolean = false;
-    public drawContactPoints: boolean = false;
-    public drawContactNormals: boolean = false;
-    public drawContactImpulse: boolean = false;
-    public drawFrictionImpulse: boolean = false;
-    public drawCOMs: boolean = false;
-    public drawControllers: boolean = true;
-    public drawStats: boolean = false;
-    public drawProfile: boolean = false;
-    public enableWarmStarting: boolean = true;
-    public enableContinuous: boolean = true;
-    public enableSubStepping: boolean = false;
-    public enableSleep: boolean = true;
-    public pause: boolean = false;
-    public singleStep: boolean = false;
+    drawJoints = true;
+    drawAABBs = false;
+    drawContactPoints = false;
+    drawContactNormals = false;
+    drawContactImpulse = false;
+    drawFrictionImpulse = false;
+    drawCOMs = false;
+    drawControllers = true;
+    drawStats = false;
+    drawProfile = false;
+    enableWarmStarting = true;
+    enableContinuous = true;
+    enableSubStepping = false;
+    enableSleep = true;
+    pause = false;
+    singleStep = false;
     // #if B2_ENABLE_PARTICLE
-    public strictContacts: boolean = false;
+    strictContacts = false;
     // #endif
 }
 
@@ -93,12 +94,8 @@ export class TestEntry {
 }
 
 export class DestructionListener extends b2DestructionListener {
-    public test: Test;
-
-    constructor(test: Test) {
+    constructor(readonly test: Test) {
         super();
-
-        this.test = test;
     }
 
     public SayGoodbyeJoint(joint: b2Joint): void {
@@ -121,14 +118,14 @@ export class DestructionListener extends b2DestructionListener {
 }
 
 export class ContactPoint {
-    public fixtureA!: b2Fixture;
-    public fixtureB!: b2Fixture;
-    public readonly normal: b2Vec2 = new b2Vec2();
-    public readonly position: b2Vec2 = new b2Vec2();
-    public state: b2PointState = b2PointState.b2_nullState;
-    public normalImpulse: number = 0;
-    public tangentImpulse: number = 0;
-    public separation: number = 0;
+    fixtureA!: b2Fixture;
+    fixtureB!: b2Fixture;
+    readonly normal: b2Vec2 = new b2Vec2();
+    readonly position: b2Vec2 = new b2Vec2();
+    state: b2PointState = b2PointState.b2_nullState;
+    normalImpulse: number = 0;
+    tangentImpulse: number = 0;
+    separation: number = 0;
 }
 
 // #if B2_ENABLE_PARTICLE
@@ -217,14 +214,13 @@ export class Test extends b2ContactListener {
         this.m_destructionListener = new DestructionListener(this);
         this.m_world.SetDestructionListener(this.m_destructionListener);
         this.m_world.SetContactListener(this);
-        this.m_world.SetDebugDraw(g_debugDraw);
 
         // #if B2_ENABLE_PARTICLE
         this.m_particleSystem.SetGravityScale(0.4);
         this.m_particleSystem.SetDensity(1.2);
         // #endif
 
-        const bodyDef: b2BodyDef = new b2BodyDef();
+        const bodyDef = new b2BodyDef();
         this.m_groundBody = this.m_world.CreateBody(bodyDef);
     }
 
@@ -475,7 +471,7 @@ export class Test extends b2ContactListener {
         // this.m_world.Step(timeStep, settings.velocityIterations, settings.positionIterations);
         // #endif
 
-        this.m_world.DrawDebugData();
+        drawDebugData(g_debugDraw, this.m_world);
 
         if (timeStep > 0) {
             ++this.m_stepCount;
@@ -530,7 +526,7 @@ export class Test extends b2ContactListener {
         if (settings.drawProfile) {
             const p = this.m_world.GetProfile();
 
-            const aveProfile: b2Profile = new b2Profile();
+            const aveProfile = new b2Profile();
             if (this.m_stepCount > 0) {
                 const scale: number = 1 / this.m_stepCount;
                 aveProfile.step = scale * this.m_totalProfile.step;

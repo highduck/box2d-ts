@@ -1,4 +1,4 @@
-// DEBUG: import { b2Assert } from "../common/b2Settings";
+import { b2Assert } from "../common/b2Settings";
 import {b2_angularSlop, b2_maxFloat, b2_maxManifoldPoints} from "../common/b2Settings";
 import {b2Min, b2Rot, b2Transform, b2Vec2} from "../common/b2Math";
 import {
@@ -116,7 +116,7 @@ export function b2CollideEdgeAndCircle(manifold: b2Manifold, edgeA: b2EdgeShape,
 
     // Region AB
     const den: number = b2Vec2.DotVV(e, e);
-    // DEBUG: b2Assert(den > 0);
+    !!B2_DEBUG && b2Assert(den > 0);
     const P: b2Vec2 = b2CollideEdgeAndCircle_s_P;
     P.x = (1 / den) * (u * A.x + v * B.x);
     P.y = (1 / den) * (u * A.y + v * B.y);
@@ -144,37 +144,46 @@ export function b2CollideEdgeAndCircle(manifold: b2Manifold, edgeA: b2EdgeShape,
     manifold.points[0].localPoint.Copy(circleB.m_p);
 }
 
-enum b2EPAxisType {
+const enum b2EPAxisType {
     e_unknown = 0,
     e_edgeA = 1,
     e_edgeB = 2,
 }
 
 class b2EPAxis {
-    type: b2EPAxisType = b2EPAxisType.e_unknown;
-    index: number = 0;
-    separation: number = 0;
+    type = b2EPAxisType.e_unknown;
+    index = 0;
+    separation = NaN;
+
+    constructor() {
+        this.separation = 0.0;
+    }
 }
 
 class b2TempPolygon {
     vertices: b2Vec2[] = [];
     normals: b2Vec2[] = [];
-    count: number = 0;
+    count = 0;
 }
 
 class b2ReferenceFace {
-    i1: number = 0;
-    i2: number = 0;
-    readonly v1: b2Vec2 = new b2Vec2();
-    readonly v2: b2Vec2 = new b2Vec2();
-    readonly normal: b2Vec2 = new b2Vec2();
-    readonly sideNormal1: b2Vec2 = new b2Vec2();
-    sideOffset1: number = 0;
-    readonly sideNormal2: b2Vec2 = new b2Vec2();
-    sideOffset2: number = 0;
+    i1 = 0;
+    i2 = 0;
+    readonly v1 = new b2Vec2();
+    readonly v2 = new b2Vec2();
+    readonly normal = new b2Vec2();
+    readonly sideNormal1 = new b2Vec2();
+    sideOffset1 = NaN;
+    readonly sideNormal2 = new b2Vec2();
+    sideOffset2 = NaN;
+
+    constructor() {
+        this.sideOffset1 = 0.0;
+        this.sideOffset2 = 0.0;
+    }
 }
 
-enum b2EPColliderVertexType {
+const enum b2EPColliderVertexType {
     e_isolated = 0,
     e_concave = 1,
     e_convex = 2,
@@ -196,8 +205,12 @@ class b2EPCollider {
     m_type2 = b2EPColliderVertexType.e_isolated;
     readonly m_lowerLimit: b2Vec2 = new b2Vec2();
     readonly m_upperLimit: b2Vec2 = new b2Vec2();
-    m_radius: number = 0;
+    m_radius = NaN;
     m_front: boolean = false;
+
+    constructor() {
+        this.m_radius = 0.0;
+    }
 
     private static s_edge1 = new b2Vec2();
     private static s_edge0 = new b2Vec2();

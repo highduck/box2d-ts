@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "./b2Settings";
-import {b2MakeNullArray} from "./b2Settings";
+import {b2Assert, b2MakeNullArray} from "./b2Settings";
 
 /// This is a growable LIFO stack with an initial capacity of N.
 /// If the stack size exceeds the initial capacity, the heap is used
@@ -46,7 +45,7 @@ export class b2GrowableStack<T> {
     }
 
     Pop(): T {
-        // DEBUG: b2Assert(this.m_count > 0);
+        !!B2_DEBUG && b2Assert(this.m_count > 0);
         if (this.m_count === 0) {
             throw new Error();
         }

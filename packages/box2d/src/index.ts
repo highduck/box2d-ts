@@ -74,7 +74,7 @@ export * from "./dynamics/joints/b2RopeJoint";
 export * from "./dynamics/joints/b2WeldJoint";
 export * from "./dynamics/joints/b2WheelJoint";
 
-// #if B2_ENABLE_CONTROLLER
+ // #if B2_ENABLE_CONTROLLER
 export * from "./controllers/b2Controller";
 export * from "./controllers/b2BuoyancyController";
 export * from "./controllers/b2ConstantAccelController";
@@ -90,3 +90,8 @@ export * from "./particle/b2ParticleSystem";
 // #endif
 
 export * from "./rope/b2Rope";
+
+// it's just debug
+export * from "./dynamics/drawDebugData";
+export * from "./dynamics/dumpWorld";
+

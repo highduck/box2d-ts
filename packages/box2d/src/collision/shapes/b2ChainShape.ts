@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert, b2_linearSlop } from "../../common/b2Settings";
-import {b2_polygonRadius} from "../../common/b2Settings";
+import {b2_polygonRadius, b2Assert} from "../../common/b2Settings";
 import {b2Transform, b2Vec2, XY} from "../../common/b2Math";
 import {b2AABB, b2RayCastInput, b2RayCastOutput} from "../b2Collision";
 import {b2DistanceProxy} from "../b2Distance";
@@ -66,7 +65,7 @@ export class b2ChainShape extends b2Shape {
     }
 
     private _CreateLoop(vertices: (index: number) => XY, count: number): b2ChainShape {
-        // DEBUG: b2Assert(count >= 3);
+        !!B2_DEBUG && b2Assert(count >= 3);
         if (count < 3) {
             return this;
         }
@@ -114,7 +113,7 @@ export class b2ChainShape extends b2Shape {
     }
 
     private _CreateChain(vertices: (index: number) => XY, count: number): b2ChainShape {
-        // DEBUG: b2Assert(count >= 2);
+        !!B2_DEBUG && b2Assert(count >= 2);
         // DEBUG: for (let i: number = 1; i < count; ++i) {
         // DEBUG:   const v1 = vertices[start + i - 1];
         // DEBUG:   const v2 = vertices[start + i];
@@ -160,7 +159,7 @@ export class b2ChainShape extends b2Shape {
     Copy(other: b2ChainShape): b2ChainShape {
         super.Copy(other);
 
-        // DEBUG: b2Assert(other instanceof b2ChainShape);
+        !!B2_DEBUG && b2Assert(other instanceof b2ChainShape);
 
         this._CreateChain((index: number): XY => other.m_vertices[index], other.m_count);
         this.m_prevVertex.Copy(other.m_prevVertex);
@@ -179,7 +178,7 @@ export class b2ChainShape extends b2Shape {
 
     /// Get a child edge.
     GetChildEdge(edge: b2EdgeShape, index: number): void {
-        // DEBUG: b2Assert(0 <= index && index < this.m_count - 1);
+        !!B2_DEBUG && b2Assert(0 <= index && index < this.m_count - 1);
         edge.m_radius = this.m_radius;
 
         edge.m_vertex1.Copy(this.m_vertices[index]);
@@ -208,14 +207,18 @@ export class b2ChainShape extends b2Shape {
         return false;
     }
 
-    // #if B2_ENABLE_PARTICLE
     /// @see b2Shape::ComputeDistance
     private static ComputeDistance_s_edgeShape = new b2EdgeShape();
 
     ComputeDistance(xf: b2Transform, p: b2Vec2, normal: b2Vec2, childIndex: number): number {
-        const edge = b2ChainShape.ComputeDistance_s_edgeShape;
-        this.GetChildEdge(edge, childIndex);
-        return edge.ComputeDistance(xf, p, normal, 0);
+        if(B2_ENABLE_PARTICLE) {
+            const edge = b2ChainShape.ComputeDistance_s_edgeShape;
+            this.GetChildEdge(edge, childIndex);
+            return edge.ComputeDistance(xf, p, normal, 0);
+        }
+        else {
+            return 0.0;
+        }
     }
 
     // #endif
@@ -224,7 +227,7 @@ export class b2ChainShape extends b2Shape {
     private static RayCast_s_edgeShape = new b2EdgeShape();
 
     RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Transform, childIndex: number): boolean {
-        // DEBUG: b2Assert(childIndex < this.m_count);
+        !!B2_DEBUG && b2Assert(childIndex < this.m_count);
 
         const edgeShape: b2EdgeShape = b2ChainShape.RayCast_s_edgeShape;
 
@@ -239,7 +242,7 @@ export class b2ChainShape extends b2Shape {
     private static ComputeAABB_s_v2 = new b2Vec2();
 
     ComputeAABB(aabb: b2AABB, xf: b2Transform, childIndex: number): void {
-        // DEBUG: b2Assert(childIndex < this.m_count);
+        !!B2_DEBUG && b2Assert(childIndex < this.m_count);
 
         const vertexi1: b2Vec2 = this.m_vertices[childIndex];
         const vertexi2: b2Vec2 = this.m_vertices[(childIndex + 1) % this.m_count];
@@ -260,7 +263,7 @@ export class b2ChainShape extends b2Shape {
     }
 
     SetupDistanceProxy(proxy: b2DistanceProxy, index: number): void {
-        // DEBUG: b2Assert(0 <= index && index < this.m_count);
+        !!B2_DEBUG && b2Assert(0 <= index && index < this.m_count);
 
         proxy.m_vertices = proxy.m_buffer;
         proxy.m_vertices[0].Copy(this.m_vertices[index]);
@@ -276,18 +279,5 @@ export class b2ChainShape extends b2Shape {
     ComputeSubmergedArea(normal: b2Vec2, offset: number, xf: b2Transform, c: b2Vec2): number {
         c.SetZero();
         return 0;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        log("    const shape: b2ChainShape = new b2ChainShape();\n");
-        log("    const vs: b2Vec2[] = [];\n");
-        for (let i = 0; i < this.m_count; ++i) {
-            log("    vs[%d] = new bVec2(%.15f, %.15f);\n", i, this.m_vertices[i].x, this.m_vertices[i].y);
-        }
-        log("    shape.CreateChain(vs, %d);\n", this.m_count);
-        log("    shape.m_prevVertex.Set(%.15f, %.15f);\n", this.m_prevVertex.x, this.m_prevVertex.y);
-        log("    shape.m_nextVertex.Set(%.15f, %.15f);\n", this.m_nextVertex.x, this.m_nextVertex.y);
-        log("    shape.m_hasPrevVertex = %s;\n", (this.m_hasPrevVertex) ? ("true") : ("false"));
-        log("    shape.m_hasNextVertex = %s;\n", (this.m_hasNextVertex) ? ("true") : ("false"));
     }
 }

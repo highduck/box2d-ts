@@ -583,24 +583,4 @@ export class b2RevoluteJoint extends b2Joint {
             this.m_motorSpeed = speed;
         }
     }
-
-    Dump(log: (format: string, ...args: any[]) => void) {
-        const indexA = this.m_bodyA.m_islandIndex;
-        const indexB = this.m_bodyB.m_islandIndex;
-
-        log("  const jd: b2RevoluteJointDef = new b2RevoluteJointDef();\n");
-        log("  jd.bodyA = bodies[%d];\n", indexA);
-        log("  jd.bodyB = bodies[%d];\n", indexB);
-        log("  jd.collideConnected = %s;\n", (this.m_collideConnected) ? ("true") : ("false"));
-        log("  jd.localAnchorA.Set(%.15f, %.15f);\n", this.m_localAnchorA.x, this.m_localAnchorA.y);
-        log("  jd.localAnchorB.Set(%.15f, %.15f);\n", this.m_localAnchorB.x, this.m_localAnchorB.y);
-        log("  jd.referenceAngle = %.15f;\n", this.m_referenceAngle);
-        log("  jd.enableLimit = %s;\n", (this.m_enableLimit) ? ("true") : ("false"));
-        log("  jd.lowerAngle = %.15f;\n", this.m_lowerAngle);
-        log("  jd.upperAngle = %.15f;\n", this.m_upperAngle);
-        log("  jd.enableMotor = %s;\n", (this.m_enableMotor) ? ("true") : ("false"));
-        log("  jd.motorSpeed = %.15f;\n", this.m_motorSpeed);
-        log("  jd.maxMotorTorque = %.15f;\n", this.m_maxMotorTorque);
-        log("  joints[%d] = this.m_world.CreateJoint(jd);\n", this.m_index);
-    }
 }

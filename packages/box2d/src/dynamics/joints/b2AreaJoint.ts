@@ -1,5 +1,12 @@
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
-import {b2_epsilon, b2_linearSlop, b2_maxLinearCorrection, b2MakeNumberArray, b2Maybe} from "../../common/b2Settings";
+
+import {
+    b2_epsilon,
+    b2_linearSlop,
+    b2_maxLinearCorrection,
+    b2Assert,
+    b2MakeNumberArray,
+    b2Maybe
+} from "../../common/b2Settings";
 import {b2Sq, b2Sqrt, b2Vec2, XY} from "../../common/b2Math";
 import {b2IJointDef, b2Joint, b2JointDef, b2JointType} from "./b2Joint";
 import {b2DistanceJoint, b2DistanceJointDef} from "./b2DistanceJoint";
@@ -57,7 +64,7 @@ export class b2AreaJoint extends b2Joint {
     constructor(def: b2IAreaJointDef) {
         super(def);
 
-        // DEBUG: b2Assert(def.bodies.length >= 3, "You cannot create an area joint with less than three bodies.");
+        !!B2_DEBUG && b2Assert(def.bodies.length >= 3, "You cannot create an area joint with less than three bodies.");
 
         this.m_bodies = def.bodies;
         this.m_frequencyHz = b2Maybe(def.frequencyHz, 0);
@@ -130,10 +137,6 @@ export class b2AreaJoint extends b2Joint {
 
     GetDampingRatio() {
         return this.m_dampingRatio;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void) {
-        log("Area joint dumping is not supported.\n");
     }
 
     InitVelocityConstraints(data: b2SolverData): void {

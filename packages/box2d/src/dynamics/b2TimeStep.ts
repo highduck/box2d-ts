@@ -20,14 +20,25 @@ import {b2Vec2} from "../common/b2Math";
 
 /// Profiling data. Times are in milliseconds.
 export class b2Profile {
-    step = 0;
-    collide = 0;
-    solve = 0;
-    solveInit = 0;
-    solveVelocity = 0;
-    solvePosition = 0;
-    broadphase = 0;
-    solveTOI = 0;
+    step = NaN;
+    collide = NaN;
+    solve = NaN;
+    solveInit = NaN;
+    solveVelocity = NaN;
+    solvePosition = NaN;
+    broadphase = NaN;
+    solveTOI = NaN;
+
+    constructor() {
+        this.step = 0.0;
+        this.collide = 0.0;
+        this.solve = 0.0;
+        this.solveInit = 0.0;
+        this.solveVelocity = 0.0;
+        this.solvePosition = 0.0;
+        this.broadphase = 0.0;
+        this.solveTOI = 0.0;
+    }
 
     Reset() {
         this.step = 0;
@@ -66,9 +77,9 @@ export class b2TimeStep {
         this.dtRatio = step.dtRatio;
         this.positionIterations = step.positionIterations;
         this.velocityIterations = step.velocityIterations;
-        // #if B2_ENABLE_PARTICLE
-        this.particleIterations = step.particleIterations;
-        // #endif
+        if (!!B2_ENABLE_PARTICLE) {
+            this.particleIterations = step.particleIterations;
+        }
         this.warmStarting = step.warmStarting;
         return this;
     }
@@ -109,7 +120,7 @@ export class b2Velocity {
 }
 
 export class b2SolverData {
-    readonly step: b2TimeStep = new b2TimeStep();
+    readonly step = new b2TimeStep();
     positions: b2Position[] = [null] as unknown as b2Position[];
     velocities: b2Velocity[] = [null] as unknown as b2Velocity[];
 }

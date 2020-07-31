@@ -30,7 +30,8 @@ export function b2Maybe<T>(value: T | undefined, def: T): T {
 export const b2_maxFloat: number = 1E+37; // FLT_MAX instead of Number.MAX_VALUE;
 export const b2_epsilon: number = 1E-5; // FLT_EPSILON instead of Number.MIN_VALUE;
 export const b2_epsilon_sq: number = (b2_epsilon * b2_epsilon);
-export const b2_pi: number = 3.14159265359; // Math.PI;
+export const b2_pi: number = Math.PI;
+// export const b2_pi: number = 3.14159265359;
 
 /// @file
 /// Global tuning constants based on meters-kilograms-seconds (MKS) units.
@@ -104,39 +105,6 @@ export const b2_maxRotationSquared: number = b2_maxRotation * b2_maxRotation;
 /// to overshoot.
 export const b2_baumgarte: number = 0.2;
 export const b2_toiBaumgarte: number = 0.75;
-
-// #if B2_ENABLE_PARTICLE
-
-// Particle
-
-/// A symbolic constant that stands for particle allocation error.
-export const b2_invalidParticleIndex: number = -1;
-
-export const b2_maxParticleIndex: number = 0x7FFFFFFF;
-
-/// The default distance between particles, multiplied by the particle diameter.
-export const b2_particleStride: number = 0.75;
-
-/// The minimum particle weight that produces pressure.
-export const b2_minParticleWeight: number = 1.0;
-
-/// The upper limit for particle pressure.
-export const b2_maxParticlePressure: number = 0.25;
-
-/// The upper limit for force between particles.
-export const b2_maxParticleForce: number = 0.5;
-
-/// The maximum distance between particles in a triad, multiplied by the particle diameter.
-export const b2_maxTriadDistance: number = 2.0;
-export const b2_maxTriadDistanceSquared: number = (b2_maxTriadDistance * b2_maxTriadDistance);
-
-/// The initial size of particle data buffers.
-export const b2_minParticleSystemBufferCapacity: number = 256;
-
-/// The time into the future that collisions against barrier particles will be detected.
-export const b2_barrierCollisionTime: number = 2.5;
-
-// #endif
 
 // Sleep
 

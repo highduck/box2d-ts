@@ -16,17 +16,14 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../common/b2Settings";
-// DEBUG: import { b2IsValid } from "../common/b2Math";
-import {b2Rot, b2Sweep, b2Transform, b2Vec2, XY} from "../common/b2Math";
+import {b2Assert} from "../common/b2Settings";
+import {b2IsValid, b2Rot, b2Sweep, b2Transform, b2Vec2, XY} from "../common/b2Math";
 import {b2MassData, b2Shape} from "../collision/shapes/b2Shape";
 import {b2ContactEdge} from "./contacts/b2Contact";
 import {b2JointEdge} from "./joints/b2Joint";
 import {b2Fixture, b2FixtureDef, b2IFixtureDef} from "./b2Fixture";
 import {b2World} from "./b2World";
-// #if B2_ENABLE_CONTROLLER
 import {b2ControllerEdge} from "../controllers/b2Controller";
-// #endif
 
 /// The body type.
 /// static: zero mass, zero velocity, may be manually moved
@@ -103,112 +100,119 @@ export interface b2IBodyDef {
 export class b2BodyDef implements b2IBodyDef {
     /// The body type: static, kinematic, or dynamic.
     /// Note: if a dynamic body would have zero mass, the mass is set to one.
-    type: b2BodyType = b2BodyType.b2_staticBody;
+    type:b2BodyType = b2BodyType.b2_staticBody;
 
     /// The world position of the body. Avoid creating bodies at the origin
     /// since this can lead to many overlapping shapes.
-    readonly position: b2Vec2 = new b2Vec2(0, 0);
+    readonly position = new b2Vec2();
 
     /// The world angle of the body in radians.
-    angle: number = 0;
+    angle = NaN;
 
     /// The linear velocity of the body's origin in world co-ordinates.
-    readonly linearVelocity: b2Vec2 = new b2Vec2(0, 0);
+    readonly linearVelocity = new b2Vec2();
 
     /// The angular velocity of the body.
-    angularVelocity: number = 0;
+    angularVelocity = NaN;
 
     /// Linear damping is use to reduce the linear velocity. The damping parameter
     /// can be larger than 1.0f but the damping effect becomes sensitive to the
     /// time step when the damping parameter is large.
-    linearDamping: number = 0;
+    linearDamping = NaN;
 
     /// Angular damping is use to reduce the angular velocity. The damping parameter
     /// can be larger than 1.0f but the damping effect becomes sensitive to the
     /// time step when the damping parameter is large.
-    angularDamping: number = 0;
+    angularDamping = NaN;
 
     /// Set this flag to false if this body should never fall asleep. Note that
     /// this increases CPU usage.
-    allowSleep: boolean = true;
+    allowSleep = true;
 
     /// Is this body initially awake or sleeping?
-    awake: boolean = true;
+    awake = true;
 
     /// Should this body be prevented from rotating? Useful for characters.
-    fixedRotation: boolean = false;
+    fixedRotation = false;
 
     /// Is this a fast moving body that should be prevented from tunneling through
     /// other moving bodies? Note that all bodies are prevented from tunneling through
     /// kinematic and static bodies. This setting is only considered on dynamic bodies.
     /// @warning You should use this flag sparingly since it increases processing time.
-    bullet: boolean = false;
+    bullet = false;
 
     /// Does this body start out active?
-    active: boolean = true;
+    active = true;
 
     /// Use this to store application specific body data.
     userData: any = null;
 
     /// Scale the gravity applied to this body.
-    gravityScale: number = 1;
+    gravityScale = NaN; // 1.0
+
+    constructor() {
+        this.angle = 0.0;
+        this.angularVelocity = 0.0;
+        this.linearDamping = 0.0;
+        this.angularDamping = 0.0;
+        this.gravityScale = 1.0;
+    }
 }
 
 /// A rigid body. These are created via b2World::CreateBody.
 export class b2Body {
     m_type: b2BodyType;
 
-    m_islandFlag: boolean = false;
-    m_awakeFlag: boolean = false;
-    m_autoSleepFlag: boolean = false;
-    m_bulletFlag: boolean = false;
-    m_fixedRotationFlag: boolean = false;
-    m_activeFlag: boolean = false;
-    m_toiFlag: boolean = false;
+    m_islandFlag = false;
+    m_awakeFlag = false;
+    m_autoSleepFlag = false;
+    m_bulletFlag = false;
+    m_fixedRotationFlag = false;
+    m_activeFlag = false;
+    m_toiFlag = false;
 
-    m_islandIndex: number = 0;
+    m_islandIndex = 0;
 
-    readonly m_xf: b2Transform = new b2Transform();  // the body origin transform
+    readonly m_xf = new b2Transform();  // the body origin transform
     // #if B2_ENABLE_PARTICLE
-    readonly m_xf0: b2Transform = new b2Transform();
+    readonly m_xf0 = new b2Transform();
     // #endif
-    readonly m_sweep: b2Sweep = new b2Sweep();    // the swept motion for CCD
+    readonly m_sweep = new b2Sweep();    // the swept motion for CCD
 
-    readonly m_linearVelocity: b2Vec2 = new b2Vec2();
-    m_angularVelocity: number = NaN;
+    readonly m_linearVelocity = new b2Vec2();
+    m_angularVelocity = NaN;
 
-    readonly m_force: b2Vec2 = new b2Vec2();
-    m_torque: number = NaN;
+    readonly m_force = new b2Vec2();
+    m_torque = NaN;
 
     m_world: b2World;
     m_prev: b2Body | null = null;
     m_next: b2Body | null = null;
 
     m_fixtureList: b2Fixture | null = null;
-    m_fixtureCount: number = 0;
+    m_fixtureCount = 0;
 
     m_jointList: b2JointEdge | null = null;
     m_contactList: b2ContactEdge | null = null;
 
-    m_mass: number = NaN;
-    m_invMass: number = NaN;
+    m_mass = NaN;
+    m_invMass = NaN;
 
     // Rotational inertia about the center of mass.
-    m_I: number = NaN;
-    m_invI: number = NaN;
+    m_I = NaN;
+    m_invI = NaN;
 
-    m_linearDamping: number = NaN;
-    m_angularDamping: number = NaN;
-    m_gravityScale: number = NaN;
+    m_linearDamping = NaN;
+    m_angularDamping = NaN;
+    m_gravityScale = NaN;
 
-    m_sleepTime: number = NaN;
+    m_sleepTime = NaN;
 
     m_userData: any = null;
 
     // #if B2_ENABLE_CONTROLLER
     m_controllerList: b2ControllerEdge | null = null;
-    m_controllerCount: number = 0;
-
+    m_controllerCount = 0;
     // #endif
 
     constructor(bd: b2IBodyDef, world: b2World) {
@@ -221,12 +225,12 @@ export class b2Body {
         this.m_world = world;
 
         this.m_xf.p.Copy(bd.position ?? b2Vec2.ZERO);
-        // DEBUG: b2Assert(this.m_xf.p.IsValid());
+        !!B2_DEBUG && b2Assert(this.m_xf.p.IsValid());
         this.m_xf.q.SetAngle(bd.angle ?? 0.0);
-        // DEBUG: b2Assert(b2IsValid(this.m_xf.q.GetAngle()));
-        // #if B2_ENABLE_PARTICLE
-        this.m_xf0.Copy(this.m_xf);
-        // #endif
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_xf.q.GetAngle()));
+        if(B2_ENABLE_PARTICLE) {
+            this.m_xf0.Copy(this.m_xf);
+        }
 
         this.m_sweep.localCenter.SetZero();
         this.m_sweep.c0.Copy(this.m_xf.p);
@@ -235,16 +239,16 @@ export class b2Body {
         this.m_sweep.alpha0 = 0;
 
         this.m_linearVelocity.Copy(bd.linearVelocity ?? b2Vec2.ZERO);
-        // DEBUG: b2Assert(this.m_linearVelocity.IsValid());
+        !!B2_DEBUG && b2Assert(this.m_linearVelocity.IsValid());
         this.m_angularVelocity = bd.angularVelocity ?? 0;
-        // DEBUG: b2Assert(b2IsValid(this.m_angularVelocity));
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_angularVelocity));
 
         this.m_linearDamping = bd.linearDamping ?? 0.0;
         this.m_angularDamping = bd.angularDamping ?? 0.0;
         this.m_gravityScale = bd.gravityScale ?? 1.0;
-        // DEBUG: b2Assert(b2IsValid(this.m_gravityScale) && this.m_gravityScale >= 0);
-        // DEBUG: b2Assert(b2IsValid(this.m_angularDamping) && this.m_angularDamping >= 0);
-        // DEBUG: b2Assert(b2IsValid(this.m_linearDamping) && this.m_linearDamping >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_gravityScale) && this.m_gravityScale >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_angularDamping) && this.m_angularDamping >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(this.m_linearDamping) && this.m_linearDamping >= 0);
 
         this.m_force.SetZero();
         this.m_torque = 0.0;
@@ -265,14 +269,6 @@ export class b2Body {
         this.m_invI = 0.0;
 
         this.m_userData = bd.userData;
-
-        this.m_fixtureList = null;
-        this.m_fixtureCount = 0;
-
-        // #if B2_ENABLE_CONTROLLER
-        this.m_controllerList = null;
-        this.m_controllerCount = 0;
-        // #endif
     }
 
     CreateFixture(def: b2IFixtureDef): b2Fixture;
@@ -350,10 +346,10 @@ export class b2Body {
             throw new Error();
         }
 
-        // DEBUG: b2Assert(fixture.m_body === this);
+        !!B2_DEBUG && b2Assert(fixture.m_body === this);
 
         // Remove the fixture from this body's singly linked list.
-        // DEBUG: b2Assert(this.m_fixtureCount > 0);
+        !!B2_DEBUG && b2Assert(this.m_fixtureCount > 0);
         let node: b2Fixture | null = this.m_fixtureList;
         let ppF: b2Fixture | null = null;
         // DEBUG: let found: boolean = false;
@@ -373,7 +369,8 @@ export class b2Body {
         }
 
         // You tried to remove a shape that is not attached to this body.
-        // DEBUG: b2Assert(found);
+        // TODO: debug
+        //!!B2_DEBUG && b2Assert(found);
 
         // Destroy any contacts associated with the fixture.
         let edge: b2ContactEdge | null = this.m_contactList;
@@ -421,9 +418,9 @@ export class b2Body {
 
         this.m_xf.q.SetAngle(angle);
         this.m_xf.p.Set(x, y);
-        // #if B2_ENABLE_PARTICLE
-        this.m_xf0.Copy(this.m_xf);
-        // #endif
+        if (B2_ENABLE_PARTICLE) {
+            this.m_xf0.Copy(this.m_xf);
+        }
 
         b2Transform.MulXV(this.m_xf, this.m_sweep.localCenter, this.m_sweep.c);
         this.m_sweep.a = angle;
@@ -714,7 +711,7 @@ export class b2Body {
 
         if (massData.I > 0 && !this.m_fixedRotationFlag) {
             this.m_I = massData.I - this.m_mass * b2Vec2.DotVV(massData.center, massData.center);
-            // DEBUG: b2Assert(this.m_I > 0);
+            !!B2_DEBUG && b2Assert(this.m_I > 0);
             this.m_invI = 1 / this.m_I;
         }
 
@@ -751,7 +748,7 @@ export class b2Body {
             return;
         }
 
-        // DEBUG: b2Assert(this.m_type === b2BodyType.b2_dynamicBody);
+        !!B2_DEBUG && b2Assert(this.m_type === b2BodyType.b2_dynamicBody);
 
         // Accumulate mass over all fixtures.
         const localCenter: b2Vec2 = b2Body.ResetMassData_s_localCenter.SetZero();
@@ -781,7 +778,7 @@ export class b2Body {
         if (this.m_I > 0 && !this.m_fixedRotationFlag) {
             // Center the inertia about the center of mass.
             this.m_I -= this.m_mass * b2Vec2.DotVV(localCenter, localCenter);
-            // DEBUG: b2Assert(this.m_I > 0);
+            !!B2_DEBUG && b2Assert(this.m_I > 0);
             this.m_invI = 1 / this.m_I;
         } else {
             this.m_I = 0;
@@ -1071,51 +1068,6 @@ export class b2Body {
         return this.m_world;
     }
 
-    /// Dump this body to a log file
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        const bodyIndex: number = this.m_islandIndex;
-
-        log("{\n");
-        log("  const bd: b2BodyDef = new b2BodyDef();\n");
-        let type_str: string = "";
-        switch (this.m_type) {
-            case b2BodyType.b2_staticBody:
-                type_str = "b2BodyType.b2_staticBody";
-                break;
-            case b2BodyType.b2_kinematicBody:
-                type_str = "b2BodyType.b2_kinematicBody";
-                break;
-            case b2BodyType.b2_dynamicBody:
-                type_str = "b2BodyType.b2_dynamicBody";
-                break;
-            default:
-                // DEBUG: b2Assert(false);
-                break;
-        }
-        log("  bd.type = %s;\n", type_str);
-        log("  bd.position.Set(%.15f, %.15f);\n", this.m_xf.p.x, this.m_xf.p.y);
-        log("  bd.angle = %.15f;\n", this.m_sweep.a);
-        log("  bd.linearVelocity.Set(%.15f, %.15f);\n", this.m_linearVelocity.x, this.m_linearVelocity.y);
-        log("  bd.angularVelocity = %.15f;\n", this.m_angularVelocity);
-        log("  bd.linearDamping = %.15f;\n", this.m_linearDamping);
-        log("  bd.angularDamping = %.15f;\n", this.m_angularDamping);
-        log("  bd.allowSleep = %s;\n", (this.m_autoSleepFlag) ? ("true") : ("false"));
-        log("  bd.awake = %s;\n", (this.m_awakeFlag) ? ("true") : ("false"));
-        log("  bd.fixedRotation = %s;\n", (this.m_fixedRotationFlag) ? ("true") : ("false"));
-        log("  bd.bullet = %s;\n", (this.m_bulletFlag) ? ("true") : ("false"));
-        log("  bd.active = %s;\n", (this.m_activeFlag) ? ("true") : ("false"));
-        log("  bd.gravityScale = %.15f;\n", this.m_gravityScale);
-        log("\n");
-        log("  bodies[%d] = this.m_world.CreateBody(bd);\n", this.m_islandIndex);
-        log("\n");
-        for (let f: b2Fixture | null = this.m_fixtureList; f; f = f.m_next) {
-            log("  {\n");
-            f.Dump(log, bodyIndex);
-            log("  }\n");
-        }
-        log("}\n");
-    }
-
     private static SynchronizeFixtures_s_xf1: b2Transform = new b2Transform();
     private static SynchronizeFixtures_s_displacement: b2Vec2 = new b2Vec2();
 
@@ -1180,6 +1132,5 @@ export class b2Body {
     GetControllerCount(): number {
         return this.m_controllerCount;
     }
-
     // #endif
 }

@@ -16,21 +16,26 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
 import {b2Transform, b2Vec2, XY} from "../../common/b2Math";
 import {b2AABB, b2RayCastInput, b2RayCastOutput} from "../b2Collision";
 import {b2DistanceProxy} from "../b2Distance";
+import {b2Assert} from "../../common/b2Settings";
 
 /// This holds the mass data computed for a shape.
 export class b2MassData {
     /// The mass of the shape, usually in kilograms.
-    mass: number = 0;
-
-    /// The position of the shape's centroid relative to the shape's origin.
-    readonly center: b2Vec2 = new b2Vec2(0, 0);
+    mass = NaN;
 
     /// The rotational inertia of the shape about the local origin.
-    I: number = 0;
+    I = NaN;
+
+    /// The position of the shape's centroid relative to the shape's origin.
+    readonly center = new b2Vec2();
+
+    constructor() {
+        this.mass = 0.0;
+        this.I = 0.0;
+    }
 }
 
 export const enum b2ShapeType {
@@ -61,7 +66,7 @@ export abstract class b2Shape {
     abstract Clone(): b2Shape;
 
     Copy(other: b2Shape): b2Shape {
-        // DEBUG: b2Assert(this.m_type === other.m_type);
+        !!B2_DEBUG && b2Assert(this.m_type === other.m_type);
         this.m_radius = other.m_radius;
         return this;
     }
@@ -80,15 +85,12 @@ export abstract class b2Shape {
     /// @param p a point in world coordinates.
     abstract TestPoint(xf: b2Transform, p: XY): boolean;
 
-    // #if B2_ENABLE_PARTICLE
     /// Compute the distance from the current shape to the specified point. This only works for convex shapes.
     /// @param xf the shape world transform.
     /// @param p a point in world coordinates.
     /// @param distance returns the distance from the current shape.
     /// @param normal returns the direction in which the distance increases.
     abstract ComputeDistance(xf: b2Transform, p: b2Vec2, normal: b2Vec2, childIndex: number): number;
-
-    // #endif
 
     /// Cast a ray against a child shape.
     /// @param output the ray-cast results.
@@ -112,6 +114,4 @@ export abstract class b2Shape {
     abstract SetupDistanceProxy(proxy: b2DistanceProxy, index: number): void;
 
     abstract ComputeSubmergedArea(normal: b2Vec2, offset: number, xf: b2Transform, c: b2Vec2): number;
-
-    abstract Dump(log: (format: string, ...args: any[]) => void): void;
 }

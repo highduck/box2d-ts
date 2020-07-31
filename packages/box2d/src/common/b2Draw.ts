@@ -193,9 +193,7 @@ export const enum b2DrawFlags {
     e_aabbBit = 0x0004, ///< draw axis aligned bounding boxes
     e_pairBit = 0x0008, ///< draw broad-phase pairs
     e_centerOfMassBit = 0x0010, ///< draw center of mass frame
-    // #if B2_ENABLE_PARTICLE
     e_particleBit = 0x0020, ///< draw particles
-    // #endif
     e_controllerBit = 0x0040, /// @see b2Controller list
     e_all = 0x003f,
 }
@@ -233,10 +231,7 @@ export abstract class b2Draw {
 
     abstract DrawSolidCircle(center: XY, radius: number, axis: XY, color: RGBA): void;
 
-    // #if B2_ENABLE_PARTICLE
     abstract DrawParticles(centers: XY[], radius: number, colors: RGBA[] | null, count: number): void;
-
-    // #endif
 
     abstract DrawSegment(p1: XY, p2: XY, color: RGBA): void;
 

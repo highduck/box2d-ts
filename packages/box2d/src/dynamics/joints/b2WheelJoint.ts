@@ -16,8 +16,8 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
-import {b2_linearSlop, b2_pi, b2Maybe} from "../../common/b2Settings";
+
+import {b2_linearSlop, b2_pi, b2Assert, b2Maybe} from "../../common/b2Settings";
 import {b2Abs, b2Clamp, b2Rot, b2Vec2, XY} from "../../common/b2Math";
 import {b2IJointDef, b2Joint, b2JointDef, b2JointType} from "./b2Joint";
 import {b2SolverData} from "../b2TimeStep";
@@ -453,7 +453,7 @@ export class b2WheelJoint extends b2Joint {
     }
 
     GetDefinition(def: b2WheelJointDef): b2WheelJointDef {
-        // DEBUG: b2Assert(false); // TODO
+        !!B2_DEBUG && b2Assert(false); // TODO
         return def;
     }
 
@@ -596,24 +596,5 @@ export class b2WheelJoint extends b2Joint {
 
     GetMotorTorque(inv_dt: number): number {
         return inv_dt * this.m_motorImpulse;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        const indexA = this.m_bodyA.m_islandIndex;
-        const indexB = this.m_bodyB.m_islandIndex;
-
-        log("  const jd: b2WheelJointDef = new b2WheelJointDef();\n");
-        log("  jd.bodyA = bodies[%d];\n", indexA);
-        log("  jd.bodyB = bodies[%d];\n", indexB);
-        log("  jd.collideConnected = %s;\n", (this.m_collideConnected) ? ("true") : ("false"));
-        log("  jd.localAnchorA.Set(%.15f, %.15f);\n", this.m_localAnchorA.x, this.m_localAnchorA.y);
-        log("  jd.localAnchorB.Set(%.15f, %.15f);\n", this.m_localAnchorB.x, this.m_localAnchorB.y);
-        log("  jd.localAxisA.Set(%.15f, %.15f);\n", this.m_localXAxisA.x, this.m_localXAxisA.y);
-        log("  jd.enableMotor = %s;\n", (this.m_enableMotor) ? ("true") : ("false"));
-        log("  jd.motorSpeed = %.15f;\n", this.m_motorSpeed);
-        log("  jd.maxMotorTorque = %.15f;\n", this.m_maxMotorTorque);
-        log("  jd.frequencyHz = %.15f;\n", this.m_frequencyHz);
-        log("  jd.dampingRatio = %.15f;\n", this.m_dampingRatio);
-        log("  joints[%d] = this.m_world.CreateJoint(jd);\n", this.m_index);
     }
 }

@@ -23,10 +23,8 @@ import {b2Contact} from "./contacts/b2Contact";
 import {b2BodyType} from "./b2Body";
 import {b2Joint} from "./joints/b2Joint";
 import {b2Filter, b2Fixture} from "./b2Fixture";
-// #if B2_ENABLE_PARTICLE
 import {b2ParticleGroup} from "../particle/b2ParticleGroup";
 import {b2ParticleBodyContact, b2ParticleContact, b2ParticleSystem} from "../particle/b2ParticleSystem";
-// #endif
 
 /// Joints and fixtures are destroyed when their associated
 /// body is destroyed. Implement this listener so that you

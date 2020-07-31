@@ -16,7 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../common/b2Settings";
+import { b2Assert } from "../common/b2Settings";
 import {b2BroadPhase} from "../collision/b2BroadPhase";
 import {b2TreeNode} from "../collision/b2DynamicTree";
 import {b2TestOverlapAABB} from "../collision/b2Collision";
@@ -38,8 +38,8 @@ export class b2ContactManager {
 
     // Broad-phase callback.
     AddPair(proxyA: b2FixtureProxy, proxyB: b2FixtureProxy): void {
-        // DEBUG: b2Assert(proxyA instanceof b2FixtureProxy);
-        // DEBUG: b2Assert(proxyB instanceof b2FixtureProxy);
+        !!B2_DEBUG && b2Assert(proxyA instanceof b2FixtureProxy);
+        !!B2_DEBUG && b2Assert(proxyB instanceof b2FixtureProxy);
 
         let fixtureA: b2Fixture = proxyA.fixture;
         let fixtureB: b2Fixture = proxyB.fixture;

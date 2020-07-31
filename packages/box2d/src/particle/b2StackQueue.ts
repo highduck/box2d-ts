@@ -16,14 +16,12 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// #if B2_ENABLE_PARTICLE
-
-// DEBUG: import { b2Assert } from "../common/b2Settings";
+import {b2Assert} from "../common/b2Settings";
 
 export class b2StackQueue<T> {
     readonly m_buffer: Array<T | null> = [];
-    m_front: number = 0;
-    m_back: number = 0;
+    m_front = 0;
+    m_back = 0;
 
     get m_capacity(): number {
         return this.m_buffer.length;
@@ -46,13 +44,13 @@ export class b2StackQueue<T> {
     }
 
     Pop(): void {
-        // DEBUG: b2Assert(this.m_front < this.m_back);
+        !!B2_DEBUG && b2Assert(this.m_front < this.m_back);
         this.m_buffer[this.m_front] = null;
         this.m_front++;
     }
 
     Empty(): boolean {
-        // DEBUG: b2Assert(this.m_front <= this.m_back);
+        !!B2_DEBUG && b2Assert(this.m_front <= this.m_back);
         return this.m_front === this.m_back;
     }
 
@@ -64,5 +62,3 @@ export class b2StackQueue<T> {
         return item;
     }
 }
-
-// #endif

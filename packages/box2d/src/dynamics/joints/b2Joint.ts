@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
-import {b2Maybe} from "../../common/b2Settings";
+import {b2Assert, b2Maybe} from "../../common/b2Settings";
 import {b2Vec2, XY} from "../../common/b2Math";
 import {b2Body} from "../b2Body";
 import {b2SolverData} from "../b2TimeStep";
@@ -46,7 +45,7 @@ export const enum b2LimitState {
 }
 
 export class b2Jacobian {
-    readonly linear: b2Vec2 = new b2Vec2();
+    readonly linear = new b2Vec2();
     angularA: number = 0;
     angularB: number = 0;
 
@@ -73,16 +72,12 @@ export class b2Jacobian {
 export class b2JointEdge {
     private _other: b2Body | null = null; ///< provides quick access to the other body attached.
     get other(): b2Body {
-        if (this._other === null) {
-            throw new Error();
-        }
-        return this._other;
+        !!B2_DEBUG && b2Assert(this._other !== null);
+        return this._other!;
     }
 
     set other(value: b2Body) {
-        if (this._other !== null) {
-            throw new Error();
-        }
+        !!B2_DEBUG && b2Assert(this._other === null);
         this._other = value;
     }
 
@@ -151,15 +146,15 @@ export abstract class b2Joint {
     m_bodyA: b2Body;
     m_bodyB: b2Body;
 
-    m_index: number = 0;
-
     m_islandFlag: boolean = false;
     m_collideConnected: boolean = false;
 
     m_userData: any = null;
 
+    _logIndex = 0;
+
     constructor(def: b2IJointDef) {
-        // DEBUG: b2Assert(def.bodyA !== def.bodyB);
+        !!B2_DEBUG && b2Assert(def.bodyA !== def.bodyB);
 
         this.m_type = def.type;
         this.m_edgeA.other = def.bodyB;
@@ -224,11 +219,6 @@ export abstract class b2Joint {
     /// the flag is only checked when fixture AABBs begin to overlap.
     GetCollideConnected(): boolean {
         return this.m_collideConnected;
-    }
-
-    /// Dump this joint to the log file.
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        log("// Dump is not supported for this joint type.\n");
     }
 
     /// Shift the origin for any points stored in world coordinates.

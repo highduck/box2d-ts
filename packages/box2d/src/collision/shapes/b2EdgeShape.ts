@@ -16,12 +16,18 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
-import {b2_polygonRadius} from "../../common/b2Settings";
+
+import {b2_polygonRadius, b2Assert} from "../../common/b2Settings";
 import {b2Rot, b2Transform, b2Vec2, XY} from "../../common/b2Math";
 import {b2AABB, b2RayCastInput, b2RayCastOutput} from "../b2Collision";
 import {b2DistanceProxy} from "../b2Distance";
 import {b2MassData, b2Shape, b2ShapeType} from "./b2Shape";
+
+/// @see b2Shape::ComputeDistance
+const ComputeDistance_s_v1 = new b2Vec2();
+const ComputeDistance_s_v2 = new b2Vec2();
+const ComputeDistance_s_d = new b2Vec2();
+const ComputeDistance_s_s = new b2Vec2();
 
 /// A line segment (edge) shape. These can be connected in chains or loops
 /// to other edge shapes. The connectivity information is used to ensure
@@ -55,7 +61,7 @@ export class b2EdgeShape extends b2Shape {
     Copy(other: b2EdgeShape): b2EdgeShape {
         super.Copy(other);
 
-        // DEBUG: b2Assert(other instanceof b2EdgeShape);
+        !!B2_DEBUG && b2Assert(other instanceof b2EdgeShape);
 
         this.m_vertex1.Copy(other.m_vertex1);
         this.m_vertex2.Copy(other.m_vertex2);
@@ -77,33 +83,29 @@ export class b2EdgeShape extends b2Shape {
         return false;
     }
 
-    // #if B2_ENABLE_PARTICLE
-    /// @see b2Shape::ComputeDistance
-    private static ComputeDistance_s_v1 = new b2Vec2();
-    private static ComputeDistance_s_v2 = new b2Vec2();
-    private static ComputeDistance_s_d = new b2Vec2();
-    private static ComputeDistance_s_s = new b2Vec2();
-
     ComputeDistance(xf: b2Transform, p: b2Vec2, normal: b2Vec2, childIndex: number): number {
-        const v1 = b2Transform.MulXV(xf, this.m_vertex1, b2EdgeShape.ComputeDistance_s_v1);
-        const v2 = b2Transform.MulXV(xf, this.m_vertex2, b2EdgeShape.ComputeDistance_s_v2);
+        if(B2_ENABLE_PARTICLE) {
+            const v1 = b2Transform.MulXV(xf, this.m_vertex1, ComputeDistance_s_v1);
+            const v2 = b2Transform.MulXV(xf, this.m_vertex2, ComputeDistance_s_v2);
 
-        const d = b2Vec2.SubVV(p, v1, b2EdgeShape.ComputeDistance_s_d);
-        const s = b2Vec2.SubVV(v2, v1, b2EdgeShape.ComputeDistance_s_s);
-        const ds = b2Vec2.DotVV(d, s);
-        if (ds > 0) {
-            const s2 = b2Vec2.DotVV(s, s);
-            if (ds > s2) {
-                b2Vec2.SubVV(p, v2, d);
-            } else {
-                d.SelfMulSub(ds / s2, s);
+            const d = b2Vec2.SubVV(p, v1, ComputeDistance_s_d);
+            const s = b2Vec2.SubVV(v2, v1, ComputeDistance_s_s);
+            const ds = b2Vec2.DotVV(d, s);
+            if (ds > 0) {
+                const s2 = b2Vec2.DotVV(s, s);
+                if (ds > s2) {
+                    b2Vec2.SubVV(p, v2, d);
+                } else {
+                    d.SelfMulSub(ds / s2, s);
+                }
             }
+            normal.Copy(d);
+            return normal.Normalize();
         }
-        normal.Copy(d);
-        return normal.Normalize();
+        else {
+            return 0.0;
+        }
     }
-
-    // #endif
 
     /// Implement b2Shape.
     // p = p1 + t * d
@@ -200,16 +202,5 @@ export class b2EdgeShape extends b2Shape {
     ComputeSubmergedArea(normal: b2Vec2, offset: number, xf: b2Transform, c: b2Vec2): number {
         c.SetZero();
         return 0;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        log("    const shape: b2EdgeShape = new b2EdgeShape();\n");
-        log("    shape.m_radius = %.15f;\n", this.m_radius);
-        log("    shape.m_vertex0.Set(%.15f, %.15f);\n", this.m_vertex0.x, this.m_vertex0.y);
-        log("    shape.m_vertex1.Set(%.15f, %.15f);\n", this.m_vertex1.x, this.m_vertex1.y);
-        log("    shape.m_vertex2.Set(%.15f, %.15f);\n", this.m_vertex2.x, this.m_vertex2.y);
-        log("    shape.m_vertex3.Set(%.15f, %.15f);\n", this.m_vertex3.x, this.m_vertex3.y);
-        log("    shape.m_hasVertex0 = %s;\n", this.m_hasVertex0);
-        log("    shape.m_hasVertex3 = %s;\n", this.m_hasVertex3);
     }
 }

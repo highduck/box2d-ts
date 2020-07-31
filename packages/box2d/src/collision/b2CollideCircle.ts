@@ -10,8 +10,8 @@ const b2CollideCircles_s_pB: b2Vec2 = new b2Vec2();
 export function b2CollideCircles(manifold: b2Manifold, circleA: b2CircleShape, xfA: b2Transform, circleB: b2CircleShape, xfB: b2Transform): void {
     manifold.pointCount = 0;
 
-    const pA: b2Vec2 = b2Transform.MulXV(xfA, circleA.m_p, b2CollideCircles_s_pA);
-    const pB: b2Vec2 = b2Transform.MulXV(xfB, circleB.m_p, b2CollideCircles_s_pB);
+    const pA = b2Transform.MulXV(xfA, circleA.m_p, b2CollideCircles_s_pA);
+    const pB = b2Transform.MulXV(xfB, circleB.m_p, b2CollideCircles_s_pB);
 
     const distSqr: number = b2Vec2.DistanceSquaredVV(pA, pB);
     const radius: number = circleA.m_radius + circleB.m_radius;

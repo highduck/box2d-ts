@@ -16,47 +16,53 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../common/b2Settings";
-import {b2_linearSlop, b2_maxPolygonVertices} from "../common/b2Settings";
+import {b2_linearSlop, b2_maxPolygonVertices, b2Assert} from "../common/b2Settings";
 import {b2Abs, b2Max, b2MaxInt, b2Rot, b2Sweep, b2Transform, b2Vec2} from "../common/b2Math";
 import {b2Timer} from "../common/b2Timer";
 import {b2Distance, b2DistanceInput, b2DistanceOutput, b2DistanceProxy, b2SimplexCache} from "./b2Distance";
 
-export const b2_toiStats = {
-    time: 0,
-    maxTime: 0,
-    calls: 0,
-    iters: 0,
-    maxIters: 0,
-    rootIters: 0,
-    maxRootIters: 0
-};
+class TOIStats {
+    time = 0;
+    maxTime = 0;
+    calls = 0;
+    iters = 0;
+    maxIters = 0;
+    rootIters = 0;
+    maxRootIters = 0;
 
-export function b2_toi_reset(): void {
-    b2_toiStats.time = 0;
-    b2_toiStats.maxTime = 0;
-    b2_toiStats.calls = 0;
-    b2_toiStats.iters = 0;
-    b2_toiStats.maxIters = 0;
-    b2_toiStats.rootIters = 0;
-    b2_toiStats.maxRootIters = 0;
+    constructor() {
+        this.time = 0.0;
+        this.maxTime = 0.0;
+    }
+
+    Reset() {
+        this.time = 0.0;
+        this.maxTime = 0.0;
+        this.calls = 0;
+        this.iters = 0;
+        this.maxIters = 0;
+        this.rootIters = 0;
+        this.maxRootIters = 0;
+    }
 }
 
-const b2TimeOfImpact_s_xfA: b2Transform = new b2Transform();
-const b2TimeOfImpact_s_xfB: b2Transform = new b2Transform();
-const b2TimeOfImpact_s_pointA: b2Vec2 = new b2Vec2();
-const b2TimeOfImpact_s_pointB: b2Vec2 = new b2Vec2();
-const b2TimeOfImpact_s_normal: b2Vec2 = new b2Vec2();
-const b2TimeOfImpact_s_axisA: b2Vec2 = new b2Vec2();
-const b2TimeOfImpact_s_axisB: b2Vec2 = new b2Vec2();
+export const b2_toiStats = new TOIStats();
+
+const b2TimeOfImpact_s_xfA = new b2Transform();
+const b2TimeOfImpact_s_xfB = new b2Transform();
+const b2TimeOfImpact_s_pointA = new b2Vec2();
+const b2TimeOfImpact_s_pointB = new b2Vec2();
+const b2TimeOfImpact_s_normal = new b2Vec2();
+const b2TimeOfImpact_s_axisA = new b2Vec2();
+const b2TimeOfImpact_s_axisB = new b2Vec2();
 
 /// Input parameters for b2TimeOfImpact
 export class b2TOIInput {
-    readonly proxyA: b2DistanceProxy = new b2DistanceProxy();
-    readonly proxyB: b2DistanceProxy = new b2DistanceProxy();
-    readonly sweepA: b2Sweep = new b2Sweep();
-    readonly sweepB: b2Sweep = new b2Sweep();
-    tMax: number = NaN; // defines sweep interval [0, tMax]
+    readonly proxyA = new b2DistanceProxy();
+    readonly proxyB = new b2DistanceProxy();
+    readonly sweepA = new b2Sweep();
+    readonly sweepB = new b2Sweep();
+    tMax = NaN; // defines sweep interval [0, tMax]
     constructor() {
         this.tMax = 0.0;
     }
@@ -100,7 +106,7 @@ export class b2SeparationFunction {
         this.m_proxyA = proxyA;
         this.m_proxyB = proxyB;
         const count: number = cache.count;
-        // DEBUG: b2Assert(0 < count && count < 3);
+        !!B2_DEBUG && b2Assert(0 < count && count < 3);
 
         this.m_sweepA.Copy(sweepA);
         this.m_sweepB.Copy(sweepB);
@@ -118,9 +124,9 @@ export class b2SeparationFunction {
             const pointB: b2Vec2 = b2Transform.MulXV(xfB, localPointB, b2TimeOfImpact_s_pointB);
             b2Vec2.SubVV(pointB, pointA, this.m_axis);
             const s: number = this.m_axis.Normalize();
-            // #if B2_ENABLE_PARTICLE
-            this.m_localPoint.SetZero();
-            // #endif
+            if(B2_ENABLE_PARTICLE) {
+                this.m_localPoint.SetZero();
+            }
             return s;
         } else if (cache.indexA[0] === cache.indexA[1]) {
             // Two points on B and one on A.
@@ -218,7 +224,7 @@ export class b2SeparationFunction {
             return separation;
         }
 
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
         indexA[0] = -1;
         indexB[0] = -1;
         return 0;
@@ -265,24 +271,24 @@ export class b2SeparationFunction {
             }
 
             default:
-                // DEBUG: b2Assert(false);
+                !!B2_DEBUG && b2Assert(false);
                 return 0;
         }
     }
 }
 
-const b2TimeOfImpact_s_timer: b2Timer = new b2Timer();
-const b2TimeOfImpact_s_cache: b2SimplexCache = new b2SimplexCache();
-const b2TimeOfImpact_s_distanceInput: b2DistanceInput = new b2DistanceInput();
-const b2TimeOfImpact_s_distanceOutput: b2DistanceOutput = new b2DistanceOutput();
-const b2TimeOfImpact_s_fcn: b2SeparationFunction = new b2SeparationFunction();
+const b2TimeOfImpact_s_timer = new b2Timer();
+const b2TimeOfImpact_s_cache = new b2SimplexCache();
+const b2TimeOfImpact_s_distanceInput = new b2DistanceInput();
+const b2TimeOfImpact_s_distanceOutput = new b2DistanceOutput();
+const b2TimeOfImpact_s_fcn = new b2SeparationFunction();
 const b2TimeOfImpact_s_indexA: [number] = [0];
 const b2TimeOfImpact_s_indexB: [number] = [0];
-const b2TimeOfImpact_s_sweepA: b2Sweep = new b2Sweep();
-const b2TimeOfImpact_s_sweepB: b2Sweep = new b2Sweep();
+const b2TimeOfImpact_s_sweepA = new b2Sweep();
+const b2TimeOfImpact_s_sweepB = new b2Sweep();
 
 export function b2TimeOfImpact(output: b2TOIOutput, input: b2TOIInput): void {
-    const timer: b2Timer = b2TimeOfImpact_s_timer.Reset();
+    const timer = b2TimeOfImpact_s_timer.Reset();
 
     ++b2_toiStats.calls;
 
@@ -306,7 +312,7 @@ export function b2TimeOfImpact(output: b2TOIOutput, input: b2TOIInput): void {
     const totalRadius: number = proxyA.m_radius + proxyB.m_radius;
     const target: number = b2Max(b2_linearSlop, totalRadius - 3 * b2_linearSlop);
     const tolerance: number = 0.25 * b2_linearSlop;
-    // DEBUG: b2Assert(target > tolerance);
+    !!B2_DEBUG && b2Assert(target > tolerance);
 
     let t1: number = 0;
     const k_maxIterations: number = 20; // TODO_ERIN b2Settings
@@ -492,8 +498,7 @@ export function b2TimeOfImpact(output: b2TOIOutput, input: b2TOIInput): void {
     }
 
     b2_toiStats.maxIters = b2MaxInt(b2_toiStats.maxIters, iter);
-
-    const time: number = timer.GetMilliseconds();
+    const time = timer.GetMilliseconds();
     b2_toiStats.maxTime = b2Max(b2_toiStats.maxTime, time);
     b2_toiStats.time += time;
 }

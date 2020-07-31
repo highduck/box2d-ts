@@ -16,23 +16,18 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// #if B2_ENABLE_PARTICLE
-
-// DEBUG: import { b2Assert, b2_maxParticleIndex } from "../common/b2Settings";
+import {b2_linearSlop, b2_maxFloat, b2Assert, b2MakeArray, b2Maybe} from "../common/b2Settings";
 import {
     b2_barrierCollisionTime,
     b2_invalidParticleIndex,
-    b2_linearSlop,
-    b2_maxFloat,
     b2_maxParticleForce,
+    b2_maxParticleIndex,
     b2_maxParticlePressure,
     b2_maxTriadDistanceSquared,
     b2_minParticleSystemBufferCapacity,
     b2_minParticleWeight,
-    b2_particleStride,
-    b2MakeArray,
-    b2Maybe
-} from "../common/b2Settings";
+    b2_particleStride
+} from "../common/b2SettingsParticleSystem";
 import {
     b2Abs,
     b2Clamp,
@@ -186,6 +181,18 @@ function std_unique<T>(array: T[], first: number, last: number, cmp: (a: T, b: T
     return ++result;
 }
 
+const newIndices = (i: number, start: number, mid: number, end: number): number => {
+    if (i < start) {
+        return i;
+    } else if (i < mid) {
+        return i + end - mid;
+    } else if (i < end) {
+        return i + start - mid;
+    } else {
+        return i;
+    }
+};
+
 export class b2GrowableBuffer<T> {
     data: T[] = [];
     count: number = 0;
@@ -208,7 +215,7 @@ export class b2GrowableBuffer<T> {
             return;
         }
 
-        // DEBUG: b2Assert(this.capacity === this.data.length);
+        !!B2_DEBUG && b2Assert(this.capacity === this.data.length);
         for (let i = this.capacity; i < newCapacity; ++i) {
             this.data[i] = this.allocator();
         }
@@ -218,7 +225,7 @@ export class b2GrowableBuffer<T> {
     Grow(): void {
         // Double the capacity.
         const newCapacity = this.capacity ? 2 * this.capacity : b2_minParticleSystemBufferCapacity;
-        // DEBUG: b2Assert(newCapacity > this.capacity);
+        !!B2_DEBUG && b2Assert(newCapacity > this.capacity);
         this.Reserve(newCapacity);
     }
 
@@ -233,7 +240,7 @@ export class b2GrowableBuffer<T> {
     }
 
     Shorten(newEnd: number): void {
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
     }
 
     Data(): T[] {
@@ -245,7 +252,7 @@ export class b2GrowableBuffer<T> {
     }
 
     SetCount(newCount: number): void {
-        // DEBUG: b2Assert(0 <= newCount && newCount <= this.capacity);
+        !!B2_DEBUG && b2Assert(0 <= newCount && newCount <= this.capacity);
         this.count = newCount;
     }
 
@@ -254,16 +261,20 @@ export class b2GrowableBuffer<T> {
     }
 
     RemoveIf(pred: (t: T) => boolean): void {
-        // DEBUG: let count = 0;
-        // DEBUG: for (let i = 0; i < this.count; ++i) {
-        // DEBUG:   if (!pred(this.data[i])) {
-        // DEBUG:     count++;
-        // DEBUG:   }
-        // DEBUG: }
+        if (!!B2_DEBUG) {
+            let count = 0;
+            for (let i = 0; i < this.count; ++i) {
+                if (!pred(this.data[i])) {
+                    count++;
+                }
+            }
 
-        this.count = std_remove_if(this.data, pred, this.count);
+            this.count = std_remove_if(this.data, pred, this.count);
 
-        // DEBUG: b2Assert(count === this.count);
+            b2Assert(count === this.count);
+        } else {
+            this.count = std_remove_if(this.data, pred, this.count);
+        }
     }
 
     Unique(pred: (a: T, b: T) => boolean): void {
@@ -308,19 +319,23 @@ export class b2FixtureParticleQueryCallback extends b2QueryCallback {
     }
 
     ReportFixtureAndParticle(fixture: b2Fixture, childIndex: number, index: number): void {
-        // DEBUG: b2Assert(false); // pure virtual
+        !!B2_DEBUG && b2Assert(false); // pure virtual
     }
 }
 
 export class b2ParticleContact {
-    indexA: number = 0;
-    indexB: number = 0;
-    weight: number = 0;
-    normal: b2Vec2 = new b2Vec2();
-    flags: b2ParticleFlag = 0;
+    indexA = 0;
+    indexB = 0;
+    weight = NaN;
+    normal = new b2Vec2();
+    flags = b2ParticleFlag.none;
+
+    constructor() {
+        this.weight = 0.0
+    }
 
     SetIndices(a: number, b: number): void {
-        // DEBUG: b2Assert(a <= b2_maxParticleIndex && b <= b2_maxParticleIndex);
+        !!B2_DEBUG && b2Assert(a <= b2_maxParticleIndex && b <= b2_maxParticleIndex);
         this.indexA = a;
         this.indexB = b;
     }
@@ -373,35 +388,51 @@ export class b2ParticleContact {
 }
 
 export class b2ParticleBodyContact {
-    index: number = 0; // Index of the particle making contact.
+    index = 0; // Index of the particle making contact.
     body!: b2Body; // The body making contact.
     fixture!: b2Fixture; // The specific fixture making contact
-    weight: number = 0.0; // Weight of the contact. A value between 0.0f and 1.0f.
-    normal: b2Vec2 = new b2Vec2(); // The normalized direction from the particle to the body.
-    mass: number = 0.0; // The effective mass used in calculating force.
+    weight = NaN; // Weight of the contact. A value between 0.0f and 1.0f.
+    normal = new b2Vec2(); // The normalized direction from the particle to the body.
+    mass = NaN; // The effective mass used in calculating force.
+    constructor() {
+        this.weight = 0.0;
+        this.mass = 0.0;
+    }
 }
 
 export class b2ParticlePair {
-    indexA: number = 0; // Indices of the respective particles making pair.
-    indexB: number = 0;
-    flags: b2ParticleFlag = 0; // The logical sum of the particle flags. See the b2ParticleFlag enum.
-    strength: number = 0.0; // The strength of cohesion among the particles.
-    distance: number = 0.0; // The initial distance of the particles.
+    indexA = 0; // Indices of the respective particles making pair.
+    indexB = 0;
+    flags = b2ParticleFlag.none; // The logical sum of the particle flags. See the b2ParticleFlag enum.
+    strength = NaN; // The strength of cohesion among the particles.
+    distance = NaN; // The initial distance of the particles.
+    constructor() {
+        this.strength = 0.0;
+        this.distance = 0.0;
+    }
 }
 
 export class b2ParticleTriad {
-    indexA: number = 0; // Indices of the respective particles making triad.
-    indexB: number = 0;
-    indexC: number = 0;
-    flags: b2ParticleFlag = 0; // The logical sum of the particle flags. See the b2ParticleFlag enum.
-    strength: number = 0.0; // The strength of cohesion among the particles.
-    pa: b2Vec2 = new b2Vec2(0.0, 0.0); // Values used for calculation.
-    pb: b2Vec2 = new b2Vec2(0.0, 0.0);
-    pc: b2Vec2 = new b2Vec2(0.0, 0.0);
-    ka: number = 0.0;
-    kb: number = 0.0;
-    kc: number = 0.0;
-    s: number = 0.0;
+    indexA = 0; // Indices of the respective particles making triad.
+    indexB = 0;
+    indexC = 0;
+    flags = b2ParticleFlag.none; // The logical sum of the particle flags. See the b2ParticleFlag enum.
+    strength = NaN; // The strength of cohesion among the particles.
+    pa = new b2Vec2(); // Values used for calculation.
+    pb = new b2Vec2();
+    pc = new b2Vec2();
+    ka = NaN;
+    kb = NaN;
+    kc = NaN;
+    s = NaN;
+
+    constructor() {
+        this.strength = 0.0;
+        this.ka = 0.0;
+        this.kb = 0.0;
+        this.kc = 0.0;
+        this.s = 0.0;
+    }
 }
 
 export class b2ParticleSystemDef {
@@ -412,24 +443,24 @@ export class b2ParticleSystemDef {
      * Enable strict Particle/Body contact check.
      * See SetStrictContactCheck for details.
      */
-    strictContactCheck: boolean = false;
+    strictContactCheck = false;
 
     /**
      * Set the particle density.
      * See SetDensity for details.
      */
-    density: number = 1.0;
+    density = NaN;
 
     /**
      * Change the particle gravity scale. Adjusts the effect of the
      * global gravity vector on particles. Default value is 1.0f.
      */
-    gravityScale: number = 1.0;
+    gravityScale = NaN;
 
     /**
      * Particles behave as circles with this radius. In Box2D units.
      */
-    radius: number = 1.0;
+    radius = NaN;
 
     /**
      * Set the maximum number of particles.
@@ -438,50 +469,50 @@ export class b2ParticleSystemDef {
      * memory.
      * See SetMaxParticleCount for details.
      */
-    maxCount: number = 0;
+    maxCount = 0;
 
     /**
      * Increases pressure in response to compression
      * Smaller values allow more compression
      */
-    pressureStrength: number = 0.005;
+    pressureStrength = 0.005;
 
     /**
      * Reduces velocity along the collision normal
      * Smaller value reduces less
      */
-    dampingStrength: number = 1.0;
+    dampingStrength = NaN;
 
     /**
      * Restores shape of elastic particle groups
      * Larger values increase elastic particle velocity
      */
-    elasticStrength: number = 0.25;
+    elasticStrength = 0.25;
 
     /**
      * Restores length of spring particle groups
      * Larger values increase spring particle velocity
      */
-    springStrength: number = 0.25;
+    springStrength = 0.25;
 
     /**
      * Reduces relative velocity of viscous particles
      * Larger values slow down viscous particles more
      */
-    viscousStrength: number = 0.25;
+    viscousStrength = 0.25;
 
     /**
      * Produces pressure on tensile particles
      * 0~0.2. Larger values increase the amount of surface tension.
      */
-    surfaceTensionPressureStrength: number = 0.2;
+    surfaceTensionPressureStrength = 0.2;
 
     /**
      * Smoothes outline of tensile particles
      * 0~0.2. Larger values result in rounder, smoother,
      * water-drop-like clusters of particles.
      */
-    surfaceTensionNormalStrength: number = 0.2;
+    surfaceTensionNormalStrength = 0.2;
 
     /**
      * Produces additional pressure on repulsive particles
@@ -489,19 +520,19 @@ export class b2ParticleSystemDef {
      * Negative values mean attraction. The range where particles
      * behave stably is about -0.2 to 2.0.
      */
-    repulsiveStrength: number = 1.0;
+    repulsiveStrength = NaN;
 
     /**
      * Produces repulsion between powder particles
      * Larger values repulse more
      */
-    powderStrength: number = 0.5;
+    powderStrength = 0.5;
 
     /**
      * Pushes particles out of solid particle group
      * Larger values repulse more
      */
-    ejectionStrength: number = 0.5;
+    ejectionStrength = 0.5;
 
     /**
      * Produces static pressure
@@ -509,20 +540,20 @@ export class b2ParticleSystemDef {
      * For a description of static pressure, see
      * http://en.wikipedia.org/wiki/Static_pressure#Static_pressure_in_fluid_dynamics
      */
-    staticPressureStrength: number = 0.2;
+    staticPressureStrength = 0.2;
 
     /**
      * Reduces instability in static pressure calculation
      * Larger values make stabilize static pressure with fewer
      * iterations
      */
-    staticPressureRelaxation: number = 0.2;
+    staticPressureRelaxation = 0.2;
 
     /**
      * Computes static pressure more precisely
      * See SetStaticPressureIterations for details
      */
-    staticPressureIterations: number = 8;
+    staticPressureIterations = 8;
 
     /**
      * Determines how fast colors are mixed
@@ -530,14 +561,14 @@ export class b2ParticleSystemDef {
      * 0.5f ==> mixed half way each simulation step (see
      * b2World::Step())
      */
-    colorMixingStrength: number = 0.5;
+    colorMixingStrength = 0.5;
 
     /**
      * Whether to destroy particles by age when no more particles
      * can be created.  See #b2ParticleSystem::SetDestructionByAge()
      * for more information.
      */
-    destroyByAge: boolean = true;
+    destroyByAge = true;
 
     /**
      * Granularity of particle lifetimes in seconds.  By default
@@ -547,7 +578,15 @@ export class b2ParticleSystemDef {
      * lifetimeGranularity) seconds. With the value set to 1/60 the
      * maximum lifetime or age of a particle is 2.27 years.
      */
-    lifetimeGranularity: number = 1.0 / 60.0;
+    lifetimeGranularity = 1.0 / 60.0;
+
+    constructor() {
+        this.density = 1.0;
+        this.gravityScale = 1.0;
+        this.radius = 1.0;
+        this.dampingStrength = 1.0;
+        this.repulsiveStrength = 1.0;
+    }
 
     Copy(def: b2ParticleSystemDef): b2ParticleSystemDef {
         this.strictContactCheck = def.strictContactCheck;
@@ -580,20 +619,20 @@ export class b2ParticleSystemDef {
 }
 
 export class b2ParticleSystem {
-    m_paused: boolean = false;
-    m_timestamp: number = 0;
-    m_allParticleFlags: b2ParticleFlag = 0;
-    m_needsUpdateAllParticleFlags: boolean = false;
-    m_allGroupFlags: b2ParticleGroupFlag = 0;
-    m_needsUpdateAllGroupFlags: boolean = false;
-    m_hasForce: boolean = false;
-    m_iterationIndex: number = 0;
-    m_inverseDensity: number = 0.0;
-    m_particleDiameter: number = 0.0;
-    m_inverseDiameter: number = 0.0;
-    m_squaredDiameter: number = 0.0;
-    m_count: number = 0;
-    m_internalAllocatedCapacity: number = 0;
+    m_paused = false;
+    m_timestamp = 0;
+    m_allParticleFlags = b2ParticleFlag.none;
+    m_needsUpdateAllParticleFlags = false;
+    m_allGroupFlags = b2ParticleGroupFlag.none;
+    m_needsUpdateAllGroupFlags = false;
+    m_hasForce = false;
+    m_iterationIndex = 0;
+    m_inverseDensity = NaN;
+    m_particleDiameter = NaN;
+    m_inverseDiameter = NaN;
+    m_squaredDiameter = NaN;
+    m_count = 0;
+    m_internalAllocatedCapacity = 0;
     /**
      * Allocator for b2ParticleHandle instances.
      */
@@ -601,10 +640,10 @@ export class b2ParticleSystem {
     /**
      * Maps particle indicies to handles.
      */
-    m_handleIndexBuffer: b2ParticleSystem_UserOverridableBuffer<b2ParticleHandle | null> = new b2ParticleSystem_UserOverridableBuffer<b2ParticleHandle | null>();
-    m_flagsBuffer: b2ParticleSystem_UserOverridableBuffer<b2ParticleFlag> = new b2ParticleSystem_UserOverridableBuffer<b2ParticleFlag>();
-    m_positionBuffer: b2ParticleSystem_UserOverridableBuffer<b2Vec2> = new b2ParticleSystem_UserOverridableBuffer<b2Vec2>();
-    m_velocityBuffer: b2ParticleSystem_UserOverridableBuffer<b2Vec2> = new b2ParticleSystem_UserOverridableBuffer<b2Vec2>();
+    m_handleIndexBuffer = new b2ParticleSystem_UserOverridableBuffer<b2ParticleHandle | null>();
+    m_flagsBuffer = new b2ParticleSystem_UserOverridableBuffer<b2ParticleFlag>();
+    m_positionBuffer = new b2ParticleSystem_UserOverridableBuffer<b2Vec2>();
+    m_velocityBuffer = new b2ParticleSystem_UserOverridableBuffer<b2Vec2>();
     m_forceBuffer: b2Vec2[] = [];
     /**
      * this.m_weightBuffer is populated in ComputeWeight and used in
@@ -637,61 +676,62 @@ export class b2ParticleSystem {
      * reallocated on subsequent CreateParticle() calls.
      */
     m_depthBuffer: number[] = [];
-    m_colorBuffer: b2ParticleSystem_UserOverridableBuffer<b2Color> = new b2ParticleSystem_UserOverridableBuffer<b2Color>();
+    m_colorBuffer = new b2ParticleSystem_UserOverridableBuffer<b2Color>();
     m_groupBuffer: Array<b2ParticleGroup | null> = [];
-    m_userDataBuffer: b2ParticleSystem_UserOverridableBuffer<any> = new b2ParticleSystem_UserOverridableBuffer();
+    m_userDataBuffer = new b2ParticleSystem_UserOverridableBuffer<any>();
     /**
      * Stuck particle detection parameters and record keeping
      */
-    m_stuckThreshold: number = 0;
-    m_lastBodyContactStepBuffer: b2ParticleSystem_UserOverridableBuffer<number> = new b2ParticleSystem_UserOverridableBuffer<number>();
-    m_bodyContactCountBuffer: b2ParticleSystem_UserOverridableBuffer<number> = new b2ParticleSystem_UserOverridableBuffer<number>();
-    m_consecutiveContactStepsBuffer: b2ParticleSystem_UserOverridableBuffer<number> = new b2ParticleSystem_UserOverridableBuffer<number>();
-    m_stuckParticleBuffer: b2GrowableBuffer<number> = new b2GrowableBuffer<number>(() => 0);
-    m_proxyBuffer: b2GrowableBuffer<b2ParticleSystem_Proxy> = new b2GrowableBuffer<b2ParticleSystem_Proxy>(() => new b2ParticleSystem_Proxy());
-    m_contactBuffer: b2GrowableBuffer<b2ParticleContact> = new b2GrowableBuffer<b2ParticleContact>(() => new b2ParticleContact());
-    m_bodyContactBuffer: b2GrowableBuffer<b2ParticleBodyContact> = new b2GrowableBuffer<b2ParticleBodyContact>(() => new b2ParticleBodyContact());
-    m_pairBuffer: b2GrowableBuffer<b2ParticlePair> = new b2GrowableBuffer<b2ParticlePair>(() => new b2ParticlePair());
-    m_triadBuffer: b2GrowableBuffer<b2ParticleTriad> = new b2GrowableBuffer<b2ParticleTriad>(() => new b2ParticleTriad());
+    m_stuckThreshold = 0;
+    m_lastBodyContactStepBuffer = new b2ParticleSystem_UserOverridableBuffer<number>();
+    m_bodyContactCountBuffer = new b2ParticleSystem_UserOverridableBuffer<number>();
+    m_consecutiveContactStepsBuffer = new b2ParticleSystem_UserOverridableBuffer<number>();
+    m_stuckParticleBuffer = new b2GrowableBuffer<number>(() => 0);
+    m_proxyBuffer = new b2GrowableBuffer<b2ParticleSystem_Proxy>(() => new b2ParticleSystem_Proxy());
+    m_contactBuffer = new b2GrowableBuffer<b2ParticleContact>(() => new b2ParticleContact());
+    m_bodyContactBuffer = new b2GrowableBuffer<b2ParticleBodyContact>(() => new b2ParticleBodyContact());
+    m_pairBuffer = new b2GrowableBuffer<b2ParticlePair>(() => new b2ParticlePair());
+    m_triadBuffer = new b2GrowableBuffer<b2ParticleTriad>(() => new b2ParticleTriad());
     /**
      * Time each particle should be destroyed relative to the last
      * time this.m_timeElapsed was initialized.  Each unit of time
      * corresponds to b2ParticleSystemDef::lifetimeGranularity
      * seconds.
      */
-    m_expirationTimeBuffer: b2ParticleSystem_UserOverridableBuffer<number> = new b2ParticleSystem_UserOverridableBuffer<number>();
+    m_expirationTimeBuffer = new b2ParticleSystem_UserOverridableBuffer<number>();
     /**
      * List of particle indices sorted by expiration time.
      */
-    m_indexByExpirationTimeBuffer: b2ParticleSystem_UserOverridableBuffer<number> = new b2ParticleSystem_UserOverridableBuffer<number>();
+    m_indexByExpirationTimeBuffer = new b2ParticleSystem_UserOverridableBuffer<number>();
     /**
      * Time elapsed in 32:32 fixed point.  Each non-fractional unit
      * of time corresponds to
      * b2ParticleSystemDef::lifetimeGranularity seconds.
      */
+        // TODO: check and implement optimized SMI storage?
     m_timeElapsed: number = 0;
     /**
      * Whether the expiration time buffer has been modified and
      * needs to be resorted.
      */
-    m_expirationTimeBufferRequiresSorting: boolean = false;
-    m_groupCount: number = 0;
+    m_expirationTimeBufferRequiresSorting = false;
+    m_groupCount = 0;
     m_groupList: b2ParticleGroup | null = null;
-    m_def: b2ParticleSystemDef = new b2ParticleSystemDef();
+    m_def = new b2ParticleSystemDef();
     m_world: b2World;
     m_prev: b2ParticleSystem | null = null;
     m_next: b2ParticleSystem | null = null;
 
-    static readonly xTruncBits: number = 12;
-    static readonly yTruncBits: number = 12;
-    static readonly tagBits: number = 8 * 4; // 8u * sizeof(uint32);
-    static readonly yOffset: number = 1 << (b2ParticleSystem.yTruncBits - 1);
-    static readonly yShift: number = b2ParticleSystem.tagBits - b2ParticleSystem.yTruncBits;
-    static readonly xShift: number = b2ParticleSystem.tagBits - b2ParticleSystem.yTruncBits - b2ParticleSystem.xTruncBits;
-    static readonly xScale: number = 1 << b2ParticleSystem.xShift;
-    static readonly xOffset: number = b2ParticleSystem.xScale * (1 << (b2ParticleSystem.xTruncBits - 1));
-    static readonly yMask: number = ((1 << b2ParticleSystem.yTruncBits) - 1) << b2ParticleSystem.yShift;
-    static readonly xMask: number = ~b2ParticleSystem.yMask;
+    static readonly xTruncBits = 12;
+    static readonly yTruncBits = 12;
+    static readonly tagBits = 8 * 4; // 8u * sizeof(uint32);
+    static readonly yOffset = 1 << (b2ParticleSystem.yTruncBits - 1);
+    static readonly yShift = b2ParticleSystem.tagBits - b2ParticleSystem.yTruncBits;
+    static readonly xShift = b2ParticleSystem.tagBits - b2ParticleSystem.yTruncBits - b2ParticleSystem.xTruncBits;
+    static readonly xScale = 1 << b2ParticleSystem.xShift;
+    static readonly xOffset = b2ParticleSystem.xScale * (1 << (b2ParticleSystem.xTruncBits - 1));
+    static readonly yMask = ((1 << b2ParticleSystem.yTruncBits) - 1) << b2ParticleSystem.yShift;
+    static readonly xMask = ~b2ParticleSystem.yMask;
 
     static computeTag(x: number, y: number): number {
         ///return ((uint32)(y + yOffset) << yShift) + (uint32)(xScale * x + xOffset);
@@ -704,12 +744,17 @@ export class b2ParticleSystem {
     }
 
     constructor(def: b2ParticleSystemDef, world: b2World) {
+        this.m_inverseDensity = 0.0;
+        this.m_particleDiameter = 0.0;
+        this.m_inverseDiameter = 0.0;
+        this.m_squaredDiameter = 0.0;
+
         this.SetStrictContactCheck(def.strictContactCheck);
         this.SetDensity(def.density);
         this.SetGravityScale(def.gravityScale);
         this.SetRadius(def.radius);
         this.SetMaxParticleCount(def.maxCount);
-        // DEBUG: b2Assert(def.lifetimeGranularity > 0.0);
+        !!B2_DEBUG && b2Assert(def.lifetimeGranularity > 0.0);
         this.m_def = def.Clone();
         this.m_world = world;
         this.SetDestructionByAge(this.m_def.destroyByAge);
@@ -828,7 +873,7 @@ export class b2ParticleSystem {
             if (group.m_firstIndex < group.m_lastIndex) {
                 // Move particles in the group just before the new particle.
                 this.RotateBuffer(group.m_firstIndex, group.m_lastIndex, index);
-                // DEBUG: b2Assert(group.m_lastIndex === index);
+                !!B2_DEBUG && b2Assert(group.m_lastIndex === index);
                 // Update the index range of the group to contain the new particle.
                 group.m_lastIndex = index + 1;
             } else {
@@ -848,7 +893,7 @@ export class b2ParticleSystem {
      * Please see #b2ParticleHandle for why you might want a handle.
      */
     GetParticleHandleFromIndex(index: number): b2ParticleHandle {
-        // DEBUG: b2Assert(index >= 0 && index < this.GetParticleCount() && index !== b2_invalidParticleIndex);
+        !!B2_DEBUG && b2Assert(index >= 0 && index < this.GetParticleCount() && index !== b2_invalidParticleIndex);
         this.m_handleIndexBuffer.data = this.RequestBuffer(this.m_handleIndexBuffer.data);
         let handle = this.m_handleIndexBuffer.data[index];
         if (handle) {
@@ -857,8 +902,8 @@ export class b2ParticleSystem {
         // Create a handle.
         ///handle = m_handleAllocator.Allocate();
         handle = new b2ParticleHandle();
-        // DEBUG: b2Assert(handle !== null);
-        handle.SetIndex(index);
+        !!B2_DEBUG && b2Assert(handle !== null);
+        handle.index = index;
         this.m_handleIndexBuffer.data[index] = handle;
         return handle;
     }
@@ -896,9 +941,9 @@ export class b2ParticleSystem {
      */
     DestroyOldestParticle(index: number, callDestructionListener: boolean = false): void {
         const particleCount = this.GetParticleCount();
-        // DEBUG: b2Assert(index >= 0 && index < particleCount);
+        !!B2_DEBUG && b2Assert(index >= 0 && index < particleCount);
         // Make sure particle lifetime tracking is enabled.
-        // DEBUG: b2Assert(this.m_indexByExpirationTimeBuffer.data !== null);
+        !!B2_DEBUG && b2Assert(this.m_indexByExpirationTimeBuffer.data !== null);
         // Destroy the oldest particle (preferring to destroy finite
         // lifetime particles first) to free a slot in the buffer.
         const oldestFiniteLifetimeParticle =
@@ -1022,11 +1067,11 @@ export class b2ParticleSystem {
             throw new Error();
         }
 
-        // DEBUG: b2Assert(groupA !== groupB);
+        !!B2_DEBUG && b2Assert(groupA !== groupB);
         this.RotateBuffer(groupB.m_firstIndex, groupB.m_lastIndex, this.m_count);
-        // DEBUG: b2Assert(groupB.m_lastIndex === this.m_count);
+        !!B2_DEBUG && b2Assert(groupB.m_lastIndex === this.m_count);
         this.RotateBuffer(groupA.m_firstIndex, groupA.m_lastIndex, groupB.m_firstIndex);
-        // DEBUG: b2Assert(groupA.m_lastIndex === groupB.m_firstIndex);
+        !!B2_DEBUG && b2Assert(groupA.m_lastIndex === groupB.m_firstIndex);
 
         // Create pairs and triads connecting groupA and groupB.
         const filter = new b2ParticleSystem_JoinParticleGroupsFilter(groupB.m_firstIndex);
@@ -1110,7 +1155,7 @@ export class b2ParticleSystem {
      * the oldest particles in the system.
      */
     SetMaxParticleCount(count: number): void {
-        // DEBUG: b2Assert(this.m_count <= count);
+        !!B2_DEBUG && b2Assert(this.m_count <= count);
         this.m_def.maxCount = count;
     }
 
@@ -1379,10 +1424,10 @@ export class b2ParticleSystem {
                 throw new Error();
             }
             const count: number = buffer.length / 2;
-            const array: b2Vec2[] = new Array(count);
+            const array: b2Vec2[] = [];
             let ptr = 0;
             for (let i = 0; i < count; ++i) {
-                array[i] = new b2Vec2(buffer[ptr++], buffer[ptr++]);
+                array.push(new b2Vec2(buffer[ptr++], buffer[ptr++]));
             }
             buffer = array;
         }
@@ -1395,10 +1440,10 @@ export class b2ParticleSystem {
                 throw new Error();
             }
             const count: number = buffer.length / 2;
-            const array: b2Vec2[] = new Array(count);
+            const array: b2Vec2[] = [];
             let ptr = 0;
             for (let i = 0; i < count; ++i) {
-                array[i] = new b2Vec2(buffer[ptr++], buffer[ptr++]);
+                array.push(new b2Vec2(buffer[ptr++], buffer[ptr++]));
             }
             buffer = array;
         }
@@ -1411,15 +1456,15 @@ export class b2ParticleSystem {
                 throw new Error();
             }
             const count: number = buffer.length / 4;
-            const array: b2Color[] = new Array(count);
+            const array: b2Color[] = [];
             let ptr = 0;
             for (let i = 0; i < count; ++i) {
-                array[i] = new b2Color(
+                array.push(new b2Color(
                     buffer[ptr++],
                     buffer[ptr++],
                     buffer[ptr++],
                     buffer[ptr++]
-                );
+                ));
             }
             buffer = array;
         }
@@ -1593,7 +1638,7 @@ export class b2ParticleSystem {
      * destroyed by the application.
      */
     SetParticleLifetime(index: number, lifetime: number): void {
-        // DEBUG: b2Assert(this.ValidateParticleIndex(index));
+        !!B2_DEBUG && b2Assert(this.ValidateParticleIndex(index));
         const initializeExpirationTimes = this.m_indexByExpirationTimeBuffer.data === null;
         this.m_expirationTimeBuffer.data = this.RequestBuffer(this.m_expirationTimeBuffer.data);
         this.m_indexByExpirationTimeBuffer.data = this.RequestBuffer(this.m_indexByExpirationTimeBuffer.data);
@@ -1623,7 +1668,7 @@ export class b2ParticleSystem {
      * indicate the particle has an infinite lifetime.
      */
     GetParticleLifetime(index: number): number {
-        // DEBUG: b2Assert(this.ValidateParticleIndex(index));
+        !!B2_DEBUG && b2Assert(this.ValidateParticleIndex(index));
         return this.ExpirationTimeToLifetime(this.GetExpirationTimeBuffer()[index]);
     }
 
@@ -1766,11 +1811,13 @@ export class b2ParticleSystem {
     ApplyForce(firstIndex: number, lastIndex: number, force: XY): void {
         // Ensure we're not trying to apply force to particles that can't move,
         // such as wall particles.
-        // DEBUG: let flags = 0;
-        // DEBUG: for (let i = firstIndex; i < lastIndex; i++) {
-        // DEBUG:   flags |= this.m_flagsBuffer.data[i];
-        // DEBUG: }
-        // DEBUG: b2Assert(this.ForceCanBeApplied(flags));
+        if (!!B2_DEBUG) {
+            let flags = 0;
+            for (let i = firstIndex; i < lastIndex; i++) {
+                flags |= this.m_flagsBuffer.data[i];
+            }
+            b2Assert(this.ForceCanBeApplied(flags));
+        }
 
         // Early out if force does nothing (optimization).
         ///const b2Vec2 distributedForce = force / (float32)(lastIndex - firstIndex);
@@ -1941,7 +1988,7 @@ export class b2ParticleSystem {
      */
     ComputeAABB(aabb: b2AABB): void {
         const particleCount = this.GetParticleCount();
-        // DEBUG: b2Assert(aabb !== null);
+        !!B2_DEBUG && b2Assert(aabb !== null);
         aabb.lowerBound.x = +b2_maxFloat;
         aabb.lowerBound.y = +b2_maxFloat;
         aabb.upperBound.x = -b2_maxFloat;
@@ -2032,7 +2079,7 @@ export class b2ParticleSystem {
      * Reallocate a buffer
      */
     ReallocateBuffer4<T>(buffer: b2ParticleSystem_UserOverridableBuffer<any>, oldCapacity: number, newCapacity: number, deferred: boolean): T[] {
-        // DEBUG: b2Assert(newCapacity > oldCapacity);
+        !!B2_DEBUG && b2Assert(newCapacity > oldCapacity);
         return this.ReallocateBuffer5(buffer.data, buffer.userSuppliedCapacity, oldCapacity, newCapacity, deferred);
     }
 
@@ -2053,7 +2100,7 @@ export class b2ParticleSystem {
      * of a new pool for handle allocation.
      */
     ReallocateHandleBuffers(newCapacity: number): void {
-        // DEBUG: b2Assert(newCapacity > this.m_internalAllocatedCapacity);
+        !!B2_DEBUG && b2Assert(newCapacity > this.m_internalAllocatedCapacity);
         // Reallocate a new handle / index map buffer, copying old handle pointers
         // is fine since they're kept around.
         this.m_handleIndexBuffer.data = this.ReallocateBuffer4(this.m_handleIndexBuffer, this.m_internalAllocatedCapacity, newCapacity, true);
@@ -2143,7 +2190,7 @@ export class b2ParticleSystem {
             if (shape.GetType() === b2ShapeType.e_edgeShape) {
                 edge = shape as b2EdgeShape;
             } else {
-                // DEBUG: b2Assert(shape.GetType() === b2ShapeType.e_chainShape);
+                !!B2_DEBUG && b2Assert(shape.GetType() === b2ShapeType.e_chainShape);
                 edge = s_edge;
                 (shape as b2ChainShape).GetChildEdge(edge, childIndex);
             }
@@ -2175,7 +2222,7 @@ export class b2ParticleSystem {
         /// identity.SetIdentity();
         const identity = b2Transform.IDENTITY;
         const aabb = s_aabb;
-        // DEBUG: b2Assert(shape.GetChildCount() === 1);
+        !!B2_DEBUG && b2Assert(shape.GetChildCount() === 1);
         shape.ComputeAABB(aabb, identity, 0);
         for (let y = Math.floor(aabb.lowerBound.y / stride) * stride; y < aabb.upperBound.y; y += stride) {
             for (let x = Math.floor(aabb.lowerBound.x / stride) * stride; x < aabb.upperBound.x; x += stride) {
@@ -2201,7 +2248,7 @@ export class b2ParticleSystem {
                 this.CreateParticlesFillShapeForGroup(shape, groupDef, xf);
                 break;
             default:
-                // DEBUG: b2Assert(false);
+                !!B2_DEBUG && b2Assert(false);
                 break;
         }
     }
@@ -2227,7 +2274,7 @@ export class b2ParticleSystem {
         if (this.m_handleIndexBuffer.data) {
             const handle = this.m_handleIndexBuffer.data[oldIndex];
             if (handle) {
-                handle.SetIndex(newIndex);
+                handle.index = newIndex;
             }
             this.m_handleIndexBuffer.data[newIndex] = handle;
             this.m_handleIndexBuffer.data[oldIndex] = null;
@@ -2267,8 +2314,8 @@ export class b2ParticleSystem {
     }
 
     DestroyParticleGroup(group: b2ParticleGroup): void {
-        // DEBUG: b2Assert(this.m_groupCount > 0);
-        // DEBUG: b2Assert(group !== null);
+        !!B2_DEBUG && b2Assert(this.m_groupCount > 0);
+        !!B2_DEBUG && b2Assert(group !== null);
 
         if (this.m_world.m_destructionListener) {
             this.m_world.m_destructionListener.SayGoodbyeParticleGroup(group);
@@ -2311,7 +2358,7 @@ export class b2ParticleSystem {
         // Any particles in each pair/triad should satisfy the following:
         // * filter.IsNeeded returns true
         // * have one of k_pairFlags/k_triadsFlags
-        // DEBUG: b2Assert(firstIndex <= lastIndex);
+        !!B2_DEBUG && b2Assert(firstIndex <= lastIndex);
         let particleFlags = 0;
         for (let i = firstIndex; i < lastIndex; i++) {
             particleFlags |= this.m_flagsBuffer.data[i];
@@ -2506,7 +2553,7 @@ export class b2ParticleSystem {
                 listA = listB;
                 listB = _tmp; ///b2Swap(listA, listB);
             }
-            // DEBUG: b2Assert(listA.count >= listB.count);
+            !!B2_DEBUG && b2Assert(listA.count >= listB.count);
             b2ParticleSystem.MergeParticleLists(listA, listB);
         }
     }
@@ -2518,7 +2565,7 @@ export class b2ParticleSystem {
         //     listB => b1 => b2 => null
         // to
         //     listA => listB => b1 => b2 => a1 => a2 => a3 => null
-        // DEBUG: b2Assert(listA !== listB);
+        !!B2_DEBUG && b2Assert(listA !== listB);
         for (let b: b2ParticleSystem_ParticleListNode = listB; ;) {
             b.list = listA;
             const nextB: b2ParticleSystem_ParticleListNode | null = b.next;
@@ -2564,9 +2611,11 @@ export class b2ParticleSystem {
         //     node => null
         // to
         //     list => node => a1 => a2 => a3 => null
-        // DEBUG: b2Assert(node !== list);
-        // DEBUG: b2Assert(node.list === node);
-        // DEBUG: b2Assert(node.count === 1);
+        if (!!B2_DEBUG) {
+            b2Assert(node !== list);
+            b2Assert(node.list === node);
+            b2Assert(node.count === 1);
+        }
         node.list = list;
         node.next = list.next;
         list.next = node;
@@ -2584,12 +2633,14 @@ export class b2ParticleSystem {
             if (!list.count || list === survivingList) {
                 continue;
             }
-            // DEBUG: b2Assert(list.list === list);
+            !!B2_DEBUG && b2Assert(list.list === list);
             const newGroup: b2ParticleGroup = this.CreateParticleGroup(def);
             for (let node: b2ParticleSystem_ParticleListNode | null = list; node; node = node.next) {
                 const oldIndex = node.index;
-                // DEBUG: const flags = this.m_flagsBuffer.data[oldIndex];
-                // DEBUG: b2Assert(!(flags & b2ParticleFlag.b2_zombieParticle));
+                if (!!B2_DEBUG) {
+                    const flags = this.m_flagsBuffer.data[oldIndex];
+                    b2Assert(!(flags & b2ParticleFlag.b2_zombieParticle));
+                }
                 const newIndex = this.CloneParticle(oldIndex, newGroup);
                 this.m_flagsBuffer.data[oldIndex] |= b2ParticleFlag.b2_zombieParticle;
                 node.index = newIndex;
@@ -2668,7 +2719,7 @@ export class b2ParticleSystem {
             this.m_accumulationBuffer[b] += w;
         }
 
-        // DEBUG: b2Assert(this.m_depthBuffer !== null);
+        !!B2_DEBUG && b2Assert(this.m_depthBuffer !== null);
         for (let i = 0; i < groupsToUpdateCount; i++) {
             const group = groupsToUpdate[i];
             for (let i = group.m_firstIndex; i < group.m_lastIndex; i++) {
@@ -2735,9 +2786,9 @@ export class b2ParticleSystem {
         ///const Proxy* lastProxy = std::upper_bound(firstProxy, endProxy, upperTag);
         const lastProxy = std_upper_bound(this.m_proxyBuffer.data, beginProxy, endProxy, upperTag, b2ParticleSystem_Proxy.CompareTagProxy);
 
-        // DEBUG: b2Assert(beginProxy <= firstProxy);
-        // DEBUG: b2Assert(firstProxy <= lastProxy);
-        // DEBUG: b2Assert(lastProxy <= endProxy);
+        !!B2_DEBUG && b2Assert(beginProxy <= firstProxy);
+        !!B2_DEBUG && b2Assert(firstProxy <= lastProxy);
+        !!B2_DEBUG && b2Assert(lastProxy <= endProxy);
 
         return new b2ParticleSystem_InsideBoundsEnumerator(this, lowerTag, upperTag, firstProxy, lastProxy);
     }
@@ -2759,7 +2810,7 @@ export class b2ParticleSystem {
     }
 
     AddContact(a: number, b: number, contacts: b2GrowableBuffer<b2ParticleContact>): void {
-        // DEBUG: b2Assert(contacts === this.m_contactBuffer);
+        !!B2_DEBUG && b2Assert(contacts === this.m_contactBuffer);
         const flags_data = this.m_flagsBuffer.data;
         const pos_data = this.m_positionBuffer.data;
         ///b2Vec2 d = m_positionBuffer.data[b] - m_positionBuffer.data[a];
@@ -2781,7 +2832,7 @@ export class b2ParticleSystem {
     static readonly AddContact_s_d = new b2Vec2();
 
     FindContacts_Reference(contacts: b2GrowableBuffer<b2ParticleContact>): void {
-        // DEBUG: b2Assert(contacts === this.m_contactBuffer);
+        !!B2_DEBUG && b2Assert(contacts === this.m_contactBuffer);
         const beginProxy = 0;
         const endProxy = this.m_proxyBuffer.count;
 
@@ -2825,7 +2876,7 @@ export class b2ParticleSystem {
     ///static bool AreProxyBuffersTheSame(const b2GrowableBuffer<Proxy>& a, const b2GrowableBuffer<Proxy>& b);
 
     UpdateProxies_Reference(proxies: b2GrowableBuffer<b2ParticleSystem_Proxy>): void {
-        // DEBUG: b2Assert(proxies === this.m_proxyBuffer);
+        !!B2_DEBUG && b2Assert(proxies === this.m_proxyBuffer);
         const pos_data = this.m_positionBuffer.data;
         const inv_diam = this.m_inverseDiameter;
         for (let k = 0; k < this.m_proxyBuffer.count; ++k) {
@@ -2843,7 +2894,7 @@ export class b2ParticleSystem {
     }
 
     SortProxies(proxies: b2GrowableBuffer<b2ParticleSystem_Proxy>): void {
-        // DEBUG: b2Assert(proxies === this.m_proxyBuffer);
+        !!B2_DEBUG && b2Assert(proxies === this.m_proxyBuffer);
 
         ///std::sort(proxies.Begin(), proxies.End());
         std_sort(this.m_proxyBuffer.data, 0, this.m_proxyBuffer.count, b2ParticleSystem_Proxy.CompareProxyProxy);
@@ -2857,7 +2908,7 @@ export class b2ParticleSystem {
         }
 
         /// contacts.RemoveIf(b2ParticleContactRemovePredicate(this, contactFilter));
-        // DEBUG: b2Assert(contacts === this.m_contactBuffer);
+        !!B2_DEBUG && b2Assert(contacts === this.m_contactBuffer);
         const system = this;
         const predicate = (contact: b2ParticleContact): boolean => {
             return ((contact.flags & b2ParticleFlag.b2_particleContactFilterParticle) !== 0) && !contactFilter.ShouldCollideParticleParticle(system, contact.indexA, contact.indexB);
@@ -2963,7 +3014,7 @@ export class b2ParticleSystem {
         ///for (b2ParticleBodyContact* contact = m_bodyContactBuffer.Begin(); contact !== m_bodyContactBuffer.End(); ++contact)
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
-            // DEBUG: b2Assert(contact !== null);
+            !!B2_DEBUG && b2Assert(contact !== null);
             ///FixtureParticle fixtureParticleToFind;
             ///fixtureParticleToFind.first = contact.fixture;
             ///fixtureParticleToFind.second = contact.index;
@@ -3469,7 +3520,7 @@ export class b2ParticleSystem {
         }
         // static pressure
         if (this.m_allParticleFlags & b2ParticleFlag.b2_staticPressureParticle) {
-            // DEBUG: b2Assert(this.m_staticPressureBuffer !== null);
+            !!B2_DEBUG && b2Assert(this.m_staticPressureBuffer !== null);
             for (let i = 0; i < this.m_count; i++) {
                 if (this.m_flagsBuffer.data[i] & b2ParticleFlag.b2_staticPressureParticle) {
                     this.m_accumulationBuffer[i] += this.m_staticPressureBuffer[i];
@@ -3874,7 +3925,7 @@ export class b2ParticleSystem {
         const s_s = b2ParticleSystem.SolveTensile_s_s;
         const s_f = b2ParticleSystem.SolveTensile_s_f;
         const vel_data = this.m_velocityBuffer.data;
-        // DEBUG: b2Assert(this.m_accumulation2Buffer !== null);
+        !!B2_DEBUG && b2Assert(this.m_accumulation2Buffer !== null);
         for (let i = 0; i < this.m_count; i++) {
             this.m_accumulation2Buffer[i] = new b2Vec2();
             this.m_accumulation2Buffer[i].SetZero();
@@ -4093,11 +4144,11 @@ export class b2ParticleSystem {
     SolveZombie(): void {
         // removes particles with zombie flag
         let newCount = 0;
-        const newIndices: number[] = []; // TODO: static
+        const newIndicesArray: number[] = []; // TODO: static
         for (let i = 0; i < this.m_count; i++) {
-            newIndices[i] = b2_invalidParticleIndex;
+            newIndicesArray[i] = b2_invalidParticleIndex;
         }
-        // DEBUG: b2Assert(newIndices.length === this.m_count);
+        !!B2_DEBUG && b2Assert(newIndicesArray.length === this.m_count);
         let allParticleFlags = 0;
         for (let i = 0; i < this.m_count; i++) {
             const flags = this.m_flagsBuffer.data[i];
@@ -4110,20 +4161,20 @@ export class b2ParticleSystem {
                 if (this.m_handleIndexBuffer.data) {
                     const handle = this.m_handleIndexBuffer.data[i];
                     if (handle) {
-                        handle.SetIndex(b2_invalidParticleIndex);
+                        handle.index = b2_invalidParticleIndex;
                         this.m_handleIndexBuffer.data[i] = null;
                         ///m_handleAllocator.Free(handle);
                     }
                 }
-                newIndices[i] = b2_invalidParticleIndex;
+                newIndicesArray[i] = b2_invalidParticleIndex;
             } else {
-                newIndices[i] = newCount;
+                newIndicesArray[i] = newCount;
                 if (i !== newCount) {
                     // Update handle to reference new particle index.
                     if (this.m_handleIndexBuffer.data) {
                         const handle = this.m_handleIndexBuffer.data[i];
                         if (handle) {
-                            handle.SetIndex(newCount);
+                            handle.index = newCount;
                         }
                         this.m_handleIndexBuffer.data[newCount] = handle;
                     }
@@ -4191,39 +4242,39 @@ export class b2ParticleSystem {
         // update proxies
         for (let k = 0; k < this.m_proxyBuffer.count; k++) {
             const proxy = this.m_proxyBuffer.data[k];
-            proxy.index = newIndices[proxy.index];
+            proxy.index = newIndicesArray[proxy.index];
         }
         this.m_proxyBuffer.RemoveIf(Test.IsProxyInvalid);
 
         // update contacts
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             const contact = this.m_contactBuffer.data[k];
-            contact.indexA = newIndices[contact.indexA];
-            contact.indexB = newIndices[contact.indexB];
+            contact.indexA = newIndicesArray[contact.indexA];
+            contact.indexB = newIndicesArray[contact.indexB];
         }
         this.m_contactBuffer.RemoveIf(Test.IsContactInvalid);
 
         // update particle-body contacts
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
-            contact.index = newIndices[contact.index];
+            contact.index = newIndicesArray[contact.index];
         }
         this.m_bodyContactBuffer.RemoveIf(Test.IsBodyContactInvalid);
 
         // update pairs
         for (let k = 0; k < this.m_pairBuffer.count; k++) {
             const pair = this.m_pairBuffer.data[k];
-            pair.indexA = newIndices[pair.indexA];
-            pair.indexB = newIndices[pair.indexB];
+            pair.indexA = newIndicesArray[pair.indexA];
+            pair.indexB = newIndicesArray[pair.indexB];
         }
         this.m_pairBuffer.RemoveIf(Test.IsPairInvalid);
 
         // update triads
         for (let k = 0; k < this.m_triadBuffer.count; k++) {
             const triad = this.m_triadBuffer.data[k];
-            triad.indexA = newIndices[triad.indexA];
-            triad.indexB = newIndices[triad.indexB];
-            triad.indexC = newIndices[triad.indexC];
+            triad.indexA = newIndicesArray[triad.indexA];
+            triad.indexB = newIndicesArray[triad.indexB];
+            triad.indexC = newIndicesArray[triad.indexC];
         }
         this.m_triadBuffer.RemoveIf(Test.IsTriadInvalid);
 
@@ -4231,7 +4282,7 @@ export class b2ParticleSystem {
         if (this.m_indexByExpirationTimeBuffer.data) {
             let writeOffset = 0;
             for (let readOffset = 0; readOffset < this.m_count; readOffset++) {
-                const newIndex = newIndices[this.m_indexByExpirationTimeBuffer.data[readOffset]];
+                const newIndex = newIndicesArray[this.m_indexByExpirationTimeBuffer.data[readOffset]];
                 if (newIndex !== b2_invalidParticleIndex) {
                     this.m_indexByExpirationTimeBuffer.data[writeOffset++] = newIndex;
                 }
@@ -4244,7 +4295,7 @@ export class b2ParticleSystem {
             let lastIndex = 0;
             let modified = false;
             for (let i = group.m_firstIndex; i < group.m_lastIndex; i++) {
-                const j = newIndices[i];
+                const j = newIndicesArray[i];
                 if (j >= 0) {
                     firstIndex = b2MinInt(firstIndex, j);
                     lastIndex = b2MaxInt(lastIndex, j + 1);
@@ -4349,19 +4400,7 @@ export class b2ParticleSystem {
             return;
         }
 
-        // DEBUG: b2Assert(mid >= start && mid <= end);
-
-        function newIndices(i: number): number {
-            if (i < start) {
-                return i;
-            } else if (i < mid) {
-                return i + end - mid;
-            } else if (i < end) {
-                return i + start - mid;
-            } else {
-                return i;
-            }
-        }
+        !!B2_DEBUG && b2Assert(mid >= start && mid <= end);
 
         ///std::rotate(m_flagsBuffer.data + start, m_flagsBuffer.data + mid, m_flagsBuffer.data + end);
         std_rotate(this.m_flagsBuffer.data, start, mid, end);
@@ -4411,7 +4450,7 @@ export class b2ParticleSystem {
             for (let i = start; i < end; ++i) {
                 const handle = this.m_handleIndexBuffer.data[i];
                 if (handle) {
-                    handle.SetIndex(newIndices(handle.GetIndex()));
+                    handle.index = newIndices(handle.index, start, mid, end);
                 }
             }
         }
@@ -4423,48 +4462,48 @@ export class b2ParticleSystem {
             const particleCount = this.GetParticleCount();
             const indexByExpirationTime = this.m_indexByExpirationTimeBuffer.data;
             for (let i = 0; i < particleCount; ++i) {
-                indexByExpirationTime[i] = newIndices(indexByExpirationTime[i]);
+                indexByExpirationTime[i] = newIndices(indexByExpirationTime[i], start, mid, end);
             }
         }
 
         // update proxies
         for (let k = 0; k < this.m_proxyBuffer.count; k++) {
             const proxy = this.m_proxyBuffer.data[k];
-            proxy.index = newIndices(proxy.index);
+            proxy.index = newIndices(proxy.index, start, mid, end);
         }
 
         // update contacts
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             const contact = this.m_contactBuffer.data[k];
-            contact.indexA = newIndices(contact.indexA);
-            contact.indexB = newIndices(contact.indexB);
+            contact.indexA = newIndices(contact.indexA, start, mid, end);
+            contact.indexB = newIndices(contact.indexB, start, mid, end);
         }
 
         // update particle-body contacts
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
-            contact.index = newIndices(contact.index);
+            contact.index = newIndices(contact.index, start, mid, end);
         }
 
         // update pairs
         for (let k = 0; k < this.m_pairBuffer.count; k++) {
             const pair = this.m_pairBuffer.data[k];
-            pair.indexA = newIndices(pair.indexA);
-            pair.indexB = newIndices(pair.indexB);
+            pair.indexA = newIndices(pair.indexA, start, mid, end);
+            pair.indexB = newIndices(pair.indexB, start, mid, end);
         }
 
         // update triads
         for (let k = 0; k < this.m_triadBuffer.count; k++) {
             const triad = this.m_triadBuffer.data[k];
-            triad.indexA = newIndices(triad.indexA);
-            triad.indexB = newIndices(triad.indexB);
-            triad.indexC = newIndices(triad.indexC);
+            triad.indexA = newIndices(triad.indexA, start, mid, end);
+            triad.indexB = newIndices(triad.indexB, start, mid, end);
+            triad.indexC = newIndices(triad.indexC, start, mid, end);
         }
 
         // update groups
         for (let group = this.m_groupList; group; group = group.GetNext()) {
-            group.m_firstIndex = newIndices(group.m_firstIndex);
-            group.m_lastIndex = newIndices(group.m_lastIndex - 1) + 1;
+            group.m_firstIndex = newIndices(group.m_firstIndex, start, mid, end);
+            group.m_lastIndex = newIndices(group.m_lastIndex - 1, start, mid, end) + 1;
         }
     }
 
@@ -4796,6 +4835,7 @@ export class b2ParticleSystem {
 }
 
 export class b2ParticleSystem_UserOverridableBuffer<T> {
+    userSuppliedCapacity = 0;
     _data: T[] | null = null;
     get data(): T[] {
         return this._data as T[];
@@ -4803,8 +4843,6 @@ export class b2ParticleSystem_UserOverridableBuffer<T> {
     set data(value: T[]) {
         this._data = value;
     }
-
-    userSuppliedCapacity: number = 0;
 }
 
 export class b2ParticleSystem_Proxy {
@@ -4848,7 +4886,7 @@ export class b2ParticleSystem_InsideBoundsEnumerator {
         this.m_yUpper = (upper & b2ParticleSystem.yMask) >>> 0;
         this.m_first = first;
         this.m_last = last;
-        // DEBUG: b2Assert(this.m_first <= this.m_last);
+        !!B2_DEBUG && b2Assert(this.m_first <= this.m_last);
     }
 
     /**
@@ -4858,11 +4896,12 @@ export class b2ParticleSystem_InsideBoundsEnumerator {
     GetNext(): number {
         while (this.m_first < this.m_last) {
             const xTag = (this.m_system.m_proxyBuffer.data[this.m_first].tag & b2ParticleSystem.xMask) >>> 0;
-            // #if B2_ASSERT_ENABLED
-            // DEBUG: const yTag = (this.m_system.m_proxyBuffer.data[this.m_first].tag & b2ParticleSystem_yMask) >>> 0;
-            // DEBUG: b2Assert(yTag >= this.m_yLower);
-            // DEBUG: b2Assert(yTag <= this.m_yUpper);
-            // #endif
+            if (!!B2_ASSERT && !!B2_DEBUG) {
+                // B2_ASSERT -> B2_ASSERT_ENABLED ??
+                const yTag = (this.m_system.m_proxyBuffer.data[this.m_first].tag & b2ParticleSystem.yMask) >>> 0;
+                b2Assert(yTag >= this.m_yLower);
+                b2Assert(yTag <= this.m_yUpper);
+            }
             if (xTag >= this.m_xLower && xTag <= this.m_xUpper) {
                 return (this.m_system.m_proxyBuffer.data[this.m_first++]).index;
             }
@@ -5020,7 +5059,7 @@ export class b2ParticleSystem_DestroyParticlesInShapeCallback extends b2QueryCal
         if (particleSystem !== this.m_system) {
             return false;
         }
-        // DEBUG: b2Assert(index >= 0 && index < this.m_system.m_count);
+        !!B2_DEBUG && b2Assert(index >= 0 && index < this.m_system.m_count);
         if (this.m_shape.TestPoint(this.m_xf, this.m_system.m_positionBuffer.data[index])) {
             this.m_system.DestroyParticle(index, this.m_callDestructionListener);
             this.m_destroyed++;
@@ -5069,7 +5108,7 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
     m_shapeCount: number = 0;
 
     Clone(): b2Shape {
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
         throw new Error();
     }
 
@@ -5093,7 +5132,7 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
      * @see b2Shape::ComputeDistance
      */
     ComputeDistance(xf: b2Transform, p: b2Vec2, normal: b2Vec2, childIndex: number): number {
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
         return 0;
     }
 
@@ -5101,7 +5140,7 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
      * Implement b2Shape.
      */
     RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Transform, childIndex: number): boolean {
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
         return false;
     }
 
@@ -5114,7 +5153,7 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
         aabb.lowerBound.y = +b2_maxFloat;
         aabb.upperBound.x = -b2_maxFloat;
         aabb.upperBound.y = -b2_maxFloat;
-        // DEBUG: b2Assert(childIndex === 0);
+        !!B2_DEBUG && b2Assert(childIndex === 0);
         for (let i = 0; i < this.m_shapeCount; i++) {
             const childCount = this.m_shapes[i].GetChildCount();
             for (let j = 0; j < childCount; j++) {
@@ -5129,20 +5168,16 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
      * @see b2Shape::ComputeMass
      */
     ComputeMass(massData: b2MassData, density: number): void {
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
     }
 
     SetupDistanceProxy(proxy: b2DistanceProxy, index: number): void {
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
     }
 
     ComputeSubmergedArea(normal: b2Vec2, offset: number, xf: b2Transform, c: b2Vec2): number {
-        // DEBUG: b2Assert(false);
+        !!B2_DEBUG && b2Assert(false);
         return 0;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        // DEBUG: b2Assert(false);
     }
 }
 

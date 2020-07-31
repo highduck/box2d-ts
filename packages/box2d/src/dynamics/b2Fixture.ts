@@ -16,7 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../common/b2Settings";
+import {b2Assert} from "../common/b2Settings";
 import {b2Transform, b2Vec2, XY} from "../common/b2Math";
 import {b2AABB, b2RayCastInput, b2RayCastOutput} from "../collision/b2Collision";
 import {b2TreeNode} from "../collision/b2DynamicTree";
@@ -59,7 +59,7 @@ export class b2Filter implements b2IFilter {
     }
 
     Copy(other: b2IFilter): this {
-        // DEBUG: b2Assert(this !== other);
+        !!B2_DEBUG && b2Assert(this !== other);
         this.categoryBits = other.categoryBits;
         this.maskBits = other.maskBits;
         this.groupIndex = other.groupIndex ?? 0;
@@ -212,7 +212,7 @@ export class b2Fixture {
 
     Reset(): void {
         // The proxies must be destroyed before calling this.
-        // DEBUG: b2Assert(this.m_proxyCount === 0);
+        !!B2_DEBUG && b2Assert(this.m_proxyCount === 0);
     }
 
     /// Get the type of the child shape. You can use this to down cast to the concrete shape.
@@ -305,12 +305,13 @@ export class b2Fixture {
         return this.m_shape.TestPoint(this.m_body.GetTransform(), p);
     }
 
-    // #if B2_ENABLE_PARTICLE
     ComputeDistance(p: b2Vec2, normal: b2Vec2, childIndex: number): number {
-        return this.m_shape.ComputeDistance(this.m_body.GetTransform(), p, normal, childIndex);
+        if (B2_ENABLE_PARTICLE) {
+            return this.m_shape.ComputeDistance(this.m_body.GetTransform(), p, normal, childIndex);
+        } else {
+            return 0.0;
+        }
     }
-
-    // #endif
 
     /// Cast a ray against this shape.
     /// @param output the ray-cast results.
@@ -365,27 +366,8 @@ export class b2Fixture {
     /// If you need a more accurate AABB, compute it using the shape and
     /// the body transform.
     GetAABB(childIndex: number): Readonly<b2AABB> {
-        // DEBUG: b2Assert(0 <= childIndex && childIndex < this.m_proxyCount);
+        !!B2_DEBUG && b2Assert(0 <= childIndex && childIndex < this.m_proxyCount);
         return this.m_proxies[childIndex].aabb;
-    }
-
-    /// Dump this fixture to the log file.
-    Dump(log: (format: string, ...args: any[]) => void, bodyIndex: number): void {
-        log("    const fd: b2FixtureDef = new b2FixtureDef();\n");
-        log("    fd.friction = %.15f;\n", this.m_friction);
-        log("    fd.restitution = %.15f;\n", this.m_restitution);
-        log("    fd.density = %.15f;\n", this.m_density);
-        log("    fd.isSensor = %s;\n", (this.m_isSensor) ? ("true") : ("false"));
-        log("    fd.filter.categoryBits = %d;\n", this.m_filter.categoryBits);
-        log("    fd.filter.maskBits = %d;\n", this.m_filter.maskBits);
-        log("    fd.filter.groupIndex = %d;\n", this.m_filter.groupIndex);
-
-        this.m_shape.Dump(log);
-
-        log("\n");
-        log("    fd.shape = shape;\n");
-        log("\n");
-        log("    bodies[%d].CreateFixture(fd);\n", bodyIndex);
     }
 
     // These support body activation/deactivation.

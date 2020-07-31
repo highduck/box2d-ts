@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// #if B2_ENABLE_CONTROLLER
+ // #if B2_ENABLE_CONTROLLER
 
 import {b2Controller, b2ControllerEdge} from "./b2Controller";
 import {b2Vec2} from "../common/b2Math";

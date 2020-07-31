@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../common/b2Settings";
-import {b2_epsilon, b2_epsilon_sq, b2_linearSlop, b2_polygonRadius} from "../common/b2Settings";
+import {b2_epsilon, b2_epsilon_sq, b2_linearSlop, b2_polygonRadius, b2Assert} from "../common/b2Settings";
 import {b2Abs, b2Max, b2MaxInt, b2Rot, b2Transform, b2Vec2} from "../common/b2Math";
 import {b2Shape} from "./shapes/b2Shape";
 
@@ -96,7 +95,7 @@ export class b2DistanceProxy {
     }
 
     GetVertex(index: number): b2Vec2 {
-        // DEBUG: b2Assert(0 <= index && index < this.m_count);
+        !!B2_DEBUG && b2Assert(0 <= index && index < this.m_count);
         return this.m_vertices[index];
     }
 }
@@ -175,18 +174,19 @@ export class b2ShapeCastOutput {
     }
 }
 
-export const b2_gjkStats = {
-    calls: 0,
-// @ts-ignore
-    iters: 0,
-    maxIters: 0
-};
+class GJKStats {
+    calls = 0;
+    iters = 0;
+    maxIters = 0;
 
-export function b2_gjk_reset(): void {
-    b2_gjkStats.calls = 0;
-    b2_gjkStats.iters = 0;
-    b2_gjkStats.maxIters = 0;
+    Reset() {
+        this.calls = 0;
+        this.iters = 0;
+        this.maxIters = 0;
+    }
 }
+
+export const b2_gjkStats = new GJKStats();
 
 export class b2SimplexVertex {
     readonly wA: b2Vec2 = new b2Vec2(); // support point in proxyA
@@ -223,7 +223,7 @@ export class b2Simplex {
     }
 
     ReadCache(cache: b2SimplexCache, proxyA: b2DistanceProxy, transformA: b2Transform, proxyB: b2DistanceProxy, transformB: b2Transform): void {
-        // DEBUG: b2Assert(0 <= cache.count && cache.count <= 3);
+        !!B2_DEBUG && b2Assert(0 <= cache.count && cache.count <= 3);
 
         // Copy data from cache.
         this.m_count = cache.count;
@@ -311,7 +311,7 @@ export class b2Simplex {
         //   }
         //
         // default:
-        //   // DEBUG: b2Assert(false);
+        //   !!B2_DEBUG && b2Assert(false);
         //   return out.SetZero();
         // }
     }
@@ -319,7 +319,7 @@ export class b2Simplex {
     GetClosestPoint(out: b2Vec2): b2Vec2 {
         const count = this.m_count;
         // if(count === 0) {
-        //     // DEBUG: b2Assert(false);
+        //     !!B2_DEBUG && b2Assert(false);
         //     out.SetZero();
         // }
         // else
@@ -340,7 +340,7 @@ export class b2Simplex {
     GetWitnessPoints(pA: b2Vec2, pB: b2Vec2): void {
         switch (this.m_count) {
             case 0:
-                // DEBUG: b2Assert(false);
+                !!B2_DEBUG && b2Assert(false);
                 break;
 
             case 1:
@@ -361,7 +361,7 @@ export class b2Simplex {
                 break;
 
             default:
-                // DEBUG: b2Assert(false);
+                !!B2_DEBUG && b2Assert(false);
                 break;
         }
     }
@@ -562,7 +562,7 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
                 break;
 
             default:
-                // DEBUG: b2Assert(false);
+                !!B2_DEBUG && b2Assert(false);
                 break;
         }
 
@@ -727,7 +727,7 @@ export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput):
     let iter = 0;
     // while (iter < k_maxIters && b2Abs(v.Length() - sigma) > tolerance)
     while (iter < k_maxIters && b2Abs(v.Length() - sigma) > tolerance) {
-        // DEBUG: b2Assert(simplex.m_count < 3);
+        !!B2_DEBUG && b2Assert(simplex.m_count < 3);
 
         ++output.iterations;
 
@@ -794,7 +794,7 @@ export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput):
                 break;
 
             default:
-            // DEBUG: b2Assert(false);
+                !!B2_DEBUG && b2Assert(false);
         }
 
         // If we have 3 points, then the origin is in the corresponding triangle.

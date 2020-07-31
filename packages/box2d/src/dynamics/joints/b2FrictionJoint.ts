@@ -297,19 +297,4 @@ export class b2FrictionJoint extends b2Joint {
     GetMaxTorque(): number {
         return this.m_maxTorque;
     }
-
-    Dump(log: (format: string, ...args: any[]) => void): void {
-        const indexA: number = this.m_bodyA.m_islandIndex;
-        const indexB: number = this.m_bodyB.m_islandIndex;
-
-        log("  const jd: b2FrictionJointDef = new b2FrictionJointDef();\n");
-        log("  jd.bodyA = bodies[%d];\n", indexA);
-        log("  jd.bodyB = bodies[%d];\n", indexB);
-        log("  jd.collideConnected = %s;\n", (this.m_collideConnected) ? ("true") : ("false"));
-        log("  jd.localAnchorA.Set(%.15f, %.15f);\n", this.m_localAnchorA.x, this.m_localAnchorA.y);
-        log("  jd.localAnchorB.Set(%.15f, %.15f);\n", this.m_localAnchorB.x, this.m_localAnchorB.y);
-        log("  jd.maxForce = %.15f;\n", this.m_maxForce);
-        log("  jd.maxTorque = %.15f;\n", this.m_maxTorque);
-        log("  joints[%d] = this.m_world.CreateJoint(jd);\n", this.m_index);
-    }
 }

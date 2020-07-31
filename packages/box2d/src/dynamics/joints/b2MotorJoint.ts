@@ -16,10 +16,8 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
-// DEBUG: import { b2IsValid } from "../../common/b2Math";
-import {b2Maybe} from "../../common/b2Settings";
-import {b2Clamp, b2Mat22, b2Rot, b2Vec2, XY} from "../../common/b2Math";
+import {b2Assert, b2Maybe} from "../../common/b2Settings";
+import {b2Clamp, b2IsValid, b2Mat22, b2Rot, b2Vec2, XY} from "../../common/b2Math";
 import {b2Body} from "../b2Body";
 import {b2IJointDef, b2Joint, b2JointDef, b2JointType} from "./b2Joint";
 import {b2SolverData} from "../b2TimeStep";
@@ -167,7 +165,7 @@ export class b2MotorJoint extends b2Joint {
     }
 
     SetMaxForce(force: number): void {
-        // DEBUG: b2Assert(b2IsValid(force) && force >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(force) && force >= 0);
         this.m_maxForce = force;
     }
 
@@ -176,7 +174,7 @@ export class b2MotorJoint extends b2Joint {
     }
 
     SetMaxTorque(torque: number): void {
-        // DEBUG: b2Assert(b2IsValid(torque) && torque >= 0);
+        !!B2_DEBUG && b2Assert(b2IsValid(torque) && torque >= 0);
         this.m_maxTorque = torque;
     }
 
@@ -351,23 +349,5 @@ export class b2MotorJoint extends b2Joint {
 
     SolvePositionConstraints(data: b2SolverData): boolean {
         return true;
-    }
-
-    Dump(log: (format: string, ...args: any[]) => void) {
-        const indexA = this.m_bodyA.m_islandIndex;
-        const indexB = this.m_bodyB.m_islandIndex;
-
-        log("  const jd: b2MotorJointDef = new b2MotorJointDef();\n");
-
-        log("  jd.bodyA = bodies[%d];\n", indexA);
-        log("  jd.bodyB = bodies[%d];\n", indexB);
-        log("  jd.collideConnected = %s;\n", (this.m_collideConnected) ? ("true") : ("false"));
-
-        log("  jd.linearOffset.Set(%.15f, %.15f);\n", this.m_linearOffset.x, this.m_linearOffset.y);
-        log("  jd.angularOffset = %.15f;\n", this.m_angularOffset);
-        log("  jd.maxForce = %.15f;\n", this.m_maxForce);
-        log("  jd.maxTorque = %.15f;\n", this.m_maxTorque);
-        log("  jd.correctionFactor = %.15f;\n", this.m_correctionFactor);
-        log("  joints[%d] = this.m_world.CreateJoint(jd);\n", this.m_index);
     }
 }

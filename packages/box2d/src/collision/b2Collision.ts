@@ -16,7 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-// DEBUG: import { b2Assert } from "../common/b2Settings";
+import { b2Assert } from "../common/b2Settings";
 import {
     b2_epsilon,
     b2_epsilon_sq,
@@ -197,7 +197,7 @@ export class b2Manifold {
 
     Reset(): void {
         for (let i = 0; i < b2_maxManifoldPoints; ++i) {
-            // DEBUG: b2Assert(this.points[i] instanceof b2ManifoldPoint);
+            !!B2_DEBUG && b2Assert(this.points[i] instanceof b2ManifoldPoint);
             this.points[i].Reset();
         }
         this.localNormal.SetZero();
@@ -209,7 +209,7 @@ export class b2Manifold {
     Copy(o: b2Manifold): b2Manifold {
         this.pointCount = o.pointCount;
         for (let i = 0; i < b2_maxManifoldPoints; ++i) {
-            // DEBUG: b2Assert(this.points[i] instanceof b2ManifoldPoint);
+            !!B2_DEBUG && b2Assert(this.points[i] instanceof b2ManifoldPoint);
             this.points[i].Copy(o.points[i]);
         }
         this.localNormal.Copy(o.localNormal);

@@ -11,7 +11,10 @@
     "outDir": "./dist/esm",
     "rootDir": "./src",
     "baseUrl": ".",
-    "composite": true
+    "composite": true,
+    "sourceMap": false,
+    "inlineSourceMap": true,
+    "inlineSources": true
   },
   "include": [
     "./src/**/*.ts"

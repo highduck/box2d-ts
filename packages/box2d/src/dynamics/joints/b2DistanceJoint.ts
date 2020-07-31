@@ -150,22 +150,6 @@ export class b2DistanceJoint extends b2Joint {
         return this.m_dampingRatio;
     }
 
-    Dump(log: (format: string, ...args: any[]) => void) {
-        const indexA: number = this.m_bodyA.m_islandIndex;
-        const indexB: number = this.m_bodyB.m_islandIndex;
-
-        log("  const jd: b2DistanceJointDef = new b2DistanceJointDef();\n");
-        log("  jd.bodyA = bodies[%d];\n", indexA);
-        log("  jd.bodyB = bodies[%d];\n", indexB);
-        log("  jd.collideConnected = %s;\n", (this.m_collideConnected) ? ("true") : ("false"));
-        log("  jd.localAnchorA.Set(%.15f, %.15f);\n", this.m_localAnchorA.x, this.m_localAnchorA.y);
-        log("  jd.localAnchorB.Set(%.15f, %.15f);\n", this.m_localAnchorB.x, this.m_localAnchorB.y);
-        log("  jd.length = %.15f;\n", this.m_length);
-        log("  jd.frequencyHz = %.15f;\n", this.m_frequencyHz);
-        log("  jd.dampingRatio = %.15f;\n", this.m_dampingRatio);
-        log("  joints[%d] = this.m_world.CreateJoint(jd);\n", this.m_index);
-    }
-
     private static InitVelocityConstraints_s_P = new b2Vec2();
 
     InitVelocityConstraints(data: b2SolverData): void {

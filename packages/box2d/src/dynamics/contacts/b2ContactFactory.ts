@@ -1,7 +1,8 @@
-// DEBUG: import { b2Assert } from "../../common/b2Settings";
+
 import {b2ShapeType} from "../../collision/shapes/b2Shape";
 import {b2Contact} from "./b2Contact";
 import {b2Fixture} from "../b2Fixture";
+import {b2Assert} from "../../common/b2Settings";
 
 export class b2ContactFactory {
     readonly m_registers: number[] = [];
@@ -46,8 +47,8 @@ export class b2ContactFactory {
         const typeA: b2ShapeType = fixtureA.GetType();
         const typeB: b2ShapeType = fixtureB.GetType();
 
-        // DEBUG: b2Assert(0 <= typeA && typeA < b2ShapeType.e_shapeTypeCount);
-        // DEBUG: b2Assert(0 <= typeB && typeB < b2ShapeType.e_shapeTypeCount);
+        !!B2_DEBUG && b2Assert(0 <= typeA && typeA < b2ShapeType.e_shapeTypeCount);
+        !!B2_DEBUG && b2Assert(0 <= typeB && typeB < b2ShapeType.e_shapeTypeCount);
 
         const reg = this.m_registers[(typeA << 2) | typeB];
 
@@ -65,11 +66,12 @@ export class b2ContactFactory {
     }
 
     Destroy(contact: b2Contact): void {
-        // const typeA: b2ShapeType = contact.m_fixtureA.GetType();
-        // const typeB: b2ShapeType = contact.m_fixtureB.GetType();
-
-        // DEBUG: b2Assert(0 <= typeA && typeB < b2ShapeType.e_shapeTypeCount);
-        // DEBUG: b2Assert(0 <= typeA && typeB < b2ShapeType.e_shapeTypeCount);
+        if(!!B2_DEBUG) {
+            const typeA = contact.m_fixtureA.GetType();
+            const typeB = contact.m_fixtureB.GetType();
+            b2Assert(0 <= typeA && typeB < b2ShapeType.e_shapeTypeCount);
+            b2Assert(0 <= typeA && typeB < b2ShapeType.e_shapeTypeCount);
+        }
 
         this.destroyToPool(contact);
     }

@@ -19,28 +19,37 @@
 /// Timer for profiling. This has platform specific code and may
 /// not work on every platform.
 export class b2Timer {
-    // TODO: compile-time switch
-    //public m_start: number = Date.now();
+    m_start = NaN;
+
+    constructor() {
+        if(!!B2_ENABLE_PROFILER) {
+            this.m_start = performance.now();
+        }
+    }
 
     /// Reset the timer.
     Reset(): b2Timer {
-        // TODO: compile-time switch
-        //this.m_start = Date.now();
+        if(!!B2_ENABLE_PROFILER) {
+            this.m_start = performance.now();
+        }
         return this;
     }
 
     /// Get the time since construction or the last reset.
     GetMilliseconds(): number {
-        // TODO: compile-time switch
-        return 0;
-        //return Date.now() - this.m_start;
+        if(!!B2_ENABLE_PROFILER) {
+            return (performance.now() - this.m_start);
+        }
+        else{
+            return 0;
+        }
     }
 }
 
 export class b2Counter {
-    m_count: number = 0;
-    m_min_count: number = 0;
-    m_max_count: number = 0;
+    m_count = 0;
+    m_min_count = 0;
+    m_max_count = 0;
 
     GetCount(): number {
         return this.m_count;
@@ -55,7 +64,7 @@ export class b2Counter {
     }
 
     ResetCount(): number {
-        const count: number = this.m_count;
+        const count = this.m_count;
         this.m_count = 0;
         return count;
     }
@@ -69,7 +78,7 @@ export class b2Counter {
     }
 
     Increment(): void {
-        this.m_count++;
+        ++this.m_count;
 
         if (this.m_max_count < this.m_count) {
             this.m_max_count = this.m_count;
@@ -77,7 +86,7 @@ export class b2Counter {
     }
 
     Decrement(): void {
-        this.m_count--;
+        --this.m_count;
 
         if (this.m_min_count > this.m_count) {
             this.m_min_count = this.m_count;

@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// #if B2_ENABLE_CONTROLLER
+ // #if B2_ENABLE_CONTROLLER
 
 import {b2Controller} from "./b2Controller";
 import {b2TimeStep} from "../dynamics/b2TimeStep";

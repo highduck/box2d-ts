@@ -5,6 +5,7 @@
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "type": "module",
+  "sideEffects": false,
   "scripts": {
     "clean": "rimraf dist",
     "watch": "tsc -b -w -v tsconfig.project.json",

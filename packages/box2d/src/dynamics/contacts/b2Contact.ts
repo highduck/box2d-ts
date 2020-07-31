@@ -16,8 +16,8 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-import {b2_linearSlop} from "../../common/b2Settings";
-import {b2Sqrt, b2Sweep, b2Transform} from "../../common/b2Math";
+import {b2_linearSlop, b2Assert} from "../../common/b2Settings";
+import {b2Sqrt, b2Sweep} from "../../common/b2Math";
 import {
     b2ContactID,
     b2Manifold,
@@ -40,35 +40,22 @@ import {b2ChainShape} from "../../collision/shapes/b2ChainShape";
 
 /// Friction mixing law. The idea is to allow either fixture to drive the friction to zero.
 /// For example, anything slides on ice.
-export function b2MixFriction(friction1: number, friction2: number): number {
+function b2MixFriction(friction1: number, friction2: number): number {
     return b2Sqrt(friction1 * friction2);
 }
 
 /// Restitution mixing law. The idea is allow for anything to bounce off an inelastic surface.
 /// For example, a superball bounces on anything.
-export function b2MixRestitution(restitution1: number, restitution2: number): number {
+function b2MixRestitution(restitution1: number, restitution2: number): number {
     return restitution1 > restitution2 ? restitution1 : restitution2;
 }
 
 export class b2ContactEdge {
+    readonly contact: b2Contact;
     private _other: b2Body | null = null; ///< provides quick access to the other body attached.
-    get other(): b2Body {
-        if (this._other === null) {
-            throw new Error();
-        }
-        return this._other;
-    }
-
-    set other(value: b2Body) {
-        if (this._other !== null) {
-            throw new Error();
-        }
-        this._other = value;
-    }
-
-    readonly contact: b2Contact; ///< the contact
     prev: b2ContactEdge | null = null; ///< the previous contact edge in the body's contact list
     next: b2ContactEdge | null = null; ///< the next contact edge in the body's contact list
+
     constructor(contact: b2Contact) {
         this.contact = contact;
     }
@@ -78,7 +65,64 @@ export class b2ContactEdge {
         this.prev = null;
         this.next = null;
     }
+
+    get other(): b2Body {
+        B2_ASSERT && b2Assert(this._other !== null);
+        return this._other!;
+    }
+
+    set other(value: b2Body) {
+        B2_ASSERT && b2Assert(this._other === null);
+        this._other = value;
+    }
 }
+
+const ComputeTOI_s_input = new b2TOIInput();
+const ComputeTOI_s_output = new b2TOIOutput();
+const Evaluate_s_edge = new b2EdgeShape();
+
+const Evaluate = (contact: b2Contact) => {
+    const xfA = contact.m_fixtureA.m_body.m_xf;
+    const xfB = contact.m_fixtureB.m_body.m_xf;
+    const typeA = contact.m_fixtureA._shapeType;
+    const typeB = contact.m_fixtureB._shapeType;
+    const shapeA = contact.m_fixtureA.m_shape;
+    const shapeB = contact.m_fixtureB.m_shape;
+    const manifold = contact.m_manifold;
+    const indexA = contact.m_indexA;
+    const pt = (typeA << 2) | typeB;
+    if (pt === ((b2ShapeType.e_circleShape << 2) | b2ShapeType.e_circleShape)) {
+        b2CollideCircles(manifold,
+            shapeA as b2CircleShape, xfA,
+            shapeB as b2CircleShape, xfB);
+    } else if (pt === ((b2ShapeType.e_polygonShape << 2) | b2ShapeType.e_circleShape)) {
+        b2CollidePolygonAndCircle(manifold,
+            shapeA as b2PolygonShape, xfA,
+            shapeB as b2CircleShape, xfB);
+    } else if (pt === ((b2ShapeType.e_polygonShape << 2) | b2ShapeType.e_polygonShape)) {
+        b2CollidePolygons(manifold,
+            shapeA as b2PolygonShape, xfA,
+            shapeB as b2PolygonShape, xfB);
+    } else if (pt === ((b2ShapeType.e_edgeShape << 2) | b2ShapeType.e_circleShape)) {
+        b2CollideEdgeAndCircle(manifold,
+            shapeA as b2EdgeShape, xfA,
+            shapeB as b2CircleShape, xfB);
+    } else if (pt === ((b2ShapeType.e_edgeShape << 2) | b2ShapeType.e_polygonShape)) {
+        b2CollideEdgeAndPolygon(manifold,
+            shapeA as b2EdgeShape, xfA,
+            shapeB as b2PolygonShape, xfB);
+    } else if (pt === ((b2ShapeType.e_chainShape << 2) | b2ShapeType.e_circleShape)) {
+        (shapeA as b2ChainShape).GetChildEdge(Evaluate_s_edge, indexA);
+        b2CollideEdgeAndCircle(manifold,
+            Evaluate_s_edge, xfA,
+            shapeB as b2CircleShape, xfB);
+    } else if (pt === ((b2ShapeType.e_chainShape << 2) | b2ShapeType.e_polygonShape)) {
+        (shapeA as b2ChainShape).GetChildEdge(Evaluate_s_edge, indexA);
+        b2CollideEdgeAndPolygon(manifold,
+            Evaluate_s_edge, xfA,
+            shapeB as b2PolygonShape, xfB);
+    }
+};
 
 export class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape = b2Shape> {
     m_prev: b2Contact | null = null;
@@ -103,12 +147,12 @@ export class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape = b2Shape>
 
     m_oldManifold = new b2Manifold(); // TODO: readonly
 
-    m_islandFlag: boolean = false; /// Used when crawling contact graph when forming islands.
-    m_touchingFlag: boolean = false; /// Set when the shapes are touching.
-    m_enabledFlag: boolean = false; /// This contact can be disabled (by user)
-    m_filterFlag: boolean = false; /// This contact needs filtering because a fixture filter was changed.
-    m_bulletHitFlag: boolean = false; /// This bullet contact had a TOI event
-    m_toiFlag: boolean = false; /// This contact has a valid TOI in m_toi
+    m_islandFlag = false; /// Used when crawling contact graph when forming islands.
+    m_touchingFlag = false; /// Set when the shapes are touching.
+    m_enabledFlag = false; /// This contact can be disabled (by user)
+    m_filterFlag = false; /// This contact needs filtering because a fixture filter was changed.
+    m_bulletHitFlag = false; /// This bullet contact had a TOI event
+    m_toiFlag = false; /// This contact has a valid TOI in m_toi
 
     constructor() {
         this.m_toi = 0.0;
@@ -242,14 +286,14 @@ export class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape = b2Shape>
         let touching: boolean = false;
         const wasTouching: boolean = this.m_touchingFlag;
 
-        const sensorA: boolean = this.m_fixtureA.IsSensor();
-        const sensorB: boolean = this.m_fixtureB.IsSensor();
-        const sensor: boolean = sensorA || sensorB;
+        const sensorA = this.m_fixtureA.IsSensor();
+        const sensorB = this.m_fixtureB.IsSensor();
+        const sensor = sensorA || sensorB;
 
-        const bodyA: b2Body = this.m_fixtureA.GetBody();
-        const bodyB: b2Body = this.m_fixtureB.GetBody();
-        const xfA: b2Transform = bodyA.GetTransform();
-        const xfB: b2Transform = bodyB.GetTransform();
+        const bodyA = this.m_fixtureA.GetBody();
+        const bodyB = this.m_fixtureB.GetBody();
+        const xfA = bodyA.GetTransform();
+        const xfB = bodyB.GetTransform();
         const shapeA: A = this.GetShapeA();
         const shapeB: B = this.GetShapeB();
 
@@ -260,7 +304,7 @@ export class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape = b2Shape>
             // Sensors don't generate manifolds.
             this.m_manifold.pointCount = 0;
         } else {
-            this.Evaluate();
+            Evaluate(this);
             touching = this.m_manifold.pointCount > 0;
 
             // Match old contact ids to new contact ids and copy the
@@ -303,68 +347,18 @@ export class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape = b2Shape>
         }
     }
 
-    private static ComputeTOI_s_input = new b2TOIInput();
-    private static ComputeTOI_s_output = new b2TOIOutput();
-
     ComputeTOI(sweepA: b2Sweep, sweepB: b2Sweep): number {
-        const input: b2TOIInput = b2Contact.ComputeTOI_s_input;
+        const input = ComputeTOI_s_input;
         input.proxyA.SetShape(this.GetShapeA(), this.m_indexA);
         input.proxyB.SetShape(this.GetShapeB(), this.m_indexB);
         input.sweepA.Copy(sweepA);
         input.sweepB.Copy(sweepB);
         input.tMax = b2_linearSlop;
 
-        const output: b2TOIOutput = b2Contact.ComputeTOI_s_output;
+        const output = ComputeTOI_s_output;
 
         b2TimeOfImpact(output, input);
 
         return output.t;
     }
-
-    private Evaluate() {
-        const xfA = this.m_fixtureA.m_body.m_xf;
-        const xfB = this.m_fixtureB.m_body.m_xf;
-        const typeA = this.m_fixtureA._shapeType;
-        const typeB = this.m_fixtureB._shapeType;
-        if (typeA === b2ShapeType.e_circleShape && typeB === b2ShapeType.e_circleShape) {
-            b2CollideCircles(this.m_manifold,
-                this.m_fixtureA.m_shape as b2CircleShape, xfA,
-                this.m_fixtureB.m_shape as b2CircleShape, xfB);
-        } else if (typeA === b2ShapeType.e_polygonShape) {
-            if (typeB === b2ShapeType.e_circleShape) {
-                b2CollidePolygonAndCircle(this.m_manifold,
-                    this.m_fixtureA.m_shape as b2PolygonShape, xfA,
-                    this.m_fixtureB.m_shape as b2CircleShape, xfB);
-            } else if (typeB === b2ShapeType.e_polygonShape) {
-                b2CollidePolygons(this.m_manifold,
-                    this.m_fixtureA.m_shape as b2PolygonShape, xfA,
-                    this.m_fixtureB.m_shape as b2PolygonShape, xfB);
-            }
-        } else if (typeA === b2ShapeType.e_edgeShape) {
-            if (typeB === b2ShapeType.e_circleShape) {
-                b2CollideEdgeAndCircle(this.m_manifold,
-                    this.m_fixtureA.m_shape as b2EdgeShape, xfA,
-                    this.m_fixtureB.m_shape as b2CircleShape, xfB);
-            } else if (typeB === b2ShapeType.e_polygonShape) {
-                b2CollideEdgeAndPolygon(this.m_manifold,
-                    this.m_fixtureA.m_shape as b2EdgeShape, xfA,
-                    this.m_fixtureB.m_shape as b2PolygonShape, xfB);
-            }
-        } else if (typeA === b2ShapeType.e_chainShape) {
-            const edge: b2EdgeShape = b2Contact.Evaluate_s_edge;
-            (this.m_fixtureA.m_shape as b2ChainShape).GetChildEdge(edge, this.m_indexA);
-            if (typeB === b2ShapeType.e_circleShape) {
-                b2CollideEdgeAndCircle(this.m_manifold,
-                    edge, xfA,
-                    this.m_fixtureB.m_shape as b2CircleShape, xfB);
-            } else if (typeB === b2ShapeType.e_polygonShape) {
-                (this.m_fixtureA.m_shape as b2ChainShape).GetChildEdge(edge, this.m_indexA);
-                b2CollideEdgeAndPolygon(this.m_manifold,
-                    edge, xfA,
-                    this.m_fixtureB.m_shape as b2PolygonShape, xfB);
-            }
-        }
-    }
-
-    private static Evaluate_s_edge = new b2EdgeShape();
 }
