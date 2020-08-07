@@ -1,6 +1,6 @@
 {
   "name": "@highduck/box2d-testbed",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Hello World application for Box2D",
   "main": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/highduck/box2d-ts#readme",
   "dependencies": {
-    "@highduck/box2d": "1.0.1"
+    "@highduck/box2d": "1.0.0"
   },
   "devDependencies": {
     "typescript": "^3.9.6",
