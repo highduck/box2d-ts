@@ -2,7 +2,8 @@
   "scripts": {
     "upgrade": "yarn upgrade-interactive",
     "clean-ts-build-info": "rimraf packages/**/*.tsbuildinfo",
-    "watch-solution": "yarn clean-ts-build-info && tsc -b -w -v tsconfig.solution.json"
+    "watch-solution": "yarn clean-ts-build-info && tsc -b -w -v tsconfig.solution.json",
+    "build-solution": "yarn clean-ts-build-info && tsc -b -v tsconfig.solution.json"
   },
   "private": true,
   "workspaces": [
@@ -11,5 +12,15 @@
   "devDependencies": {
     "rimraf": "^3.0.2",
     "typescript": "^3.9.7"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/highduck/box2d-ts.git"
+  },
+  "author": "Isaac Burns <isaacburns@gmail.com>",
+  "license": "Zlib",
+  "bugs": {
+    "url": "https://github.com/highduck/box2d-ts/issues"
+  },
+  "homepage": "https://github.com/highduck/box2d-ts#readme"
 }
