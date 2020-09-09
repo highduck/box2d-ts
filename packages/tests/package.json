@@ -1,7 +1,7 @@
 {
   "name": "@highduck/box2d-tests",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Hello World application for Box2D",
   "main": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/highduck/box2d-ts#readme",
   "dependencies": {
-    "@highduck/box2d": "1.0.0",
-    "@highduck/box2d-testbed": "1.0.0"
+    "@highduck/box2d": "1.0.1",
+    "@highduck/box2d-testbed": "1.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
