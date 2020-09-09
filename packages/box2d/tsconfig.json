@@ -9,6 +9,7 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "inlineSourceMap": true,
+    "esModuleInterop": true,
     "noEmit": true,
     "rootDir": "./src",
     "baseUrl": "."

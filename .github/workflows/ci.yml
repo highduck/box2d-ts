@@ -1,0 +1,65 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: actions/checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup
+        uses: pnpm/action-setup@v1.2.0
+        with:
+          version: 5.5.12
+          run_install: |
+            recursive: true
+
+      - name: Build
+        run: pnpm build -r
+        env:
+          SHOW_SPAWN_CMD: true
+          CI: true
+
+      - name: Test
+        run: pnpm test:ci
+        env:
+          SHOW_SPAWN_CMD: true
+          CI: true
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      #      - name: Deploy
+      #        if: ${{ github.ref == 'refs/heads/master' }}
+      #        run: pnpm release
+      #        env:
+      #          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      #          SHOW_SPAWN_CMD: true
+      #          CI: true
+      - name: Create Release Pull Request or Publish to npm
+        if: ${{ github.ref == 'refs/heads/master' }}
+        id: changesets
+        uses: changesets/action@master
+        with:
+          # This expects you to have a script called release which does a build for your packages and calls changeset publish
+          publish: pnpm run release
+          version: pnpm run version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+

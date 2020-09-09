@@ -7,24 +7,9 @@
   "type": "module",
   "sideEffects": false,
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist/ *.tsbuildinfo",
     "watch": "tsc -b -w -v tsconfig.project.json",
-    "build": "npm run build-testbed",
-    "build-all": "npm run build-box2d && npm run build-helloworld && npm run build-testbed",
-    "start": "http-server -c-1 -o",
-    "dist": "npm run dist-box2d && npm run dist-helloworld && npm run dist-testbed",
-    "build-box2d": "tsc -p Box2D",
-    "build-box2d-esm": "tsc -p Box2D/tsconfig.esm.json",
-    "watch-box2d": "tsc -p Box2D --watch",
-    "watch-box2d-esm": "tsc -p Box2D/tsconfig.esm.json --watch",
-    "dist-box2d": "(cd Box2D && rollup -c)",
-    "build-helloworld": "tsc -p HelloWorld",
-    "watch-helloworld": "tsc -p HelloWorld --watch",
-    "dist-helloworld": "(cd HelloWorld && rollup -c)",
-    "build-testbed": "tsc -p Testbed",
-    "watch-testbed": "tsc -p Testbed --watch",
-    "dist-testbed": "(cd Testbed && rollup -c)",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -37,9 +22,17 @@
   },
   "homepage": "https://github.com/highduck/box2d-ts#readme",
   "dependencies": {
+    "@eliasku/fast-math": "^1.1.7"
   },
   "devDependencies": {
-    "typescript": "^3.9.6",
-    "rimraf": "^3.0.2"
+    "regenerator-runtime": "^0.13.7",
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "babel-jest": "^26.3.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.0.2",
+    "jest": "^26.4.2",
+    "@types/jest": "^26.0.13",
+    "ts-jest": "^26.3.0"
   }
 }

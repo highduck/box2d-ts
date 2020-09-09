@@ -16,6 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
+import {acos, cos, sin} from '@eliasku/fast-math';
 import {b2_epsilon, b2_pi, b2Assert} from "./b2Settings";
 
 export const b2_pi_over_180: number = b2_pi / 180;
@@ -87,9 +88,11 @@ export function b2RadToDeg(radians: number): number {
     return radians * b2_180_over_pi;
 }
 
-export const b2Cos = Math.cos;
-export const b2Sin = Math.sin;
-export const b2Acos = Math.acos;
+export {
+    cos as b2Cos,
+    sin as b2Sin,
+    acos as b2Acos
+};
 export const b2Asin = Math.asin;
 export const b2Atan2 = Math.atan2;
 
@@ -242,8 +245,8 @@ export class b2Vec2 implements XY {
     }
 
     SelfRotate(radians: number): this {
-        const c: number = Math.cos(radians);
-        const s: number = Math.sin(radians);
+        const c: number = cos(radians);
+        const s: number = sin(radians);
         const x: number = this.x;
         this.x = c * x - s * this.y;
         this.y = s * x + c * this.y;
@@ -339,9 +342,10 @@ export class b2Vec2 implements XY {
     }
 
     static RotateV<T extends XY>(v: XY, radians: number, out: T): T {
-        const v_x: number = v.x, v_y: number = v.y;
-        const c: number = Math.cos(radians);
-        const s: number = Math.sin(radians);
+        const v_x = v.x;
+        const v_y = v.y;
+        const c = cos(radians);
+        const s = sin(radians);
         out.x = c * v_x - s * v_y;
         out.y = s * v_x + c * v_y;
         return out;
@@ -356,28 +360,28 @@ export class b2Vec2 implements XY {
     }
 
     static CrossVS<T extends XY>(v: XY, s: number, out: T): T {
-        const v_x: number = v.x;
+        const v_x = v.x;
         out.x = s * v.y;
         out.y = -s * v_x;
         return out;
     }
 
     static CrossVOne<T extends XY>(v: XY, out: T): T {
-        const v_x: number = v.x;
+        const v_x = v.x;
         out.x = v.y;
         out.y = -v_x;
         return out;
     }
 
     static CrossSV<T extends XY>(s: number, v: XY, out: T): T {
-        const v_x: number = v.x;
+        const v_x = v.x;
         out.x = -s * v.y;
         out.y = s * v_x;
         return out;
     }
 
     static CrossOneV<T extends XY>(v: XY, out: T): T {
-        const v_x: number = v.x;
+        const v_x = v.x;
         out.x = -v.y;
         out.y = v_x;
         return out;
@@ -603,8 +607,8 @@ export class b2Mat22 {
     }
 
     SetAngle(radians: number): this {
-        const c: number = Math.cos(radians);
-        const s: number = Math.sin(radians);
+        const c: number = cos(radians);
+        const s: number = sin(radians);
         this.ex.Set(c, s);
         this.ey.Set(-s, c);
         return this;
@@ -649,11 +653,11 @@ export class b2Mat22 {
     }
 
     Solve<T extends XY>(b_x: number, b_y: number, out: T): T {
-        const a11: number = this.ex.x, a12 = this.ey.x;
-        const a21: number = this.ex.y, a22 = this.ey.y;
-        let det: number = a11 * a22 - a12 * a21;
+        const a11 = this.ex.x, a12 = this.ey.x;
+        const a21 = this.ex.y, a22 = this.ey.y;
+        let det = a11 * a22 - a12 * a21;
         if (det !== 0) {
-            det = 1 / det;
+            det = 1.0 / det;
         }
         out.x = det * (a22 * b_x - a12 * b_y);
         out.y = det * (a11 * b_y - a21 * b_x);
@@ -693,24 +697,30 @@ export class b2Mat22 {
     }
 
     static MulMV<T extends XY>(M: b2Mat22, v: XY, out: T): T {
-        const M_ex: b2Vec2 = M.ex, M_ey: b2Vec2 = M.ey;
-        const v_x: number = v.x, v_y: number = v.y;
+        const M_ex = M.ex;
+        const M_ey = M.ey;
+        const v_x = v.x;
+        const v_y = v.y;
         out.x = M_ex.x * v_x + M_ey.x * v_y;
         out.y = M_ex.y * v_x + M_ey.y * v_y;
         return out;
     }
 
     static MulTMV<T extends XY>(M: b2Mat22, v: XY, out: T): T {
-        const M_ex: b2Vec2 = M.ex, M_ey: b2Vec2 = M.ey;
-        const v_x: number = v.x, v_y: number = v.y;
+        const M_ex = M.ex;
+        const M_ey = M.ey;
+        const v_x = v.x;
+        const v_y = v.y;
         out.x = M_ex.x * v_x + M_ex.y * v_y;
         out.y = M_ey.x * v_x + M_ey.y * v_y;
         return out;
     }
 
     static AddMM(A: b2Mat22, B: b2Mat22, out: b2Mat22): b2Mat22 {
-        const A_ex: b2Vec2 = A.ex, A_ey: b2Vec2 = A.ey;
-        const B_ex: b2Vec2 = B.ex, B_ey: b2Vec2 = B.ey;
+        const A_ex = A.ex;
+        const A_ey = A.ey;
+        const B_ex = B.ex;
+        const B_ey = B.ey;
         out.ex.x = A_ex.x + B_ex.x;
         out.ex.y = A_ex.y + B_ex.y;
         out.ey.x = A_ey.x + B_ey.x;
@@ -719,10 +729,14 @@ export class b2Mat22 {
     }
 
     static MulMM(A: b2Mat22, B: b2Mat22, out: b2Mat22): b2Mat22 {
-        const A_ex_x: number = A.ex.x, A_ex_y: number = A.ex.y;
-        const A_ey_x: number = A.ey.x, A_ey_y: number = A.ey.y;
-        const B_ex_x: number = B.ex.x, B_ex_y: number = B.ex.y;
-        const B_ey_x: number = B.ey.x, B_ey_y: number = B.ey.y;
+        const A_ex_x = A.ex.x;
+        const A_ex_y = A.ex.y;
+        const A_ey_x = A.ey.x;
+        const A_ey_y = A.ey.y;
+        const B_ex_x = B.ex.x;
+        const B_ex_y = B.ex.y;
+        const B_ey_x = B.ey.x;
+        const B_ey_y = B.ey.y;
         out.ex.x = A_ex_x * B_ex_x + A_ey_x * B_ex_y;
         out.ex.y = A_ex_y * B_ex_x + A_ey_y * B_ex_y;
         out.ey.x = A_ex_x * B_ey_x + A_ey_x * B_ey_y;
@@ -731,10 +745,14 @@ export class b2Mat22 {
     }
 
     static MulTMM(A: b2Mat22, B: b2Mat22, out: b2Mat22): b2Mat22 {
-        const A_ex_x: number = A.ex.x, A_ex_y: number = A.ex.y;
-        const A_ey_x: number = A.ey.x, A_ey_y: number = A.ey.y;
-        const B_ex_x: number = B.ex.x, B_ex_y: number = B.ex.y;
-        const B_ey_x: number = B.ey.x, B_ey_y: number = B.ey.y;
+        const A_ex_x = A.ex.x;
+        const A_ex_y = A.ex.y;
+        const A_ey_x = A.ey.x;
+        const A_ey_y = A.ey.y;
+        const B_ex_x = B.ex.x;
+        const B_ex_y = B.ex.y;
+        const B_ey_x = B.ey.x;
+        const B_ey_y = B.ey.y;
         out.ex.x = A_ex_x * B_ex_x + A_ex_y * B_ex_y;
         out.ex.y = A_ey_x * B_ex_x + A_ey_y * B_ex_y;
         out.ey.x = A_ex_x * B_ey_x + A_ex_y * B_ey_y;
@@ -791,12 +809,18 @@ export class b2Mat33 {
     }
 
     Solve33<T extends XYZ>(b_x: number, b_y: number, b_z: number, out: T): T {
-        const a11: number = this.ex.x, a21: number = this.ex.y, a31: number = this.ex.z;
-        const a12: number = this.ey.x, a22: number = this.ey.y, a32: number = this.ey.z;
-        const a13: number = this.ez.x, a23: number = this.ez.y, a33: number = this.ez.z;
-        let det: number = a11 * (a22 * a33 - a32 * a23) + a21 * (a32 * a13 - a12 * a33) + a31 * (a12 * a23 - a22 * a13);
+        const a11 = this.ex.x;
+        const a21 = this.ex.y;
+        const a31 = this.ex.z;
+        const a12 = this.ey.x;
+        const a22 = this.ey.y;
+        const a32 = this.ey.z;
+        const a13 = this.ez.x;
+        const a23 = this.ez.y;
+        const a33 = this.ez.z;
+        let det = a11 * (a22 * a33 - a32 * a23) + a21 * (a32 * a13 - a12 * a33) + a31 * (a12 * a23 - a22 * a13);
         if (det !== 0) {
-            det = 1 / det;
+            det = 1.0 / det;
         }
         out.x = det * (b_x * (a22 * a33 - a32 * a23) + b_y * (a32 * a13 - a12 * a33) + b_z * (a12 * a23 - a22 * a13));
         out.y = det * (a11 * (b_y * a33 - b_z * a23) + a21 * (b_z * a13 - b_x * a33) + a31 * (b_x * a23 - b_y * a13));
@@ -805,11 +829,13 @@ export class b2Mat33 {
     }
 
     Solve22<T extends XY>(b_x: number, b_y: number, out: T): T {
-        const a11: number = this.ex.x, a12: number = this.ey.x;
-        const a21: number = this.ex.y, a22: number = this.ey.y;
+        const a11 = this.ex.x;
+        const a12 = this.ey.x;
+        const a21 = this.ex.y;
+        const a22 = this.ey.y;
         let det: number = a11 * a22 - a12 * a21;
         if (det !== 0) {
-            det = 1 / det;
+            det = 1.0 / det;
         }
         out.x = det * (a22 * b_x - a12 * b_y);
         out.y = det * (a11 * b_y - a21 * b_x);
@@ -817,10 +843,14 @@ export class b2Mat33 {
     }
 
     GetInverse22(M: b2Mat33): void {
-        const a: number = this.ex.x, b: number = this.ey.x, c: number = this.ex.y, d: number = this.ey.y;
-        let det: number = a * d - b * c;
+        const a = this.ex.x;
+        const b = this.ey.x;
+        const c = this.ex.y;
+        const d = this.ey.y;
+
+        let det = a * d - b * c;
         if (det !== 0) {
-            det = 1 / det;
+            det = 1.0 / det;
         }
 
         M.ex.x = det * d;
@@ -894,8 +924,8 @@ export class b2Rot {
     c = NaN;
 
     constructor(angle = 0.0) {
-        this.s = Math.sin(angle);
-        this.c = Math.cos(angle);
+        this.s = sin(angle);
+        this.c = cos(angle);
     }
 
     Clone(): b2Rot {
@@ -909,8 +939,8 @@ export class b2Rot {
     }
 
     SetAngle(angle: number): this {
-        this.s = Math.sin(angle);
-        this.c = Math.cos(angle);
+        this.s = sin(angle);
+        this.c = cos(angle);
         return this;
     }
 
@@ -1121,10 +1151,10 @@ export class b2Sweep {
     }
 
     GetTransform(xf: b2Transform, beta: number): b2Transform {
-        const one_minus_beta: number = (1 - beta);
+        const one_minus_beta = 1.0 - beta;
         xf.p.x = one_minus_beta * this.c0.x + beta * this.c.x;
         xf.p.y = one_minus_beta * this.c0.y + beta * this.c.y;
-        const angle: number = one_minus_beta * this.a0 + beta * this.a;
+        const angle = one_minus_beta * this.a0 + beta * this.a;
         xf.q.SetAngle(angle);
 
         xf.p.SelfSub(b2Rot.MulRV(xf.q, this.localCenter, b2Vec2.s_t0));

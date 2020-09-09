@@ -1,0 +1,9 @@
+# Ignore artifacts:
+coverage
+bundle
+build
+dist
+.idea
+pnpm-lock.yaml
+node_modules
+*.tsbuildinfo

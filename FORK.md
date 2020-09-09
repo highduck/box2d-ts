@@ -1,5 +1,5 @@
-- Project Struxture remade to monorepo
-- yarn
+- Project Structure remade to monorepo
+- pnpm
 - TS projects and root solution
 - TS -> ESM -> ROLLUP to anything
 

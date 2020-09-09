@@ -38,7 +38,7 @@ export class Breakable extends Test {
   public readonly m_shape1 = new b2PolygonShape();
   public readonly m_shape2 = new b2PolygonShape();
   public m_piece1: b2Fixture;
-  public m_piece2: b2Fixture;
+  public m_piece2: b2Fixture|null;
   public m_broke = false;
   public m_break = false;
 
@@ -106,8 +106,10 @@ export class Breakable extends Test {
     /*b2Vec2*/
     const center = body1.GetWorldCenter();
 
-    body1.DestroyFixture(this.m_piece2);
-    delete this.m_piece2; // = null;
+    if(this.m_piece2) {
+        body1.DestroyFixture(this.m_piece2);
+        this.m_piece2 = null;
+    }
 
     /*b2BodyDef*/
     const bd = new b2BodyDef();
