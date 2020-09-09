@@ -20,6 +20,11 @@
   "bugs": {
     "url": "https://github.com/highduck/box2d-ts/issues"
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "README.md"
+  ],
   "homepage": "https://github.com/highduck/box2d-ts#readme",
   "dependencies": {
     "@eliasku/fast-math": "^1.1.7"
@@ -34,5 +39,8 @@
     "jest": "^26.4.2",
     "@types/jest": "^26.0.13",
     "ts-jest": "^26.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
