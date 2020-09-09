@@ -9,6 +9,9 @@
     "clean": "rimraf dist",
     "watch": "tsc -b -w -v tsconfig.project.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/highduck/box2d-ts.git"
@@ -22,6 +25,10 @@
   "dependencies": {
     "@highduck/box2d": "1.0.1"
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "devDependencies": {
     "rimraf": "^3.0.2",
     "typescript": "^4.0.2"
