@@ -19,15 +19,20 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2Body, b2BodyDef, b2ChainShape, b2Clamp,
-    b2FixtureDef,
-    b2Max, b2Min,
-    b2ParticleFlag,
-    b2ParticleGroup,
-    b2ParticleGroupDef, b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {g_debugDraw, RandomFloat, Settings, Test} from "@highduck/box2d-testbed";
+  b2Body,
+  b2BodyDef,
+  b2ChainShape,
+  b2Clamp,
+  b2FixtureDef,
+  b2Max,
+  b2Min,
+  b2ParticleFlag,
+  b2ParticleGroup,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { g_debugDraw, RandomFloat, Settings, Test } from '@highduck/box2d-testbed';
 
 /**
  * Game which adds some fun to Maxwell's demon.
@@ -111,8 +116,12 @@ export class Maxwell extends Test {
       const bd = new b2BodyDef();
       this.m_barrierBody = this.m_world.CreateBody(bd);
       const barrierShape = new b2PolygonShape();
-      barrierShape.SetAsBox(Maxwell.k_containerHalfWidth, Maxwell.k_barrierHeight,
-        new b2Vec2(0, this.m_position), 0);
+      barrierShape.SetAsBox(
+        Maxwell.k_containerHalfWidth,
+        Maxwell.k_barrierHeight,
+        new b2Vec2(0, this.m_position),
+        0,
+      );
       const def = new b2FixtureDef();
       def.shape = barrierShape;
       def.density = 0;
@@ -141,11 +150,15 @@ export class Maxwell extends Test {
       this.m_particleGroup = null;
     }
 
-    this.m_particleSystem.SetRadius(Maxwell.k_containerHalfWidth / 20.0); {
+    this.m_particleSystem.SetRadius(Maxwell.k_containerHalfWidth / 20.0);
+    {
       const shape = new b2PolygonShape();
-      shape.SetAsBox(this.m_density * Maxwell.k_containerHalfWidth,
+      shape.SetAsBox(
+        this.m_density * Maxwell.k_containerHalfWidth,
         this.m_density * Maxwell.k_containerHalfHeight,
-        new b2Vec2(0, Maxwell.k_containerHalfHeight), 0);
+        new b2Vec2(0, Maxwell.k_containerHalfHeight),
+        0,
+      );
       const pd = new b2ParticleGroupDef();
       pd.flags = b2ParticleFlag.b2_powderParticle;
       pd.shape = shape;
@@ -169,38 +182,42 @@ export class Maxwell extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "a":
+      case 'a':
         // Enable / disable the barrier.
         this.ToggleBarrier();
         break;
-      case "=":
+      case '=':
         // Increase the particle density.
         this.m_density = b2Min(this.m_density * Maxwell.k_densityStep, Maxwell.k_densityMax);
         this.Reset();
         break;
-      case "-":
+      case '-':
         // Reduce the particle density.
         this.m_density = b2Max(this.m_density / Maxwell.k_densityStep, Maxwell.k_densityMin);
         this.Reset();
         break;
-      case ".":
+      case '.':
         // Move the location of the divider up.
         this.MoveDivider(this.m_position + Maxwell.k_barrierMovementIncrement);
         break;
-      case ",":
+      case ',':
         // Move the location of the divider down.
         this.MoveDivider(this.m_position - Maxwell.k_barrierMovementIncrement);
         break;
-      case ";":
+      case ';':
         // Reduce the temperature (velocity of particles).
-        this.m_temperature = b2Max(this.m_temperature - Maxwell.k_temperatureStep,
-          Maxwell.k_temperatureMin);
+        this.m_temperature = b2Max(
+          this.m_temperature - Maxwell.k_temperatureStep,
+          Maxwell.k_temperatureMin,
+        );
         this.Reset();
         break;
       case "'":
         // Increase the temperature (velocity of particles).
-        this.m_temperature = b2Min(this.m_temperature + Maxwell.k_temperatureStep,
-          Maxwell.k_temperatureMax);
+        this.m_temperature = b2Min(
+          this.m_temperature + Maxwell.k_temperatureStep,
+          Maxwell.k_temperatureMax,
+        );
         this.Reset();
         break;
       default:
@@ -213,8 +230,12 @@ export class Maxwell extends Test {
    * Determine whether a point is in the container.
    */
   public InContainer(p: b2Vec2) {
-    return p.x >= -Maxwell.k_containerHalfWidth && p.x <= Maxwell.k_containerHalfWidth &&
-      p.y >= 0.0 && p.y <= Maxwell.k_containerHalfHeight * 2.0;
+    return (
+      p.x >= -Maxwell.k_containerHalfWidth &&
+      p.x <= Maxwell.k_containerHalfWidth &&
+      p.y >= 0.0 &&
+      p.y <= Maxwell.k_containerHalfHeight * 2.0
+    );
   }
 
   public MouseDown(p: b2Vec2) {
@@ -275,7 +296,10 @@ export class Maxwell extends Test {
     const topPressure = top / (Maxwell.k_containerHeight - this.m_position);
     const botPressure = bottom / this.m_position;
     g_debugDraw.DrawString(
-      10, 75, `Score: ${topPressure > 0.0 ? botPressure / topPressure - 1.0 : 0.0}`);
+      10,
+      75,
+      `Score: ${topPressure > 0.0 ? botPressure / topPressure - 1.0 : 0.0}`,
+    );
   }
 
   /**
@@ -291,8 +315,11 @@ export class Maxwell extends Test {
    * Move the divider / barrier.
    */
   public MoveDivider(newPosition: number) {
-    this.m_position = b2Clamp(newPosition, Maxwell.k_barrierMovementIncrement,
-      Maxwell.k_containerHeight - Maxwell.k_barrierMovementIncrement);
+    this.m_position = b2Clamp(
+      newPosition,
+      Maxwell.k_barrierMovementIncrement,
+      Maxwell.k_containerHeight - Maxwell.k_barrierMovementIncrement,
+    );
     this.Reset();
   }
 

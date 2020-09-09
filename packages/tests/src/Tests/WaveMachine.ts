@@ -19,15 +19,17 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2_pi,
-    b2BodyDef, b2BodyType,
-    b2ParticleFlag, b2ParticleGroupDef,
-    b2PolygonShape,
-    b2RevoluteJoint,
-    b2RevoluteJointDef,
-    b2Vec2
-} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+  b2_pi,
+  b2BodyDef,
+  b2BodyType,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2RevoluteJoint,
+  b2RevoluteJointDef,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 export class WaveMachine extends Test {
   public m_joint: b2RevoluteJoint;

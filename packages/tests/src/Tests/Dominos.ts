@@ -1,31 +1,34 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2BodyDef, b2BodyType, b2CircleShape,
-    b2DistanceJointDef,
-    b2EdgeShape,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2RevoluteJointDef,
-    b2Vec2, b2Vec2_zero
-} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2DistanceJointDef,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2RevoluteJointDef,
+  b2Vec2,
+  b2Vec2_zero,
+} from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 export class Dominos extends Test {
   constructor() {
@@ -190,7 +193,11 @@ export class Dominos extends Test {
     djd.bodyB = b7;
     djd.localAnchorA.Set(6.0, 0.0);
     djd.localAnchorB.Set(0.0, -1.0);
-    const d = b2Vec2.SubVV(djd.bodyB.GetWorldPoint(djd.localAnchorB, new b2Vec2()), djd.bodyA.GetWorldPoint(djd.localAnchorA, new b2Vec2()), new b2Vec2());
+    const d = b2Vec2.SubVV(
+      djd.bodyB.GetWorldPoint(djd.localAnchorB, new b2Vec2()),
+      djd.bodyA.GetWorldPoint(djd.localAnchorA, new b2Vec2()),
+      new b2Vec2(),
+    );
     djd.length = d.Length();
     this.m_world.CreateJoint(djd);
 

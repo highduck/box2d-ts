@@ -16,49 +16,49 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {b2Assert} from "../common/b2Settings";
+import { b2Assert } from '../common/b2Settings';
 
 export class b2StackQueue<T> {
-    readonly m_buffer: Array<T | null> = [];
-    m_front = 0;
-    m_back = 0;
+  readonly m_buffer: Array<T | null> = [];
+  m_front = 0;
+  m_back = 0;
 
-    get m_capacity(): number {
-        return this.m_buffer.length;
-    }
+  get m_capacity(): number {
+    return this.m_buffer.length;
+  }
 
-    constructor(capacity: number) {
-        this.m_buffer.fill(null, 0, capacity);
-    }
+  constructor(capacity: number) {
+    this.m_buffer.fill(null, 0, capacity);
+  }
 
-    Push(item: T): void {
-        if (this.m_back >= this.m_capacity) {
-            for (let i = this.m_front; i < this.m_back; i++) {
-                this.m_buffer[i - this.m_front] = this.m_buffer[i];
-            }
-            this.m_back -= this.m_front;
-            this.m_front = 0;
-        }
-        this.m_buffer[this.m_back] = item;
-        this.m_back++;
+  Push(item: T): void {
+    if (this.m_back >= this.m_capacity) {
+      for (let i = this.m_front; i < this.m_back; i++) {
+        this.m_buffer[i - this.m_front] = this.m_buffer[i];
+      }
+      this.m_back -= this.m_front;
+      this.m_front = 0;
     }
+    this.m_buffer[this.m_back] = item;
+    this.m_back++;
+  }
 
-    Pop(): void {
-        !!B2_DEBUG && b2Assert(this.m_front < this.m_back);
-        this.m_buffer[this.m_front] = null;
-        this.m_front++;
-    }
+  Pop(): void {
+    !!B2_DEBUG && b2Assert(this.m_front < this.m_back);
+    this.m_buffer[this.m_front] = null;
+    this.m_front++;
+  }
 
-    Empty(): boolean {
-        !!B2_DEBUG && b2Assert(this.m_front <= this.m_back);
-        return this.m_front === this.m_back;
-    }
+  Empty(): boolean {
+    !!B2_DEBUG && b2Assert(this.m_front <= this.m_back);
+    return this.m_front === this.m_back;
+  }
 
-    Front(): T {
-        const item = this.m_buffer[this.m_front];
-        if (!item) {
-            throw new Error();
-        }
-        return item;
+  Front(): T {
+    const item = this.m_buffer[this.m_front];
+    if (!item) {
+      throw new Error();
     }
+    return item;
+  }
 }

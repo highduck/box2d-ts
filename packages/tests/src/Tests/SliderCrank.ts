@@ -1,31 +1,34 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2_pi,
-    b2BodyDef, b2BodyType, b2EdgeShape,
-    b2PolygonShape, b2PrismaticJoint,
-    b2PrismaticJointDef,
-    b2RevoluteJoint,
-    b2RevoluteJointDef,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2_pi,
+  b2BodyDef,
+  b2BodyType,
+  b2EdgeShape,
+  b2PolygonShape,
+  b2PrismaticJoint,
+  b2PrismaticJointDef,
+  b2RevoluteJoint,
+  b2RevoluteJointDef,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class SliderCrank extends Test {
   public static readonly e_count = 30;
@@ -130,12 +133,12 @@ export class SliderCrank extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "f":
+      case 'f':
         this.m_joint2.EnableMotor(!this.m_joint2.IsMotorEnabled());
         this.m_joint2.GetBodyB().SetAwake(true);
         break;
 
-      case "m":
+      case 'm':
         this.m_joint1.EnableMotor(!this.m_joint1.IsMotorEnabled());
         this.m_joint1.GetBodyB().SetAwake(true);
         break;
@@ -144,7 +147,7 @@ export class SliderCrank extends Test {
 
   public Step(settings: Settings): void {
     super.Step(settings);
-    g_debugDraw.DrawString(5, this.m_textLine, "Keys: (f) toggle friction, (m) toggle motor");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Keys: (f) toggle friction, (m) toggle motor');
     this.m_textLine += DRAW_STRING_NEW_LINE;
     const torque = this.m_joint1.GetMotorTorque(settings.hz);
     g_debugDraw.DrawString(5, this.m_textLine, `Motor Torque = ${torque.toFixed(0)}`);

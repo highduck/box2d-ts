@@ -3,6 +3,7 @@ coverage
 bundle
 build
 dist
+docs
 .idea
 pnpm-lock.yaml
 node_modules

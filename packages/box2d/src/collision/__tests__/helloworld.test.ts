@@ -1,6 +1,6 @@
-import {b2BodyDef, b2BodyType, b2FixtureDef, b2PolygonShape, b2Vec2, b2World} from "../..";
+import { b2BodyDef, b2BodyType, b2FixtureDef, b2PolygonShape, b2Vec2, b2World } from '../..';
 
-test("hello world", ()=> {
+test('hello world', () => {
   // Define the gravity vector.
   const gravity = new b2Vec2(0, -10);
 
@@ -59,8 +59,7 @@ test("hello world", ()=> {
   let angle = body.GetAngle();
 
   // This is our little game loop.
-  for (let i = 0; i < 60; ++i)
-  {
+  for (let i = 0; i < 60; ++i) {
     // Instruct the world to perform a single step of simulation.
     // It is generally best to keep the time step and iterations fixed.
     world.Step(timeStep, velocityIterations, positionIterations);

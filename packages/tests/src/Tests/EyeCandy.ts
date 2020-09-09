@@ -1,15 +1,17 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2Body,
-    b2BodyDef, b2BodyType,
-    b2ParticleFlag, b2ParticleGroupDef,
-    b2PolygonShape,
-    b2RevoluteJoint,
-    b2RevoluteJointDef,
-    b2Vec2
-} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2RevoluteJoint,
+  b2RevoluteJointDef,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 export class EyeCandy extends Test {
   public m_mover: b2Body;

@@ -1,23 +1,23 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
-import {b2BodyDef, b2BodyType, b2PolygonShape, b2Timer, b2Vec2} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+import { b2BodyDef, b2BodyType, b2PolygonShape, b2Timer, b2Vec2 } from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 /**
  * This stress tests the dynamic tree broad-phase. This also
@@ -55,9 +55,9 @@ export class Tiles extends Test {
         /*b2Vec2*/
         const position = new b2Vec2();
         position.y = 0.0;
-        for ( /*int32*/ let j = 0; j < M; ++j) {
+        for (/*int32*/ let j = 0; j < M; ++j) {
           position.x = -N * a;
-          for ( /*int32*/ let i = 0; i < N; ++i) {
+          for (/*int32*/ let i = 0; i < N; ++i) {
             /*b2PolygonShape*/
             const shape = new b2PolygonShape();
             shape.SetAsBox(a, a, position, 0.0);
@@ -105,10 +105,10 @@ export class Tiles extends Test {
       /*b2Vec2*/
       const deltaY = new b2Vec2(1.125, 0.0);
 
-      for ( /*int32*/ let i = 0; i < Tiles.e_count; ++i) {
+      for (/*int32*/ let i = 0; i < Tiles.e_count; ++i) {
         y.Copy(x);
 
-        for ( /*int32*/ let j = i; j < Tiles.e_count; ++j) {
+        for (/*int32*/ let j = i; j < Tiles.e_count; ++j) {
           /*b2BodyDef*/
           const bd = new b2BodyDef();
           bd.type = b2BodyType.b2_dynamicBody;
@@ -148,12 +148,20 @@ export class Tiles extends Test {
     const minimumNodeCount = 2 * leafCount - 1;
     /*float32*/
     const minimumHeight = Math.ceil(Math.log(minimumNodeCount) / Math.log(2.0));
-    g_debugDraw.DrawString(5, this.m_textLine, `dynamic tree height = ${height}, min = ${minimumHeight}`);
+    g_debugDraw.DrawString(
+      5,
+      this.m_textLine,
+      `dynamic tree height = ${height}, min = ${minimumHeight}`,
+    );
     this.m_textLine += DRAW_STRING_NEW_LINE;
 
     super.Step(settings);
 
-    g_debugDraw.DrawString(5, this.m_textLine, `create time = ${this.m_createTime.toFixed(2)} ms, fixture count = ${this.m_fixtureCount}`);
+    g_debugDraw.DrawString(
+      5,
+      this.m_textLine,
+      `create time = ${this.m_createTime.toFixed(2)} ms, fixture count = ${this.m_fixtureCount}`,
+    );
     this.m_textLine += DRAW_STRING_NEW_LINE;
 
     //b2DynamicTree* tree = this.m_world.this.m_contactManager.m_broadPhase.m_tree;

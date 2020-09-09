@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {Test} from "@highduck/box2d-testbed";
-import {b2Body, b2BodyDef, b2BodyType, b2CircleShape, b2EdgeShape, b2Vec2} from "@highduck/box2d";
+import { Test } from '@highduck/box2d-testbed';
+import { b2Body, b2BodyDef, b2BodyType, b2CircleShape, b2EdgeShape, b2Vec2 } from '@highduck/box2d';
 
 export class HeavyOnLightTwo extends Test {
   public m_heavy: b2Body | null = null;
@@ -74,7 +74,7 @@ export class HeavyOnLightTwo extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "h":
+      case 'h':
         this.ToggleHeavy();
         break;
     }

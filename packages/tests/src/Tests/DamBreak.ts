@@ -18,8 +18,15 @@
 
 // #if B2_ENABLE_PARTICLE
 
-import {b2BodyDef, b2ChainShape, b2ParticleFlag, b2ParticleGroupDef, b2PolygonShape, b2Vec2} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2ChainShape,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class DamBreak extends Test {
   constructor() {
@@ -30,15 +37,9 @@ export class DamBreak extends Test {
       const ground = this.m_world.CreateBody(bd);
 
       const shape = new b2ChainShape();
-      const vertices = [
-        new b2Vec2(-2, 0),
-        new b2Vec2(2, 0),
-        new b2Vec2(2, 4),
-        new b2Vec2(-2, 4),
-      ];
+      const vertices = [new b2Vec2(-2, 0), new b2Vec2(2, 0), new b2Vec2(2, 4), new b2Vec2(-2, 4)];
       shape.CreateLoop(vertices, 4);
       ground.CreateFixture(shape, 0.0);
-
     }
 
     this.m_particleSystem.SetRadius(0.025 * 2); // HACK: increase particle radius

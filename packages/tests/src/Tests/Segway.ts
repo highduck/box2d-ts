@@ -1,38 +1,42 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2Body,
-    b2BodyDef, b2BodyType, b2CircleShape, b2Clamp,
-    b2DegToRad, b2EdgeShape,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2RevoluteJoint,
-    b2RevoluteJointDef
-} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2Clamp,
+  b2DegToRad,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2RevoluteJoint,
+  b2RevoluteJointDef,
+} from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 export class Segway extends Test {
-  public static PENDULUM_LENGTH: number = 10;
+  public static PENDULUM_LENGTH = 10;
 
-  public targetPosition: number = 10;
-  public targetPositionInterval: number = 0;
-  public posAvg: number = 0;
+  public targetPosition = 10;
+  public targetPositionInterval = 0;
+  public posAvg = 0;
   public readonly angleController: PIDController = new PIDController();
   public readonly positionController: PIDController = new PIDController();
   public pendulumBody: b2Body;
@@ -101,14 +105,14 @@ export class Segway extends Test {
     // var m = 40;
     // wheelJoint.motorEquation.maxForce = m;
     // wheelJoint.motorEquation.minForce = -m;
-    const jd: b2RevoluteJointDef = new b2RevoluteJointDef();
+    const jd = new b2RevoluteJointDef();
     jd.Initialize(this.wheelBody, this.pendulumBody, { x: 0, y: 0 });
     jd.localAnchorA.Set(0, 0);
     jd.localAnchorB.Set(0, -0.5 * Segway.PENDULUM_LENGTH);
     jd.collideConnected = false;
     jd.enableMotor = true;
     jd.maxMotorTorque = 40;
-    this.wheelJoint = this.m_world.CreateJoint(jd);
+    this.wheelJoint = this.m_world.CreateJoint(jd) /* TODO: ??? */ as b2RevoluteJoint;
 
     // Create ground
     // var groundShape = new p2.Plane();
@@ -143,22 +147,24 @@ export class Segway extends Test {
       this.targetPosition = this.targetPosition === 10 ? -10 : 10;
     }
 
-    let targetAngle: number = 0;
-    if ( true ) {
-      const alpha: number = 0.4;
-      // posAvg = (1 - alpha) * posAvg + alpha * pendulumBody.position[0];
-      this.posAvg = (1 - alpha) * this.posAvg + alpha * this.pendulumBody.GetPosition().x;
-      this.positionController.currentError = this.targetPosition - this.posAvg;
-      // positionController.step(world.lastTimeStep);
-      this.positionController.step(dt);
-      let targetLinAccel: number = this.positionController.output;
-      // targetLinAccel = clamp(targetLinAccel, -10.0, 10.0);
-      targetLinAccel = b2Clamp(targetLinAccel, -10, 10);
-      // targetAngle = targetLinAccel / world.gravity[1];
-      targetAngle = targetLinAccel / this.m_world.GetGravity().y;
-      // targetAngle = clamp(targetAngle, -15 * DEGTORAD, 15 * DEGTORAD);
-      targetAngle = b2Clamp(targetAngle, b2DegToRad(-15), b2DegToRad(15));
-    }
+    let targetAngle = 0;
+
+    //if (true) {
+    const alpha = 0.4;
+    // posAvg = (1 - alpha) * posAvg + alpha * pendulumBody.position[0];
+    this.posAvg = (1 - alpha) * this.posAvg + alpha * this.pendulumBody.GetPosition().x;
+    this.positionController.currentError = this.targetPosition - this.posAvg;
+    // positionController.step(world.lastTimeStep);
+    this.positionController.step(dt);
+    let targetLinAccel: number = this.positionController.output;
+    // targetLinAccel = clamp(targetLinAccel, -10.0, 10.0);
+    targetLinAccel = b2Clamp(targetLinAccel, -10, 10);
+    // targetAngle = targetLinAccel / world.gravity[1];
+    targetAngle = targetLinAccel / this.m_world.GetGravity().y;
+    // targetAngle = clamp(targetAngle, -15 * DEGTORAD, 15 * DEGTORAD);
+    targetAngle = b2Clamp(targetAngle, b2DegToRad(-15), b2DegToRad(15));
+    //}
+
     // var currentAngle = pendulumBody.angle;
     let currentAngle: number = this.pendulumBody.GetAngle();
     currentAngle = normalizeAngle(currentAngle);
@@ -167,7 +173,7 @@ export class Segway extends Test {
     this.angleController.step(dt);
     let targetSpeed: number = this.angleController.output;
     // give up if speed required is really high
-    if ( Math.abs(targetSpeed) > 1000 ) {
+    if (Math.abs(targetSpeed) > 1000) {
       targetSpeed = 0;
     }
     // this is the only output
@@ -187,18 +193,19 @@ export class Segway extends Test {
   http://en.wikipedia.org/wiki/PID_controller#Pseudocode
 */
 class PIDController {
-  public gainP: number = 1;
-  public gainI: number = 1;
-  public gainD: number = 1;
-  public currentError: number = 0;
-  public previousError: number = 0;
-  public integral: number = 0;
-  public output: number = 0;
+  public gainP = 1;
+  public gainI = 1;
+  public gainD = 1;
+  public currentError = 0;
+  public previousError = 0;
+  public integral = 0;
+  public output = 0;
 
   public step(dt: number): void {
     this.integral = dt * (this.integral + this.currentError);
     const derivative: number = (1 / dt) * (this.currentError - this.previousError);
-    this.output = this.gainP * this.currentError + this.gainI * this.integral + this.gainD * derivative;
+    this.output =
+      this.gainP * this.currentError + this.gainI * this.integral + this.gainD * derivative;
     this.previousError = this.currentError;
   }
 }
@@ -306,7 +313,11 @@ class PIDController {
 //     return Math.min(Math.max(num, min), max);
 // };
 function normalizeAngle(angle: number): number {
-    while (angle > b2DegToRad( 180)) { angle -= b2DegToRad(360); }
-    while (angle < b2DegToRad(-180)) { angle += b2DegToRad(360); }
-    return angle;
+  while (angle > b2DegToRad(180)) {
+    angle -= b2DegToRad(360);
+  }
+  while (angle < b2DegToRad(-180)) {
+    angle += b2DegToRad(360);
+  }
+  return angle;
 }

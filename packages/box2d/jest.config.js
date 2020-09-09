@@ -1,5 +1,5 @@
 export default {
-  testEnvironment: "node",
+  testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   globals: {
     B2_ENABLE_CONTROLLER: true,
@@ -11,11 +11,9 @@ export default {
   testMatch: ['**/__tests__/**/*.+(ts|tsx|js|jsx)', '**/?(*.)+(spec|test).+(ts|tsx|js|jsx)'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
-    '^.+\\.(js|jsx)$': '<rootDir>/node_modules/babel-jest'
+    '^.+\\.(js|jsx)$': '<rootDir>/node_modules/babel-jest',
   },
-  transformIgnorePatterns: [
-    "^.+/node_modules/(?!(@eliasku/fast-math))/.+$"
-  ],
+  transformIgnorePatterns: ['^.+/node_modules/(?!(@eliasku/fast-math))/.+$'],
   collectCoverageFrom: ['<rootDir>/src/**/*.ts'],
   // coveragePathIgnorePatterns: [
   //     "<rootDir>/dist"

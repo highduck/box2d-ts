@@ -1,5 +1,13 @@
-import {b2BodyDef, b2BodyType, b2EdgeShape, b2FixtureDef, b2PolygonShape, b2Vec2, b2World} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2BodyType,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2Vec2,
+  b2World,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class PyramidTopple extends Test {
   constructor() {
@@ -51,19 +59,38 @@ export class PyramidTopple extends Test {
     // Add the dominoes.
     const n = 12;
     for (let i = 0; i < n; i++) {
-      for (let j = 0; j < (n - i); j++) {
-        const offset = new b2Vec2((j - (n - 1 - i) * 0.5) * 1.5 * HEIGHT, (i + 0.5) * (HEIGHT + 2 * WIDTH) - WIDTH - 240);
+      for (let j = 0; j < n - i; j++) {
+        const offset = new b2Vec2(
+          (j - (n - 1 - i) * 0.5) * 1.5 * HEIGHT,
+          (i + 0.5) * (HEIGHT + 2 * WIDTH) - WIDTH - 240,
+        );
         add_domino(world, offset, false);
-        add_domino(world, b2Vec2.AddVV(offset, new b2Vec2(0, (HEIGHT + WIDTH) / 2), new b2Vec2()), true);
+        add_domino(
+          world,
+          b2Vec2.AddVV(offset, new b2Vec2(0, (HEIGHT + WIDTH) / 2), new b2Vec2()),
+          true,
+        );
 
         if (j === 0) {
-          add_domino(world, b2Vec2.AddVV(offset, new b2Vec2(0.5 * (WIDTH - HEIGHT), HEIGHT + WIDTH), new b2Vec2()), false);
+          add_domino(
+            world,
+            b2Vec2.AddVV(offset, new b2Vec2(0.5 * (WIDTH - HEIGHT), HEIGHT + WIDTH), new b2Vec2()),
+            false,
+          );
         }
 
         if (j !== n - i - 1) {
-          add_domino(world, b2Vec2.AddVV(offset, new b2Vec2(HEIGHT * 0.75, (HEIGHT + 3 * WIDTH) / 2), new b2Vec2()), true);
+          add_domino(
+            world,
+            b2Vec2.AddVV(offset, new b2Vec2(HEIGHT * 0.75, (HEIGHT + 3 * WIDTH) / 2), new b2Vec2()),
+            true,
+          );
         } else {
-          add_domino(world, b2Vec2.AddVV(offset, new b2Vec2(0.5 * (HEIGHT - WIDTH), HEIGHT + WIDTH), new b2Vec2()), false);
+          add_domino(
+            world,
+            b2Vec2.AddVV(offset, new b2Vec2(0.5 * (HEIGHT - WIDTH), HEIGHT + WIDTH), new b2Vec2()),
+            false,
+          );
         }
       }
     }

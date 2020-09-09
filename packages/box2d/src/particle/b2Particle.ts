@@ -16,105 +16,108 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {b2_invalidParticleIndex} from "../common/b2SettingsParticleSystem";
-import {b2ClampInt, b2Vec2, XY} from "../common/b2Math";
-import {b2Color, RGBA} from "../common/b2Draw";
-import {b2ParticleGroup} from "./b2ParticleGroup";
+import { b2_invalidParticleIndex } from '../common/b2SettingsParticleSystem';
+import { b2ClampInt, b2Vec2, XY } from '../common/b2Math';
+import { b2Color, RGBA } from '../common/b2Draw';
+import { b2ParticleGroup } from './b2ParticleGroup';
 
 /**
  * The particle type. Can be combined with the | operator.
  */
 export const enum b2ParticleFlag {
-    none = 0,
-    /// Water particle.
-    b2_waterParticle = 1 << 0,
-    /// Removed after next simulation step.
-    b2_zombieParticle = 1 << 1,
-    /// Zero velocity.
-    b2_wallParticle = 1 << 2,
-    /// With restitution from stretching.
-    b2_springParticle = 1 << 3,
-    /// With restitution from deformation.
-    b2_elasticParticle = 1 << 4,
-    /// With viscosity.
-    b2_viscousParticle = 1 << 5,
-    /// Without isotropic pressure.
-    b2_powderParticle = 1 << 6,
-    /// With surface tension.
-    b2_tensileParticle = 1 << 7,
-    /// Mix color between contacting particles.
-    b2_colorMixingParticle = 1 << 8,
-    /// Call b2DestructionListener on destruction.
-    b2_destructionListenerParticle = 1 << 9,
-    /// Prevents other particles from leaking.
-    b2_barrierParticle = 1 << 10,
-    /// Less compressibility.
-    b2_staticPressureParticle = 1 << 11,
-    /// Makes pairs or triads with other particles.
-    b2_reactiveParticle = 1 << 12,
-    /// With high repulsive force.
-    b2_repulsiveParticle = 1 << 13,
-    /// Call b2ContactListener when this particle is about to interact with
-    /// a rigid body or stops interacting with a rigid body.
-    /// This results in an expensive operation compared to using
-    /// b2_fixtureContactFilterParticle to detect collisions between
-    /// particles.
-    b2_fixtureContactListenerParticle = 1 << 14,
-    /// Call b2ContactListener when this particle is about to interact with
-    /// another particle or stops interacting with another particle.
-    /// This results in an expensive operation compared to using
-    /// b2_particleContactFilterParticle to detect collisions between
-    /// particles.
-    b2_particleContactListenerParticle = 1 << 15,
-    /// Call b2ContactFilter when this particle interacts with rigid bodies.
-    b2_fixtureContactFilterParticle = 1 << 16,
-    /// Call b2ContactFilter when this particle interacts with other
-    /// particles.
-    b2_particleContactFilterParticle = 1 << 17,
+  none = 0,
+  /// Water particle.
+  b2_waterParticle = 1 << 0,
+  /// Removed after next simulation step.
+  b2_zombieParticle = 1 << 1,
+  /// Zero velocity.
+  b2_wallParticle = 1 << 2,
+  /// With restitution from stretching.
+  b2_springParticle = 1 << 3,
+  /// With restitution from deformation.
+  b2_elasticParticle = 1 << 4,
+  /// With viscosity.
+  b2_viscousParticle = 1 << 5,
+  /// Without isotropic pressure.
+  b2_powderParticle = 1 << 6,
+  /// With surface tension.
+  b2_tensileParticle = 1 << 7,
+  /// Mix color between contacting particles.
+  b2_colorMixingParticle = 1 << 8,
+  /// Call b2DestructionListener on destruction.
+  b2_destructionListenerParticle = 1 << 9,
+  /// Prevents other particles from leaking.
+  b2_barrierParticle = 1 << 10,
+  /// Less compressibility.
+  b2_staticPressureParticle = 1 << 11,
+  /// Makes pairs or triads with other particles.
+  b2_reactiveParticle = 1 << 12,
+  /// With high repulsive force.
+  b2_repulsiveParticle = 1 << 13,
+  /// Call b2ContactListener when this particle is about to interact with
+  /// a rigid body or stops interacting with a rigid body.
+  /// This results in an expensive operation compared to using
+  /// b2_fixtureContactFilterParticle to detect collisions between
+  /// particles.
+  b2_fixtureContactListenerParticle = 1 << 14,
+  /// Call b2ContactListener when this particle is about to interact with
+  /// another particle or stops interacting with another particle.
+  /// This results in an expensive operation compared to using
+  /// b2_particleContactFilterParticle to detect collisions between
+  /// particles.
+  b2_particleContactListenerParticle = 1 << 15,
+  /// Call b2ContactFilter when this particle interacts with rigid bodies.
+  b2_fixtureContactFilterParticle = 1 << 16,
+  /// Call b2ContactFilter when this particle interacts with other
+  /// particles.
+  b2_particleContactFilterParticle = 1 << 17,
 }
 
 export interface b2IParticleDef {
-    flags?: b2ParticleFlag;
-    position?: XY;
-    velocity?: XY;
-    color?: RGBA;
-    lifetime?: number;
-    userData?: any;
-    group?: b2ParticleGroup | null;
+  flags?: b2ParticleFlag;
+  position?: XY;
+  velocity?: XY;
+  color?: RGBA;
+  lifetime?: number;
+  userData?: any;
+  group?: b2ParticleGroup | null;
 }
 
 export class b2ParticleDef implements b2IParticleDef {
-    flags = b2ParticleFlag.none;
-    readonly position = new b2Vec2();
-    readonly velocity = new b2Vec2();
-    readonly color = new b2Color(0, 0, 0, 0);
-    lifetime = NaN;
-    userData: any = null;
-    group: b2ParticleGroup | null = null;
+  flags = b2ParticleFlag.none;
+  readonly position = new b2Vec2();
+  readonly velocity = new b2Vec2();
+  readonly color = new b2Color(0, 0, 0, 0);
+  lifetime = NaN;
+  userData: any = null;
+  group: b2ParticleGroup | null = null;
 
-    constructor() {
-        this.lifetime = 0.0;
-    }
-
+  constructor() {
+    this.lifetime = 0.0;
+  }
 }
 
-export function b2CalculateParticleIterations(gravity: number, radius: number, timeStep: number): number {
-    // In some situations you may want more particle iterations than this,
-    // but to avoid excessive cycle cost, don't recommend more than this.
-    const B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS = 8;
-    const B2_RADIUS_THRESHOLD = 0.01;
-    const iterations = Math.ceil(Math.sqrt(gravity / (B2_RADIUS_THRESHOLD * radius)) * timeStep);
-    return b2ClampInt(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
+export function b2CalculateParticleIterations(
+  gravity: number,
+  radius: number,
+  timeStep: number,
+): number {
+  // In some situations you may want more particle iterations than this,
+  // but to avoid excessive cycle cost, don't recommend more than this.
+  const B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS = 8;
+  const B2_RADIUS_THRESHOLD = 0.01;
+  const iterations = Math.ceil(Math.sqrt(gravity / (B2_RADIUS_THRESHOLD * radius)) * timeStep);
+  return b2ClampInt(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
 }
 
 export class b2ParticleHandle {
-    index = b2_invalidParticleIndex;
+  index = b2_invalidParticleIndex;
 
-    GetIndex(): number {
-        return this.index;
-    }
+  GetIndex(): number {
+    return this.index;
+  }
 
-    SetIndex(index: number): void {
-        this.index = index;
-    }
+  SetIndex(index: number): void {
+    this.index = index;
+  }
 }

@@ -19,149 +19,152 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2BodyDef,
-    b2ChainShape,
-    b2EdgeShape,
-    b2ParticleFlag,
-    b2ParticleGroupDef,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {ParticleParameter, ParticleParameterDefinition, ParticleParameterValue, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2ChainShape,
+  b2EdgeShape,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import {
+  ParticleParameter,
+  ParticleParameterDefinition,
+  ParticleParameterValue,
+  Test,
+} from '@highduck/box2d-testbed';
 
 export class LiquidTimer extends Test {
-    public static readonly k_paramValues = [
-        new ParticleParameterValue(b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_viscousParticle, ParticleParameter.k_DefaultOptions, "tensile + viscous"),
-    ];
-    public static readonly k_paramDef = [
-        new ParticleParameterDefinition(LiquidTimer.k_paramValues),
-        new ParticleParameterDefinition(ParticleParameter.k_particleTypes),
-    ];
-    public static readonly k_paramDefCount = LiquidTimer.k_paramDef.length;
+  public static readonly k_paramValues = [
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_viscousParticle,
+      ParticleParameter.k_DefaultOptions,
+      'tensile + viscous',
+    ),
+  ];
+  public static readonly k_paramDef = [
+    new ParticleParameterDefinition(LiquidTimer.k_paramValues),
+    new ParticleParameterDefinition(ParticleParameter.k_particleTypes),
+  ];
+  public static readonly k_paramDefCount = LiquidTimer.k_paramDef.length;
 
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        // Setup particle parameters.
-        Test.SetParticleParameters(LiquidTimer.k_paramDef, LiquidTimer.k_paramDefCount);
+    // Setup particle parameters.
+    Test.SetParticleParameters(LiquidTimer.k_paramDef, LiquidTimer.k_paramDefCount);
 
-        {
-            const bd = new b2BodyDef();
-            const ground = this.m_world.CreateBody(bd);
+    {
+      const bd = new b2BodyDef();
+      const ground = this.m_world.CreateBody(bd);
 
-            const shape = new b2ChainShape();
-            const vertices = [
-                new b2Vec2(-2, 0),
-                new b2Vec2(2, 0),
-                new b2Vec2(2, 4),
-                new b2Vec2(-2, 4),
-            ];
-            shape.CreateLoop(vertices, 4);
-            ground.CreateFixture(shape, 0.0);
-
-        }
-
-        this.m_particleSystem.SetRadius(0.025);
-        {
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(2, 0.4, new b2Vec2(0, 3.6), 0);
-            const pd = new b2ParticleGroupDef();
-            pd.flags = Test.GetParticleParameterValue();
-            pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
-            if (pd.flags & b2ParticleFlag.b2_colorMixingParticle) {
-                this.ColorParticleGroup(group, 0);
-            }
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(-2, 3.2), new b2Vec2(-1.2, 3.2));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(-1.1, 3.2), new b2Vec2(2, 3.2));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(-1.2, 3.2), new b2Vec2(-1.2, 2.8));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(-1.1, 3.2), new b2Vec2(-1.1, 2.8));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(-1.6, 2.4), new b2Vec2(0.8, 2));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(1.6, 1.6), new b2Vec2(-0.8, 1.2));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(-1.2, 0.8), new b2Vec2(-1.2, 0));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(-0.4, 0.8), new b2Vec2(-0.4, 0));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(0.4, 0.8), new b2Vec2(0.4, 0));
-            body.CreateFixture(shape, 0.1);
-        }
-
-        {
-            const bd = new b2BodyDef();
-            const body = this.m_world.CreateBody(bd);
-            const shape = new b2EdgeShape();
-            shape.Set(new b2Vec2(1.2, 0.8), new b2Vec2(1.2, 0));
-            body.CreateFixture(shape, 0.1);
-        }
+      const shape = new b2ChainShape();
+      const vertices = [new b2Vec2(-2, 0), new b2Vec2(2, 0), new b2Vec2(2, 4), new b2Vec2(-2, 4)];
+      shape.CreateLoop(vertices, 4);
+      ground.CreateFixture(shape, 0.0);
     }
 
-    public GetDefaultViewZoom() {
-        return 0.1;
+    this.m_particleSystem.SetRadius(0.025);
+    {
+      const shape = new b2PolygonShape();
+      shape.SetAsBox(2, 0.4, new b2Vec2(0, 3.6), 0);
+      const pd = new b2ParticleGroupDef();
+      pd.flags = Test.GetParticleParameterValue();
+      pd.shape = shape;
+      const group = this.m_particleSystem.CreateParticleGroup(pd);
+      if (pd.flags & b2ParticleFlag.b2_colorMixingParticle) {
+        this.ColorParticleGroup(group, 0);
+      }
     }
 
-    public static Create() {
-        return new LiquidTimer();
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(-2, 3.2), new b2Vec2(-1.2, 3.2));
+      body.CreateFixture(shape, 0.1);
     }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(-1.1, 3.2), new b2Vec2(2, 3.2));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(-1.2, 3.2), new b2Vec2(-1.2, 2.8));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(-1.1, 3.2), new b2Vec2(-1.1, 2.8));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(-1.6, 2.4), new b2Vec2(0.8, 2));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(1.6, 1.6), new b2Vec2(-0.8, 1.2));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(-1.2, 0.8), new b2Vec2(-1.2, 0));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(-0.4, 0.8), new b2Vec2(-0.4, 0));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(0.4, 0.8), new b2Vec2(0.4, 0));
+      body.CreateFixture(shape, 0.1);
+    }
+
+    {
+      const bd = new b2BodyDef();
+      const body = this.m_world.CreateBody(bd);
+      const shape = new b2EdgeShape();
+      shape.Set(new b2Vec2(1.2, 0.8), new b2Vec2(1.2, 0));
+      body.CreateFixture(shape, 0.1);
+    }
+  }
+
+  public GetDefaultViewZoom() {
+    return 0.1;
+  }
+
+  public static Create() {
+    return new LiquidTimer();
+  }
 }
 
 // #endif

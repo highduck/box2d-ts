@@ -1,30 +1,32 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2BodyDef, b2BodyType, b2EdgeShape,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2PrismaticJointDef,
-    b2RevoluteJointDef,
-    b2Vec2
-} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2PrismaticJointDef,
+  b2RevoluteJointDef,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 export class DumpShell extends Test {
   constructor() {
@@ -32,36 +34,37 @@ export class DumpShell extends Test {
 
     // dump begin
     /*b2Vec2*/
-    const g = new b2Vec2(0.000000000000000, 0.000000000000000);
+    const g = new b2Vec2(0.0, 0.0);
     this.m_world.SetGravity(g);
     /*b2Body*/
     const bodies = new Array(4);
     /*b2Joint*/
-    const joints = new Array(2); {
+    const joints = new Array(2);
+    {
       /*b2BodyDef*/
       const bd = new b2BodyDef();
       bd.type = b2BodyType.b2_staticBody;
-      bd.position.Set(0.000000000000000, 0.000000000000000);
-      bd.angle = 0.000000000000000;
-      bd.linearVelocity.Set(0.000000000000000, 0.000000000000000);
-      bd.angularVelocity = 0.000000000000000;
-      bd.linearDamping = 0.000000000000000;
-      bd.angularDamping = 0.000000000000000;
+      bd.position.Set(0.0, 0.0);
+      bd.angle = 0.0;
+      bd.linearVelocity.Set(0.0, 0.0);
+      bd.angularVelocity = 0.0;
+      bd.linearDamping = 0.0;
+      bd.angularDamping = 0.0;
       bd.allowSleep = true;
       bd.awake = true;
       bd.fixedRotation = false;
       bd.bullet = false;
       bd.active = true;
-      bd.gravityScale = 1.000000000000000;
+      bd.gravityScale = 1.0;
 
       bodies[0] = this.m_world.CreateBody(bd);
 
       {
         /*b2FixtureDef*/
         const fd = new b2FixtureDef();
-        fd.friction = 10.000000000000000;
-        fd.restitution = 0.000000000000000;
-        fd.density = 0.000000000000000;
+        fd.friction = 10.0;
+        fd.restitution = 0.0;
+        fd.density = 0.0;
         fd.isSensor = false;
         fd.filter.categoryBits = 1;
         fd.filter.maskBits = 65535;
@@ -69,10 +72,10 @@ export class DumpShell extends Test {
         /*b2EdgeShape*/
         const shape = new b2EdgeShape();
         shape.m_radius = 0.009999999776483;
-        shape.m_vertex0.Set(0.000000000000000, 0.000000000000000);
-        shape.m_vertex1.Set(0.000000000000000, 0.000000000000000);
-        shape.m_vertex2.Set(44.521739959716797, 0.000000000000000);
-        shape.m_vertex3.Set(0.000000000000000, 0.000000000000000);
+        shape.m_vertex0.Set(0.0, 0.0);
+        shape.m_vertex1.Set(0.0, 0.0);
+        shape.m_vertex2.Set(44.521739959716797, 0.0);
+        shape.m_vertex3.Set(0.0, 0.0);
         shape.m_hasVertex0 = false;
         shape.m_hasVertex3 = false;
 
@@ -83,9 +86,9 @@ export class DumpShell extends Test {
       {
         /*b2FixtureDef*/
         const fd = new b2FixtureDef();
-        fd.friction = 10.000000000000000;
-        fd.restitution = 0.000000000000000;
-        fd.density = 0.000000000000000;
+        fd.friction = 10.0;
+        fd.restitution = 0.0;
+        fd.density = 0.0;
         fd.isSensor = false;
         fd.filter.categoryBits = 1;
         fd.filter.maskBits = 65535;
@@ -93,10 +96,10 @@ export class DumpShell extends Test {
         /*b2EdgeShape*/
         const shape = new b2EdgeShape();
         shape.m_radius = 0.009999999776483;
-        shape.m_vertex0.Set(0.000000000000000, 0.000000000000000);
-        shape.m_vertex1.Set(0.000000000000000, 16.695652008056641);
+        shape.m_vertex0.Set(0.0, 0.0);
+        shape.m_vertex1.Set(0.0, 16.695652008056641);
         shape.m_vertex2.Set(44.521739959716797, 16.695652008056641);
-        shape.m_vertex3.Set(0.000000000000000, 0.000000000000000);
+        shape.m_vertex3.Set(0.0, 0.0);
         shape.m_hasVertex0 = false;
         shape.m_hasVertex3 = false;
 
@@ -107,9 +110,9 @@ export class DumpShell extends Test {
       {
         /*b2FixtureDef*/
         const fd = new b2FixtureDef();
-        fd.friction = 10.000000000000000;
-        fd.restitution = 0.000000000000000;
-        fd.density = 0.000000000000000;
+        fd.friction = 10.0;
+        fd.restitution = 0.0;
+        fd.density = 0.0;
         fd.isSensor = false;
         fd.filter.categoryBits = 1;
         fd.filter.maskBits = 65535;
@@ -117,10 +120,10 @@ export class DumpShell extends Test {
         /*b2EdgeShape*/
         const shape = new b2EdgeShape();
         shape.m_radius = 0.009999999776483;
-        shape.m_vertex0.Set(0.000000000000000, 0.000000000000000);
-        shape.m_vertex1.Set(0.000000000000000, 16.695652008056641);
-        shape.m_vertex2.Set(0.000000000000000, 0.000000000000000);
-        shape.m_vertex3.Set(0.000000000000000, 0.000000000000000);
+        shape.m_vertex0.Set(0.0, 0.0);
+        shape.m_vertex1.Set(0.0, 16.695652008056641);
+        shape.m_vertex2.Set(0.0, 0.0);
+        shape.m_vertex3.Set(0.0, 0.0);
         shape.m_hasVertex0 = false;
         shape.m_hasVertex3 = false;
 
@@ -131,9 +134,9 @@ export class DumpShell extends Test {
       {
         /*b2FixtureDef*/
         const fd = new b2FixtureDef();
-        fd.friction = 10.000000000000000;
-        fd.restitution = 0.000000000000000;
-        fd.density = 0.000000000000000;
+        fd.friction = 10.0;
+        fd.restitution = 0.0;
+        fd.density = 0.0;
         fd.isSensor = false;
         fd.filter.categoryBits = 1;
         fd.filter.maskBits = 65535;
@@ -141,10 +144,10 @@ export class DumpShell extends Test {
         /*b2EdgeShape*/
         const shape = new b2EdgeShape();
         shape.m_radius = 0.009999999776483;
-        shape.m_vertex0.Set(0.000000000000000, 0.000000000000000);
+        shape.m_vertex0.Set(0.0, 0.0);
         shape.m_vertex1.Set(44.521739959716797, 16.695652008056641);
-        shape.m_vertex2.Set(44.521739959716797, 0.000000000000000);
-        shape.m_vertex3.Set(0.000000000000000, 0.000000000000000);
+        shape.m_vertex2.Set(44.521739959716797, 0.0);
+        shape.m_vertex3.Set(0.0, 0.0);
         shape.m_hasVertex0 = false;
         shape.m_hasVertex3 = false;
 
@@ -157,27 +160,27 @@ export class DumpShell extends Test {
       /*b2BodyDef*/
       const bd = new b2BodyDef();
       bd.type = b2BodyType.b2_dynamicBody;
-      bd.position.Set(0.847826063632965, 2.500000000000000);
-      bd.angle = 0.000000000000000;
-      bd.linearVelocity.Set(0.000000000000000, 0.000000000000000);
-      bd.angularVelocity = 0.000000000000000;
-      bd.linearDamping = 0.500000000000000;
-      bd.angularDamping = 0.500000000000000;
+      bd.position.Set(0.847826063632965, 2.5);
+      bd.angle = 0.0;
+      bd.linearVelocity.Set(0.0, 0.0);
+      bd.angularVelocity = 0.0;
+      bd.linearDamping = 0.5;
+      bd.angularDamping = 0.5;
       bd.allowSleep = true;
       bd.awake = true;
       bd.fixedRotation = false;
       bd.bullet = false;
       bd.active = true;
-      bd.gravityScale = 1.000000000000000;
+      bd.gravityScale = 1.0;
 
       bodies[1] = this.m_world.CreateBody(bd);
 
       {
         /*b2FixtureDef*/
         const fd = new b2FixtureDef();
-        fd.friction = 1.000000000000000;
-        fd.restitution = 0.500000000000000;
-        fd.density = 10.000000000000000;
+        fd.friction = 1.0;
+        fd.restitution = 0.5;
+        fd.density = 10.0;
         fd.isSensor = false;
         fd.filter.categoryBits = 1;
         fd.filter.maskBits = 65535;
@@ -201,27 +204,27 @@ export class DumpShell extends Test {
       /*b2BodyDef*/
       const bd = new b2BodyDef();
       bd.type = b2BodyType.b2_dynamicBody;
-      bd.position.Set(13.043478012084959, 2.500000000000000);
-      bd.angle = 0.000000000000000;
-      bd.linearVelocity.Set(0.000000000000000, 0.000000000000000);
-      bd.angularVelocity = 0.000000000000000;
-      bd.linearDamping = 0.500000000000000;
-      bd.angularDamping = 0.500000000000000;
+      bd.position.Set(13.043478012084959, 2.5);
+      bd.angle = 0.0;
+      bd.linearVelocity.Set(0.0, 0.0);
+      bd.angularVelocity = 0.0;
+      bd.linearDamping = 0.5;
+      bd.angularDamping = 0.5;
       bd.allowSleep = true;
       bd.awake = true;
       bd.fixedRotation = false;
       bd.bullet = false;
       bd.active = true;
-      bd.gravityScale = 1.000000000000000;
+      bd.gravityScale = 1.0;
 
       bodies[2] = this.m_world.CreateBody(bd);
 
       {
         /*b2FixtureDef*/
         const fd = new b2FixtureDef();
-        fd.friction = 1.000000000000000;
-        fd.restitution = 0.500000000000000;
-        fd.density = 10.000000000000000;
+        fd.friction = 1.0;
+        fd.restitution = 0.5;
+        fd.density = 10.0;
         fd.isSensor = false;
         fd.filter.categoryBits = 1;
         fd.filter.maskBits = 65535;
@@ -245,21 +248,20 @@ export class DumpShell extends Test {
       /*b2BodyDef*/
       const bd = new b2BodyDef();
       bd.type = b2BodyType.b2_staticBody;
-      bd.position.Set(0.000000000000000, 0.000000000000000);
-      bd.angle = 0.000000000000000;
-      bd.linearVelocity.Set(0.000000000000000, 0.000000000000000);
-      bd.angularVelocity = 0.000000000000000;
-      bd.linearDamping = 0.000000000000000;
-      bd.angularDamping = 0.000000000000000;
+      bd.position.Set(0.0, 0.0);
+      bd.angle = 0.0;
+      bd.linearVelocity.Set(0.0, 0.0);
+      bd.angularVelocity = 0.0;
+      bd.linearDamping = 0.0;
+      bd.angularDamping = 0.0;
       bd.allowSleep = true;
       bd.awake = true;
       bd.fixedRotation = false;
       bd.bullet = false;
       bd.active = true;
-      bd.gravityScale = 1.000000000000000;
+      bd.gravityScale = 1.0;
 
       bodies[3] = this.m_world.CreateBody(bd);
-
     }
     {
       /*b2RevoluteJointDef*/
@@ -267,15 +269,15 @@ export class DumpShell extends Test {
       jd.bodyA = bodies[1];
       jd.bodyB = bodies[0];
       jd.collideConnected = false;
-      jd.localAnchorA.Set(0.000000000000000, 0.000000000000000);
-      jd.localAnchorB.Set(0.847826063632965, 2.500000000000000);
-      jd.referenceAngle = 0.000000000000000;
+      jd.localAnchorA.Set(0.0, 0.0);
+      jd.localAnchorB.Set(0.847826063632965, 2.5);
+      jd.referenceAngle = 0.0;
       jd.enableLimit = false;
-      jd.lowerAngle = 0.000000000000000;
-      jd.upperAngle = 0.000000000000000;
+      jd.lowerAngle = 0.0;
+      jd.upperAngle = 0.0;
       jd.enableMotor = false;
-      jd.motorSpeed = 0.000000000000000;
-      jd.maxMotorTorque = 0.000000000000000;
+      jd.motorSpeed = 0.0;
+      jd.maxMotorTorque = 0.0;
       joints[0] = this.m_world.CreateJoint(jd);
     }
     {
@@ -284,20 +286,19 @@ export class DumpShell extends Test {
       jd.bodyA = bodies[1];
       jd.bodyB = bodies[2];
       jd.collideConnected = false;
-      jd.localAnchorA.Set(0.000000000000000, 0.000000000000000);
-      jd.localAnchorB.Set(-12.195652008056641, 0.000000000000000);
-      jd.localAxisA.Set(-1.000000000000000, 0.000000000000000);
-      jd.referenceAngle = 0.000000000000000;
+      jd.localAnchorA.Set(0.0, 0.0);
+      jd.localAnchorB.Set(-12.195652008056641, 0.0);
+      jd.localAxisA.Set(-1.0, 0.0);
+      jd.referenceAngle = 0.0;
       jd.enableLimit = true;
-      jd.lowerTranslation = -20.000000000000000;
-      jd.upperTranslation = 0.000000000000000;
+      jd.lowerTranslation = -20.0;
+      jd.upperTranslation = 0.0;
       jd.enableMotor = true;
-      jd.motorSpeed = 0.000000000000000;
-      jd.maxMotorForce = 10.000000000000000;
+      jd.motorSpeed = 0.0;
+      jd.maxMotorForce = 10.0;
       joints[1] = this.m_world.CreateJoint(jd);
     }
     // dump end
-
   }
 
   public Step(settings: Settings): void {

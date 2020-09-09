@@ -16,34 +16,34 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
- // #if B2_ENABLE_CONTROLLER
+// #if B2_ENABLE_CONTROLLER
 
-import {b2Controller} from "./b2Controller";
-import {b2Vec2} from "../common/b2Math";
-import {b2TimeStep} from "../dynamics/b2TimeStep";
-import {b2Draw} from "../common/b2Draw";
+import { b2Controller } from './b2Controller';
+import { b2Vec2 } from '../common/b2Math';
+import { b2TimeStep } from '../dynamics/b2TimeStep';
+import { b2Draw } from '../common/b2Draw';
 
 /**
  * Applies a force every frame
  */
 export class b2ConstantForceController extends b2Controller {
-    /**
-     * The force to apply
-     */
-    readonly F = new b2Vec2(0, 0);
+  /**
+   * The force to apply
+   */
+  readonly F = new b2Vec2(0, 0);
 
-    Step(step: b2TimeStep) {
-        for (let i = this.m_bodyList; i; i = i.nextBody) {
-            const body = i.body;
-            if (!body.IsAwake()) {
-                continue;
-            }
-            body.ApplyForce(this.F, body.GetWorldCenter());
-        }
+  Step(step: b2TimeStep) {
+    for (let i = this.m_bodyList; i; i = i.nextBody) {
+      const body = i.body;
+      if (!body.IsAwake()) {
+        continue;
+      }
+      body.ApplyForce(this.F, body.GetWorldCenter());
     }
+  }
 
-    Draw(draw: b2Draw) {
-    }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  Draw(draw: b2Draw) {}
 }
 
 // #endif

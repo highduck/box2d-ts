@@ -18,8 +18,15 @@
 
 // #if B2_ENABLE_PARTICLE
 
-import {b2BodyDef, b2ParticleDef, b2ParticleFlag, b2PolygonShape, b2Transform, b2Vec2} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2ParticleDef,
+  b2ParticleFlag,
+  b2PolygonShape,
+  b2Transform,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 /**
  * Test behavior when particles fall on a convex ambigious Body

@@ -16,27 +16,27 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
- // #if B2_ENABLE_CONTROLLER
+// #if B2_ENABLE_CONTROLLER
 
-import {b2Body} from "../dynamics/b2Body";
-import {b2TimeStep} from "../dynamics/b2TimeStep";
-import {b2Draw} from "../common/b2Draw";
+import { b2Body } from '../dynamics/b2Body';
+import { b2TimeStep } from '../dynamics/b2TimeStep';
+import { b2Draw } from '../common/b2Draw';
 
 /**
  * A controller edge is used to connect bodies and controllers
  * together in a bipartite graph.
  */
 export class b2ControllerEdge {
-    readonly controller: b2Controller; ///< provides quick access to other end of this edge.
-    readonly body: b2Body; ///< the body
-    prevBody: b2ControllerEdge | null = null; ///< the previous controller edge in the controllers's joint list
-    nextBody: b2ControllerEdge | null = null; ///< the next controller edge in the controllers's joint list
-    prevController: b2ControllerEdge | null = null; ///< the previous controller edge in the body's joint list
-    nextController: b2ControllerEdge | null = null; ///< the next controller edge in the body's joint list
-    constructor(controller: b2Controller, body: b2Body) {
-        this.controller = controller;
-        this.body = body;
-    }
+  readonly controller: b2Controller; ///< provides quick access to other end of this edge.
+  readonly body: b2Body; ///< the body
+  prevBody: b2ControllerEdge | null = null; ///< the previous controller edge in the controllers's joint list
+  nextBody: b2ControllerEdge | null = null; ///< the next controller edge in the controllers's joint list
+  prevController: b2ControllerEdge | null = null; ///< the previous controller edge in the body's joint list
+  nextController: b2ControllerEdge | null = null; ///< the next controller edge in the body's joint list
+  constructor(controller: b2Controller, body: b2Body) {
+    this.controller = controller;
+    this.body = body;
+  }
 }
 
 /**
@@ -44,131 +44,131 @@ export class b2ControllerEdge {
  * encapsulating common per-step functionality.
  */
 export abstract class b2Controller {
-    // m_world: b2World;
-    m_bodyList: b2ControllerEdge | null = null;
-    m_bodyCount: number = 0;
-    m_prev: b2Controller | null = null;
-    m_next: b2Controller | null = null;
+  // m_world: b2World;
+  m_bodyList: b2ControllerEdge | null = null;
+  m_bodyCount = 0;
+  m_prev: b2Controller | null = null;
+  m_next: b2Controller | null = null;
 
-    /**
-     * Controllers override this to implement per-step functionality.
-     */
-    abstract Step(step: b2TimeStep): void;
+  /**
+   * Controllers override this to implement per-step functionality.
+   */
+  abstract Step(step: b2TimeStep): void;
 
-    /**
-     * Controllers override this to provide debug drawing.
-     */
-    abstract Draw(debugDraw: b2Draw): void;
+  /**
+   * Controllers override this to provide debug drawing.
+   */
+  abstract Draw(debugDraw: b2Draw): void;
 
-    /**
-     * Get the next controller in the world's body list.
-     */
-    GetNext(): b2Controller | null {
-        return this.m_next;
+  /**
+   * Get the next controller in the world's body list.
+   */
+  GetNext(): b2Controller | null {
+    return this.m_next;
+  }
+
+  /**
+   * Get the previous controller in the world's body list.
+   */
+  GetPrev(): b2Controller | null {
+    return this.m_prev;
+  }
+
+  /**
+   * Get the parent world of this body.
+   */
+  // GetWorld() {
+  //   return this.m_world;
+  // }
+
+  /**
+   * Get the attached body list
+   */
+  GetBodyList(): b2ControllerEdge | null {
+    return this.m_bodyList;
+  }
+
+  /**
+   * Adds a body to the controller list.
+   */
+  AddBody(body: b2Body): void {
+    const edge = new b2ControllerEdge(this, body);
+
+    //Add edge to controller list
+    edge.nextBody = this.m_bodyList;
+    edge.prevBody = null;
+    if (this.m_bodyList) {
+      this.m_bodyList.prevBody = edge;
+    }
+    this.m_bodyList = edge;
+    ++this.m_bodyCount;
+
+    //Add edge to body list
+    edge.nextController = body.m_controllerList;
+    edge.prevController = null;
+    if (body.m_controllerList) {
+      body.m_controllerList.prevController = edge;
+    }
+    body.m_controllerList = edge;
+    ++body.m_controllerCount;
+  }
+
+  /**
+   * Removes a body from the controller list.
+   */
+  RemoveBody(body: b2Body): void {
+    //Assert that the controller is not empty
+    if (this.m_bodyCount <= 0) {
+      throw new Error();
     }
 
-    /**
-     * Get the previous controller in the world's body list.
-     */
-    GetPrev(): b2Controller | null {
-        return this.m_prev;
+    //Find the corresponding edge
+    /*b2ControllerEdge*/
+    let edge = this.m_bodyList;
+    while (edge && edge.body !== body) {
+      edge = edge.nextBody;
     }
 
-    /**
-     * Get the parent world of this body.
-     */
-    // GetWorld() {
-    //   return this.m_world;
-    // }
-
-    /**
-     * Get the attached body list
-     */
-    GetBodyList(): b2ControllerEdge | null {
-        return this.m_bodyList;
+    //Assert that we are removing a body that is currently attached to the controller
+    if (edge === null) {
+      throw new Error();
     }
 
-    /**
-     * Adds a body to the controller list.
-     */
-    AddBody(body: b2Body): void {
-        const edge = new b2ControllerEdge(this, body);
+    //Remove edge from controller list
+    if (edge.prevBody) {
+      edge.prevBody.nextBody = edge.nextBody;
+    }
+    if (edge.nextBody) {
+      edge.nextBody.prevBody = edge.prevBody;
+    }
+    if (this.m_bodyList === edge) {
+      this.m_bodyList = edge.nextBody;
+    }
+    --this.m_bodyCount;
 
-        //Add edge to controller list
-        edge.nextBody = this.m_bodyList;
-        edge.prevBody = null;
-        if (this.m_bodyList) {
-            this.m_bodyList.prevBody = edge;
-        }
-        this.m_bodyList = edge;
-        ++this.m_bodyCount;
+    //Remove edge from body list
+    if (edge.nextController) {
+      edge.nextController.prevController = edge.prevController;
+    }
+    if (edge.prevController) {
+      edge.prevController.nextController = edge.nextController;
+    }
+    if (body.m_controllerList === edge) {
+      body.m_controllerList = edge.nextController;
+    }
+    --body.m_controllerCount;
+  }
 
-        //Add edge to body list
-        edge.nextController = body.m_controllerList;
-        edge.prevController = null;
-        if (body.m_controllerList) {
-            body.m_controllerList.prevController = edge;
-        }
-        body.m_controllerList = edge;
-        ++body.m_controllerCount;
+  /**
+   * Removes all bodies from the controller list.
+   */
+  Clear(): void {
+    while (this.m_bodyList) {
+      this.RemoveBody(this.m_bodyList.body);
     }
 
-    /**
-     * Removes a body from the controller list.
-     */
-    RemoveBody(body: b2Body): void {
-        //Assert that the controller is not empty
-        if (this.m_bodyCount <= 0) {
-            throw new Error();
-        }
-
-        //Find the corresponding edge
-        /*b2ControllerEdge*/
-        let edge = this.m_bodyList;
-        while (edge && edge.body !== body) {
-            edge = edge.nextBody;
-        }
-
-        //Assert that we are removing a body that is currently attached to the controller
-        if (edge === null) {
-            throw new Error();
-        }
-
-        //Remove edge from controller list
-        if (edge.prevBody) {
-            edge.prevBody.nextBody = edge.nextBody;
-        }
-        if (edge.nextBody) {
-            edge.nextBody.prevBody = edge.prevBody;
-        }
-        if (this.m_bodyList === edge) {
-            this.m_bodyList = edge.nextBody;
-        }
-        --this.m_bodyCount;
-
-        //Remove edge from body list
-        if (edge.nextController) {
-            edge.nextController.prevController = edge.prevController;
-        }
-        if (edge.prevController) {
-            edge.prevController.nextController = edge.nextController;
-        }
-        if (body.m_controllerList === edge) {
-            body.m_controllerList = edge.nextController;
-        }
-        --body.m_controllerCount;
-    }
-
-    /**
-     * Removes all bodies from the controller list.
-     */
-    Clear(): void {
-        while (this.m_bodyList) {
-            this.RemoveBody(this.m_bodyList.body);
-        }
-
-        this.m_bodyCount = 0;
-    }
+    this.m_bodyCount = 0;
+  }
 }
 
 // #endif

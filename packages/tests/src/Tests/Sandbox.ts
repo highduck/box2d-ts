@@ -25,22 +25,38 @@
 //  */
 // SandboxParams = {};
 import {
-    b2Body, b2BodyDef, b2BodyType, b2CircleShape, b2Color, b2Contact, b2ContactImpulse, b2DestructionListener,
-    b2Fixture, b2Joint, b2Manifold,
-    b2ParticleFlag,
-    b2ParticleGroup,
-    b2ParticleHandle,
-    b2ParticleSystem, b2PolygonShape, b2PrismaticJointDef,
-    b2Shape, b2Transform, b2Vec2, b2World
-} from "@highduck/box2d";
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2Color,
+  b2Contact,
+  b2ContactImpulse,
+  b2DestructionListener,
+  b2Joint,
+  b2Manifold,
+  b2ParticleFlag,
+  b2ParticleGroup,
+  b2ParticleHandle,
+  b2ParticleSystem,
+  b2PolygonShape,
+  b2PrismaticJointDef,
+  b2Shape,
+  b2Transform,
+  b2Vec2,
+  b2World,
+} from '@highduck/box2d';
 import {
-    DRAW_STRING_NEW_LINE, g_debugDraw,
-    ParticleParameter,
-    ParticleParameterDefinition, ParticleParameterOptions, ParticleParameterValue,
-    RadialEmitter,
-    Settings,
-    Test
-} from "@highduck/box2d-testbed";
+  DRAW_STRING_NEW_LINE,
+  g_debugDraw,
+  ParticleParameter,
+  ParticleParameterDefinition,
+  ParticleParameterOptions,
+  ParticleParameterValue,
+  RadialEmitter,
+  Settings,
+  Test,
+} from '@highduck/box2d-testbed';
 
 export class SandboxParams {
   /**
@@ -154,9 +170,17 @@ export class SpecialParticleTracker extends b2DestructionListener {
    */
   public Add(particleIndices: number[], numberOfParticles: number) {
     // DEBUG: b2Assert(this.m_particleSystem !== null);
-    for (let i = 0; i < numberOfParticles && this.m_particles.length < SandboxParams.k_numberOfSpecialParticles; ++i) {
+    for (
+      let i = 0;
+      i < numberOfParticles && this.m_particles.length < SandboxParams.k_numberOfSpecialParticles;
+      ++i
+    ) {
       const particleIndex = particleIndices[i];
-      this.m_particleSystem.SetParticleFlags(particleIndex, this.m_particleSystem.GetFlagsBuffer()[particleIndex] | b2ParticleFlag.b2_destructionListenerParticle);
+      this.m_particleSystem.SetParticleFlags(
+        particleIndex,
+        this.m_particleSystem.GetFlagsBuffer()[particleIndex] |
+          b2ParticleFlag.b2_destructionListenerParticle,
+      );
       this.m_particles.push(this.m_particleSystem.GetParticleHandleFromIndex(particleIndex));
     }
   }
@@ -166,28 +190,30 @@ export class SpecialParticleTracker extends b2DestructionListener {
    */
   public Step(dt: number): void {
     function fmod(a: number, b: number) {
-      return (a - (Math.floor(a / b) * b));
+      return a - Math.floor(a / b) * b;
     }
     // Oscillate the shade of color over this.m_colorOscillationPeriod seconds.
-    this.m_colorOscillationTime = fmod(this.m_colorOscillationTime + dt,
-      this.m_colorOscillationPeriod);
-    const colorCoeff = 2.0 * Math.abs(
-      (this.m_colorOscillationTime / this.m_colorOscillationPeriod) - 0.5);
+    this.m_colorOscillationTime = fmod(
+      this.m_colorOscillationTime + dt,
+      this.m_colorOscillationPeriod,
+    );
+    const colorCoeff =
+      2.0 * Math.abs(this.m_colorOscillationTime / this.m_colorOscillationPeriod - 0.5);
     const color = new b2Color().SetByteRGBA(
-      128 + (128.0 * (1.0 - colorCoeff)),
-      128 + (256.0 * Math.abs(0.5 - colorCoeff)),
-      128 + (128.0 * colorCoeff), 255);
+      128 + 128.0 * (1.0 - colorCoeff),
+      128 + 256.0 * Math.abs(0.5 - colorCoeff),
+      128 + 128.0 * colorCoeff,
+      255,
+    );
     // Update the color of all special particles.
     for (let i = 0; i < this.m_particles.length; ++i) {
       this.m_particleSystem.GetColorBuffer()[this.m_particles[i].GetIndex()].Copy(color);
     }
   }
 
-  public SayGoodbyeJoint(joint: b2Joint): void {}
-
-  public SayGoodbyeFixture(fixture: b2Fixture): void {}
-
-  public SayGoodbyeParticleGroup(group: b2ParticleGroup): void {}
+  // public SayGoodbyeJoint(joint: b2Joint): void {}
+  // public SayGoodbyeFixture(fixture: b2Fixture): void {}
+  // public SayGoodbyeParticleGroup(group: b2ParticleGroup): void {}
 
   /**
    * When a particle is about to be destroyed, remove it from the
@@ -260,20 +286,56 @@ export class Sandbox extends Test {
   public m_specialTracker: SpecialParticleTracker;
 
   public static readonly k_paramValues = [
-    new ParticleParameterValue(b2ParticleFlag.b2_waterParticle, ParticleParameter.k_DefaultOptions, "water"),
-    new ParticleParameterValue(b2ParticleFlag.b2_waterParticle, ParticleParameter.k_DefaultOptions | ParticleParameterOptions.OptionStrictContacts, "water (strict)"),
-    new ParticleParameterValue(b2ParticleFlag.b2_powderParticle, ParticleParameter.k_DefaultOptions, "powder"),
-    new ParticleParameterValue(b2ParticleFlag.b2_tensileParticle, ParticleParameter.k_DefaultOptions, "tensile"),
-    new ParticleParameterValue(b2ParticleFlag.b2_viscousParticle, ParticleParameter.k_DefaultOptions, "viscous"),
-    new ParticleParameterValue(b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_powderParticle, ParticleParameter.k_DefaultOptions, "tensile powder"),
-    new ParticleParameterValue(b2ParticleFlag.b2_viscousParticle | b2ParticleFlag.b2_powderParticle, ParticleParameter.k_DefaultOptions, "viscous powder"),
-    new ParticleParameterValue(b2ParticleFlag.b2_viscousParticle | b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_powderParticle, ParticleParameter.k_DefaultOptions, "viscous tensile powder"),
-    new ParticleParameterValue(b2ParticleFlag.b2_viscousParticle | b2ParticleFlag.b2_tensileParticle, ParticleParameter.k_DefaultOptions, "tensile viscous water"),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_waterParticle,
+      ParticleParameter.k_DefaultOptions,
+      'water',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_waterParticle,
+      ParticleParameter.k_DefaultOptions | ParticleParameterOptions.OptionStrictContacts,
+      'water (strict)',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_powderParticle,
+      ParticleParameter.k_DefaultOptions,
+      'powder',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_tensileParticle,
+      ParticleParameter.k_DefaultOptions,
+      'tensile',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_viscousParticle,
+      ParticleParameter.k_DefaultOptions,
+      'viscous',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_powderParticle,
+      ParticleParameter.k_DefaultOptions,
+      'tensile powder',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_viscousParticle | b2ParticleFlag.b2_powderParticle,
+      ParticleParameter.k_DefaultOptions,
+      'viscous powder',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_viscousParticle |
+        b2ParticleFlag.b2_tensileParticle |
+        b2ParticleFlag.b2_powderParticle,
+      ParticleParameter.k_DefaultOptions,
+      'viscous tensile powder',
+    ),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_viscousParticle | b2ParticleFlag.b2_tensileParticle,
+      ParticleParameter.k_DefaultOptions,
+      'tensile viscous water',
+    ),
   ];
 
-  public static readonly k_paramDef = [
-    new ParticleParameterDefinition(Sandbox.k_paramValues),
-  ];
+  public static readonly k_paramDef = [new ParticleParameterDefinition(Sandbox.k_paramValues)];
   public static readonly k_paramDefCount = Sandbox.k_paramDef.length;
 
   constructor() {
@@ -343,7 +405,10 @@ export class Sandbox extends Test {
 
     // Create killfield shape and transform
     this.m_killFieldShape = new b2PolygonShape();
-    this.m_killFieldShape.SetAsBox(SandboxParams.k_playfieldRightEdge - SandboxParams.k_playfieldLeftEdge, 1);
+    this.m_killFieldShape.SetAsBox(
+      SandboxParams.k_playfieldRightEdge - SandboxParams.k_playfieldLeftEdge,
+      1,
+    );
 
     // Put this at the bottom of the world
     this.m_killFieldTransform = new b2Transform();
@@ -379,17 +444,17 @@ export class Sandbox extends Test {
   //       entire bottom row is a killfield.
   public SetupMaze() {
     const maze =
-      "# r#g #r##" +
-      "  /#  #  #" +
-      " ###     p" +
-      "A  #  /###" +
-      "## # /#  C" +
-      "  /# #   #" +
-      " ### # / #" +
-      " ## p /#  " +
-      " #  ####  " +
-      "A        /" +
-      "#####KK###";
+      '# r#g #r##' +
+      '  /#  #  #' +
+      ' ###     p' +
+      'A  #  /###' +
+      '## # /#  C' +
+      '  /# #   #' +
+      ' ### # / #' +
+      ' ## p /#  ' +
+      ' #  ####  ' +
+      'A        /' +
+      '#####KK###';
 
     // DEBUG: b2Assert(maze.length === SandboxParams.k_tileWidth * SandboxParams.k_tileHeight);
 
@@ -428,40 +493,44 @@ export class Sandbox extends Test {
 
         // Calculate center of this square
         const center = new b2Vec2(
-          SandboxParams.k_playfieldLeftEdge + SandboxParams.k_tileRadius * 2 * i + SandboxParams.k_tileRadius,
-          SandboxParams.k_playfieldBottomEdge - SandboxParams.k_tileRadius * 2 * j +
-          SandboxParams.k_tileRadius);
+          SandboxParams.k_playfieldLeftEdge +
+            SandboxParams.k_tileRadius * 2 * i +
+            SandboxParams.k_tileRadius,
+          SandboxParams.k_playfieldBottomEdge -
+            SandboxParams.k_tileRadius * 2 * j +
+            SandboxParams.k_tileRadius,
+        );
 
         // Let's add some items
         switch (item) {
-          case "#":
+          case '#':
             // Block
             this.CreateBody(center, boxShape, b2BodyType.b2_staticBody);
             break;
-          case "A":
+          case 'A':
             // Left-to-right ramp
             this.CreateBody(center, leftTriangleShape, b2BodyType.b2_staticBody);
             break;
-          case "/":
+          case '/':
             // Right-to-left ramp
             this.CreateBody(center, rightTriangleShape, b2BodyType.b2_staticBody);
             break;
-          case "C":
+          case 'C':
             // A circle to play with
             this.CreateBody(center, circleShape, b2BodyType.b2_dynamicBody);
             break;
-          case "p":
+          case 'p':
             this.AddPump(center);
             break;
-          case "b":
+          case 'b':
             // Blue emitter
             this.AddFaucetEmitter(center, blue);
             break;
-          case "r":
+          case 'r':
             // Red emitter
             this.AddFaucetEmitter(center, red);
             break;
-          case "g":
+          case 'g':
             // Green emitter
             this.AddFaucetEmitter(center, green);
             break;
@@ -560,19 +629,19 @@ export class Sandbox extends Test {
     super.Keyboard(key);
     let toggle = 0;
     switch (key) {
-      case "a":
+      case 'a':
         this.m_particleFlags = 0;
         break;
-      case "q":
+      case 'q':
         toggle = b2ParticleFlag.b2_powderParticle;
         break;
-      case "t":
+      case 't':
         toggle = b2ParticleFlag.b2_tensileParticle;
         break;
-      case "v":
+      case 'v':
         toggle = b2ParticleFlag.b2_viscousParticle;
         break;
-      case "w":
+      case 'w':
         toggle = b2ParticleFlag.b2_wallParticle;
         break;
     }
@@ -620,7 +689,11 @@ export class Sandbox extends Test {
       const emitter = this.m_emitters[i];
       if (emitter) {
         emitter.SetParticleFlags(this.m_particleFlags);
-        const particlesCreated = emitter.Step(dt, particleIndices, SandboxParams.k_numberOfSpecialParticles);
+        const particlesCreated = emitter.Step(
+          dt,
+          particleIndices,
+          SandboxParams.k_numberOfSpecialParticles,
+        );
         this.m_specialTracker.Add(particleIndices, particlesCreated);
       }
     }
@@ -650,11 +723,9 @@ export class Sandbox extends Test {
       }
     }
 
-    g_debugDraw.DrawString(
-      5, this.m_textLine, "Keys: (a) zero out (water), (q) powder");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Keys: (a) zero out (water), (q) powder');
     this.m_textLine += DRAW_STRING_NEW_LINE;
-    g_debugDraw.DrawString(
-      5, this.m_textLine, "      (t) tensile, (v) viscous");
+    g_debugDraw.DrawString(5, this.m_textLine, '      (t) tensile, (v) viscous');
     this.m_textLine += DRAW_STRING_NEW_LINE;
   }
 

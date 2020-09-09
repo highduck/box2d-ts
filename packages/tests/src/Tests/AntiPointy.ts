@@ -18,8 +18,8 @@
 
 // #if B2_ENABLE_PARTICLE
 
-import {b2BodyDef, b2ParticleDef, b2ParticleFlag, b2PolygonShape, b2Vec2} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+import { b2BodyDef, b2ParticleDef, b2ParticleFlag, b2PolygonShape, b2Vec2 } from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 /**
  * Test the behavior of particles falling onto a concave
@@ -44,29 +44,17 @@ export class AntiPointy extends Test {
 
       for (let i = -10.0; i < 10.0; i += step) {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(i, -10.0),
-          new b2Vec2(i + step, -10.0),
-          new b2Vec2(0.0, 15.0),
-        ];
+        const vertices = [new b2Vec2(i, -10.0), new b2Vec2(i + step, -10.0), new b2Vec2(0.0, 15.0)];
         shape.Set(vertices, 3);
         ground.CreateFixture(shape, 0.0);
       }
       for (let i = -10.0; i < 35.0; i += step) {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(-10.0, i),
-          new b2Vec2(-10.0, i + step),
-          new b2Vec2(0.0, 15.0),
-        ];
+        const vertices = [new b2Vec2(-10.0, i), new b2Vec2(-10.0, i + step), new b2Vec2(0.0, 15.0)];
         shape.Set(vertices, 3);
         ground.CreateFixture(shape, 0.0);
 
-        const vertices2 = [
-          new b2Vec2(10.0, i),
-          new b2Vec2(10.0, i + step),
-          new b2Vec2(0.0, 15.0),
-        ];
+        const vertices2 = [new b2Vec2(10.0, i), new b2Vec2(10.0, i + step), new b2Vec2(0.0, 15.0)];
         shape.Set(vertices2, 3);
         ground.CreateFixture(shape, 0.0);
       }

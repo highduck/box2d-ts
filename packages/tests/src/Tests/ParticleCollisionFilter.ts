@@ -1,35 +1,42 @@
 /*
-* Copyright (c) 2015 Google, Inc.
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2015 Google, Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 // #if B2_ENABLE_PARTICLE
 
 // Optionally disables particle / fixture and particle / particle contacts.
 import {
-    b2BodyDef, b2ChainShape,
-    b2ContactFilter,
-    b2FixtureDef,
-    b2ParticleFlag,
-    b2ParticleGroup,
-    b2ParticleGroupDef,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, RandomFloat, Settings, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2ChainShape,
+  b2ContactFilter,
+  b2FixtureDef,
+  b2ParticleFlag,
+  b2ParticleGroup,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import {
+  DRAW_STRING_NEW_LINE,
+  g_debugDraw,
+  RandomFloat,
+  Settings,
+  Test,
+} from '@highduck/box2d-testbed';
 
 export class ParticleContactDisabler extends b2ContactFilter {
   public m_enableFixtureParticleCollisions = true;
@@ -62,10 +69,22 @@ export class ParticleCollisionFilter extends Test {
       const ground = this.m_world.CreateBody(bd);
       const shape = new b2ChainShape();
       const vertices: b2Vec2[] = [
-        new b2Vec2(-ParticleCollisionFilter.kBoxSize, -ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset),
-        new b2Vec2(ParticleCollisionFilter.kBoxSize, -ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset),
-        new b2Vec2(ParticleCollisionFilter.kBoxSize, ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset),
-        new b2Vec2(-ParticleCollisionFilter.kBoxSize, ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset),
+        new b2Vec2(
+          -ParticleCollisionFilter.kBoxSize,
+          -ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+        ),
+        new b2Vec2(
+          ParticleCollisionFilter.kBoxSize,
+          -ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+        ),
+        new b2Vec2(
+          ParticleCollisionFilter.kBoxSize,
+          ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+        ),
+        new b2Vec2(
+          -ParticleCollisionFilter.kBoxSize,
+          ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+        ),
       ];
       shape.CreateLoop(vertices);
       const def = new b2FixtureDef();
@@ -82,7 +101,15 @@ export class ParticleCollisionFilter extends Test {
       // b2PolygonShape shape;
       const shape = new b2PolygonShape();
       // shape.SetAsBox(1.5f, 1.5f, b2Vec2(kBoxSizeHalf, kBoxSizeHalf + kOffset), 0.0f);
-      shape.SetAsBox(1.5, 1.5, new b2Vec2(ParticleCollisionFilter.kBoxSizeHalf, ParticleCollisionFilter.kBoxSizeHalf + ParticleCollisionFilter.kOffset), 0.0);
+      shape.SetAsBox(
+        1.5,
+        1.5,
+        new b2Vec2(
+          ParticleCollisionFilter.kBoxSizeHalf,
+          ParticleCollisionFilter.kBoxSizeHalf + ParticleCollisionFilter.kOffset,
+        ),
+        0.0,
+      );
       // b2ParticleGroupDef pd;
       const pd = new b2ParticleGroupDef();
       // pd.shape = &shape;
@@ -90,9 +117,10 @@ export class ParticleCollisionFilter extends Test {
       // pd.flags = b2_powderParticle
       // 		| b2_particleContactFilterParticle
       // 		| b2_fixtureContactFilterParticle;
-      pd.flags = b2ParticleFlag.b2_powderParticle
-        | b2ParticleFlag.b2_particleContactFilterParticle
-        | b2ParticleFlag.b2_fixtureContactFilterParticle;
+      pd.flags =
+        b2ParticleFlag.b2_powderParticle |
+        b2ParticleFlag.b2_particleContactFilterParticle |
+        b2ParticleFlag.b2_fixtureContactFilterParticle;
       // m_particleGroup =
       // 	m_particleSystem.CreateParticleGroup(pd);
       this.m_particleGroup = this.m_particleSystem.CreateParticleGroup(pd);
@@ -140,8 +168,8 @@ export class ParticleCollisionFilter extends Test {
     // key help
     {
       const k_keys: string[] = [
-        "Keys: (a) toggle Fixture collisions",
-        "      (s) toggle particle collisions",
+        'Keys: (a) toggle Fixture collisions',
+        '      (s) toggle particle collisions',
       ];
       for (let i = 0; i < k_keys.length; ++i) {
         g_debugDraw.DrawString(5, this.m_textLine, k_keys[i]);
@@ -152,10 +180,10 @@ export class ParticleCollisionFilter extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "a":
+      case 'a':
         this.ToggleFixtureCollisions();
         break;
-      case "s":
+      case 's':
         this.ToggleParticleCollisions();
         break;
       default:
@@ -165,11 +193,13 @@ export class ParticleCollisionFilter extends Test {
   }
 
   public ToggleFixtureCollisions(): void {
-    this.m_contactDisabler.m_enableFixtureParticleCollisions = !this.m_contactDisabler.m_enableFixtureParticleCollisions;
+    this.m_contactDisabler.m_enableFixtureParticleCollisions = !this.m_contactDisabler
+      .m_enableFixtureParticleCollisions;
   }
 
   public ToggleParticleCollisions(): void {
-    this.m_contactDisabler.m_enableParticleParticleCollisions = !this.m_contactDisabler.m_enableParticleParticleCollisions;
+    this.m_contactDisabler.m_enableParticleParticleCollisions = !this.m_contactDisabler
+      .m_enableParticleParticleCollisions;
   }
 
   public m_contactDisabler: ParticleContactDisabler = new ParticleContactDisabler();

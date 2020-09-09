@@ -29,7 +29,7 @@ export class FullScreenUI {
   /**
    * Whether particle parameters are enabled.
    */
-  public m_particleParameterSelectionEnabled: boolean = false;
+  public m_particleParameterSelectionEnabled = false;
 
   /**
    * Reset the UI to it's initial state.

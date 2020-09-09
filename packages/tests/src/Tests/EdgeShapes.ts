@@ -1,40 +1,52 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2_pi, b2Abs,
-    b2Body, b2BodyDef, b2BodyType, b2CircleShape,
-    b2Color,
-    b2Cos, b2EdgeShape,
-    b2Fixture,
-    b2FixtureDef,
-    b2PolygonShape, b2RandomRange, b2RayCastCallback,
-    b2Sin,
-    b2Sqrt,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2_pi,
+  b2Abs,
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2Color,
+  b2Cos,
+  b2EdgeShape,
+  b2Fixture,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2RandomRange,
+  b2RayCastCallback,
+  b2Sin,
+  b2Sqrt,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class EdgeShapesCallback extends b2RayCastCallback {
   public m_fixture: b2Fixture | null = null;
   public m_point = new b2Vec2();
   public m_normal = new b2Vec2();
-  public ReportFixture(fixture: b2Fixture, point: b2Vec2, normal: b2Vec2, fraction: number): number {
+  public ReportFixture(
+    fixture: b2Fixture,
+    point: b2Vec2,
+    normal: b2Vec2,
+    fraction: number,
+  ): number {
     this.m_fixture = fixture;
     this.m_point.Copy(point);
     this.m_normal.Copy(normal);
@@ -70,10 +82,10 @@ export class EdgeShapes extends Test {
       const ground = this.m_world.CreateBody(bd);
 
       let x1 = -20.0;
-      let y1 = 2.0 * b2Cos(x1 / 10.0 * b2_pi);
+      let y1 = 2.0 * b2Cos((x1 / 10.0) * b2_pi);
       for (let i = 0; i < 80; ++i) {
         const x2 = x1 + 0.5;
-        const y2 = 2.0 * b2Cos(x2 / 10.0 * b2_pi);
+        const y2 = 2.0 * b2Cos((x2 / 10.0) * b2_pi);
 
         const shape = new b2EdgeShape();
         shape.Set(new b2Vec2(x1, y1), new b2Vec2(x2, y2));
@@ -150,7 +162,7 @@ export class EdgeShapes extends Test {
       bd.angularDamping = 0.02;
     }
 
-    const new_body = this.m_bodies[this.m_bodyIndex] = this.m_world.CreateBody(bd);
+    const new_body = (this.m_bodies[this.m_bodyIndex] = this.m_world.CreateBody(bd));
 
     if (index < 4) {
       const fd = new b2FixtureDef();
@@ -183,15 +195,15 @@ export class EdgeShapes extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "1":
-      case "2":
-      case "3":
-      case "4":
-      case "5":
-        this.CreateBody(key.charCodeAt(0) - "1".charCodeAt(0));
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+        this.CreateBody(key.charCodeAt(0) - '1'.charCodeAt(0));
         break;
 
-      case "d":
+      case 'd':
         this.DestroyBody();
         break;
     }
@@ -200,7 +212,7 @@ export class EdgeShapes extends Test {
   public Step(settings: Settings): void {
     const advanceRay = !settings.pause || settings.singleStep;
     super.Step(settings);
-    g_debugDraw.DrawString(5, this.m_textLine, "Press 1-5 to drop stuff, m to change the mode");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Press 1-5 to drop stuff, m to change the mode');
     this.m_textLine += DRAW_STRING_NEW_LINE;
 
     const L = 25.0;
@@ -214,14 +226,18 @@ export class EdgeShapes extends Test {
     if (callback.m_fixture) {
       g_debugDraw.DrawPoint(callback.m_point, 5.0, new b2Color(0.4, 0.9, 0.4));
       g_debugDraw.DrawSegment(point1, callback.m_point, new b2Color(0.8, 0.8, 0.8));
-      const head = b2Vec2.AddVV(callback.m_point, b2Vec2.MulSV(0.5, callback.m_normal, b2Vec2.s_t0), new b2Vec2());
+      const head = b2Vec2.AddVV(
+        callback.m_point,
+        b2Vec2.MulSV(0.5, callback.m_normal, b2Vec2.s_t0),
+        new b2Vec2(),
+      );
       g_debugDraw.DrawSegment(callback.m_point, head, new b2Color(0.9, 0.9, 0.4));
     } else {
       g_debugDraw.DrawSegment(point1, point2, new b2Color(0.8, 0.8, 0.8));
     }
 
     if (advanceRay) {
-      this.m_angle += 0.25 * b2_pi / 180.0;
+      this.m_angle += (0.25 * b2_pi) / 180.0;
     }
   }
 

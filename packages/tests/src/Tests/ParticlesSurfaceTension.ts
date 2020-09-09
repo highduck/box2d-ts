@@ -19,15 +19,15 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2BodyDef,
-    b2BodyType,
-    b2CircleShape,
-    b2ParticleFlag,
-    b2ParticleGroupDef,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class ParticlesSurfaceTension extends Test {
   constructor() {
@@ -100,12 +100,7 @@ export class ParticlesSurfaceTension extends Test {
 
     {
       const shape = new b2PolygonShape();
-      const vertices = [
-        new b2Vec2(0, 3),
-        new b2Vec2(2, 3),
-        new b2Vec2(2, 3.5),
-        new b2Vec2(0, 3.5),
-      ];
+      const vertices = [new b2Vec2(0, 3), new b2Vec2(2, 3), new b2Vec2(2, 3.5), new b2Vec2(0, 3.5)];
       shape.Set(vertices, 4);
       const pd = new b2ParticleGroupDef();
       pd.flags = b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_colorMixingParticle;

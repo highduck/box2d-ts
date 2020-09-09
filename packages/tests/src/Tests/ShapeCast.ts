@@ -1,32 +1,35 @@
 /*
-* Copyright (c) 2006-2009 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2009 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2_polygonRadius,
-    b2Color,
-    b2Distance, b2DistanceInput,
-    b2DistanceOutput,
-    b2ShapeCast,
-    b2ShapeCastInput,
-    b2ShapeCastOutput, b2SimplexCache,
-    b2Transform, b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2_polygonRadius,
+  b2Color,
+  b2Distance,
+  b2DistanceInput,
+  b2DistanceOutput,
+  b2ShapeCast,
+  b2ShapeCastInput,
+  b2ShapeCastOutput,
+  b2SimplexCache,
+  b2Transform,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class ShapeCast extends Test {
   public static e_vertexCount = 8;
@@ -104,8 +107,13 @@ export class ShapeCast extends Test {
 
     b2Distance(distanceOutput, simplexCache, distanceInput);
 
-    g_debugDraw.DrawString(5, this.m_textLine,
-      `hit = ${hit ? "true" : "false"}, iters = ${output.iterations}, lambda = ${output.lambda}, distance = ${distanceOutput.distance.toFixed(5)}`);
+    g_debugDraw.DrawString(
+      5,
+      this.m_textLine,
+      `hit = ${hit ? 'true' : 'false'}, iters = ${output.iterations}, lambda = ${
+        output.lambda
+      }, distance = ${distanceOutput.distance.toFixed(5)}`,
+    );
     this.m_textLine += DRAW_STRING_NEW_LINE;
 
     g_debugDraw.PushTransform(transformA);

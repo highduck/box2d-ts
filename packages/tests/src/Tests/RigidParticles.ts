@@ -19,15 +19,15 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2BodyDef,
-    b2BodyType,
-    b2CircleShape,
-    b2ParticleGroupDef,
-    b2ParticleGroupFlag,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2ParticleGroupDef,
+  b2ParticleGroupFlag,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class RigidParticles extends Test {
   constructor() {
@@ -81,7 +81,8 @@ export class RigidParticles extends Test {
       shape.m_p.Set(0, 3);
       shape.m_radius = 0.5;
       const pd = new b2ParticleGroupDef();
-      pd.groupFlags = b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
+      pd.groupFlags =
+        b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
       pd.shape = shape;
       pd.color.SetByteRGBA(255, 0, 0, 255);
       this.m_particleSystem.CreateParticleGroup(pd);
@@ -92,7 +93,8 @@ export class RigidParticles extends Test {
       shape.m_p.Set(-1, 3);
       shape.m_radius = 0.5;
       const pd = new b2ParticleGroupDef();
-      pd.groupFlags = b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
+      pd.groupFlags =
+        b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
       pd.shape = shape;
       pd.color.SetByteRGBA(0, 255, 0, 255);
       this.m_particleSystem.CreateParticleGroup(pd);
@@ -109,7 +111,8 @@ export class RigidParticles extends Test {
       //shape.Set(vertices, 4);
       shape.SetAsBox(1, 0.5);
       const pd = new b2ParticleGroupDef();
-      pd.groupFlags = b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
+      pd.groupFlags =
+        b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
       pd.position.Set(1, 4);
       pd.angle = -0.5;
       pd.angularVelocity = 2.0;

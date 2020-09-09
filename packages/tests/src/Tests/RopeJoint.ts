@@ -1,31 +1,33 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2BodyDef, b2BodyType, b2EdgeShape,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2RevoluteJointDef,
-    b2RopeJoint,
-    b2RopeJointDef,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2RevoluteJointDef,
+  b2RopeJoint,
+  b2RopeJointDef,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class RopeJoint extends Test {
   public m_ropeDef = new b2RopeJointDef();
@@ -58,7 +60,7 @@ export class RopeJoint extends Test {
       fd.density = 20.0;
       fd.friction = 0.2;
       fd.filter.categoryBits = 0x0001;
-      fd.filter.maskBits = 0xFFFF & ~0x0002;
+      fd.filter.maskBits = 0xffff & ~0x0002;
 
       /*b2RevoluteJointDef*/
       const jd = new b2RevoluteJointDef();
@@ -72,7 +74,7 @@ export class RopeJoint extends Test {
 
       /*b2Body*/
       let prevBody = ground;
-      for ( /*int32*/ let i = 0; i < N; ++i) {
+      for (/*int32*/ let i = 0; i < N; ++i) {
         /*b2BodyDef*/
         const bd = new b2BodyDef();
         bd.type = b2BodyType.b2_dynamicBody;
@@ -114,7 +116,7 @@ export class RopeJoint extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "j":
+      case 'j':
         if (this.m_rope) {
           this.m_world.DestroyJoint(this.m_rope);
           this.m_rope = null;
@@ -127,12 +129,12 @@ export class RopeJoint extends Test {
 
   public Step(settings: Settings): void {
     super.Step(settings);
-    g_debugDraw.DrawString(5, this.m_textLine, "Press (j) to toggle the rope joint.");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Press (j) to toggle the rope joint.');
     this.m_textLine += DRAW_STRING_NEW_LINE;
     if (this.m_rope) {
-      g_debugDraw.DrawString(5, this.m_textLine, "Rope ON");
+      g_debugDraw.DrawString(5, this.m_textLine, 'Rope ON');
     } else {
-      g_debugDraw.DrawString(5, this.m_textLine, "Rope OFF");
+      g_debugDraw.DrawString(5, this.m_textLine, 'Rope OFF');
     }
     this.m_textLine += DRAW_STRING_NEW_LINE;
   }

@@ -1,7 +1,7 @@
-import {b2Sweep, b2Transform} from "../..";
+import { b2Sweep, b2Transform } from '../..';
 
-describe("math test", ()=> {
-  it("sweep", ()=> {
+describe('math test', () => {
+  it('sweep', () => {
     // From issue #447
     const sweep = new b2Sweep();
     sweep.localCenter.SetZero();

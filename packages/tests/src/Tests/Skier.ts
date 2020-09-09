@@ -3,17 +3,23 @@ Test case for collision/jerking issue.
 */
 
 import {
-    b2_pi,
-    b2Body,
-    b2BodyDef,
-    b2BodyType,
-    b2CircleShape,
-    b2EdgeShape,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_camera, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2_pi,
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import {
+  DRAW_STRING_NEW_LINE,
+  g_camera,
+  g_debugDraw,
+  Settings,
+  Test,
+} from '@highduck/box2d-testbed';
 
 export class Skier extends Test {
   public m_platform_width: number;
@@ -45,8 +51,8 @@ export class Skier extends Test {
     const SurfaceFriction = 0.2;
 
     // Convert to radians
-    const Slope1Incline = -Angle1Degrees * b2_pi / 180.0;
-    const Slope2Incline = Slope1Incline - Angle2Degrees * b2_pi / 180.0;
+    const Slope1Incline = (-Angle1Degrees * b2_pi) / 180.0;
+    const Slope2Incline = Slope1Incline - (Angle2Degrees * b2_pi) / 180.0;
     //
 
     this.m_platform_width = PlatformWidth;
@@ -58,15 +64,19 @@ export class Skier extends Test {
     verts.push(new b2Vec2(0.0, 0.0));
 
     // Slope
-    verts.push(new b2Vec2(
-      verts[verts.length - 1].x + SlopeLength * Math.cos(Slope1Incline),
-      verts[verts.length - 1].y - SlopeLength * Math.sin(Slope1Incline),
-    ));
+    verts.push(
+      new b2Vec2(
+        verts[verts.length - 1].x + SlopeLength * Math.cos(Slope1Incline),
+        verts[verts.length - 1].y - SlopeLength * Math.sin(Slope1Incline),
+      ),
+    );
 
-    verts.push(new b2Vec2(
-      verts[verts.length - 1].x + SlopeLength * Math.cos(Slope2Incline),
-      verts[verts.length - 1].y - SlopeLength * Math.sin(Slope2Incline),
-    ));
+    verts.push(
+      new b2Vec2(
+        verts[verts.length - 1].x + SlopeLength * Math.cos(Slope2Incline),
+        verts[verts.length - 1].y - SlopeLength * Math.sin(Slope2Incline),
+      ),
+    );
 
     {
       const shape = new b2EdgeShape();
@@ -189,17 +199,17 @@ export class Skier extends Test {
 
   public Keyboard(key: string): void {
     switch (key) {
-    case "c":
-      this.m_fixed_camera = !this.m_fixed_camera;
-      if (this.m_fixed_camera) {
-        g_camera.m_center.Set(this.m_platform_width / 2.0, 0.0);
-      }
-      break;
+      case 'c':
+        this.m_fixed_camera = !this.m_fixed_camera;
+        if (this.m_fixed_camera) {
+          g_camera.m_center.Set(this.m_platform_width / 2.0, 0.0);
+        }
+        break;
     }
   }
 
   public Step(settings: Settings): void {
-    g_debugDraw.DrawString(5, this.m_textLine, "Keys: c = Camera fixed/tracking");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Keys: c = Camera fixed/tracking');
     this.m_textLine += DRAW_STRING_NEW_LINE;
 
     if (!this.m_fixed_camera) {

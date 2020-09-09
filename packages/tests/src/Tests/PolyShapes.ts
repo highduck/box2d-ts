@@ -1,33 +1,42 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2_pi,
-    b2AABB, b2BodyDef, b2BodyType, b2CircleShape,
-    b2Color, b2EdgeShape,
-    b2Fixture,
-    b2FixtureDef, b2MakeArray, b2PolygonShape,
-    b2QueryCallback, b2RandomRange,
-    b2ShapeType, b2Sqrt, b2TestOverlapShape,
-    b2Transform,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2_pi,
+  b2AABB,
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2Color,
+  b2EdgeShape,
+  b2Fixture,
+  b2FixtureDef,
+  b2MakeArray,
+  b2PolygonShape,
+  b2QueryCallback,
+  b2RandomRange,
+  b2ShapeType,
+  b2Sqrt,
+  b2TestOverlapShape,
+  b2Transform,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 /**
  * This callback is called by b2World::QueryAABB. We find
@@ -37,65 +46,73 @@ import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d
  * border.
  */
 export class PolyShapesCallback extends b2QueryCallback {
+  public static readonly e_maxCount = 4;
 
-    public static readonly e_maxCount = 4;
+  public m_circle = new b2CircleShape();
+  public m_transform = new b2Transform();
+  public m_count = 0;
 
-    public m_circle = new b2CircleShape();
-    public m_transform = new b2Transform();
-    public m_count = 0;
-
-    public ReportFixture(fixture: b2Fixture) {
-        if (this.m_count === PolyShapesCallback.e_maxCount) {
-            return false;
-        }
-
-        const body = fixture.GetBody();
-        const shape = fixture.GetShape();
-
-        const overlap = b2TestOverlapShape(shape, 0, this.m_circle, 0, body.GetTransform(), this.m_transform);
-
-        if (overlap) {
-            this.DrawFixture(fixture);
-            ++this.m_count;
-        }
-
-        return true;
+  public ReportFixture(fixture: b2Fixture) {
+    if (this.m_count === PolyShapesCallback.e_maxCount) {
+      return false;
     }
 
-    public DrawFixture(fixture: b2Fixture) {
-        const color = new b2Color(0.95, 0.95, 0.6);
-        const xf = fixture.GetBody().GetTransform();
+    const body = fixture.GetBody();
+    const shape = fixture.GetShape();
 
-        switch (fixture.GetType()) {
-            case b2ShapeType.e_circleShape: {
-                //const circle = ((shape instanceof b2CircleShape ? shape : null));
-                const circle: b2CircleShape = fixture.GetShape() as b2CircleShape;
+    const overlap = b2TestOverlapShape(
+      shape,
+      0,
+      this.m_circle,
+      0,
+      body.GetTransform(),
+      this.m_transform,
+    );
 
-                const center = b2Transform.MulXV(xf, circle.m_p, new b2Vec2());
-                const radius = circle.m_radius;
-
-                g_debugDraw.DrawCircle(center, radius, color);
-            }
-                break;
-
-            case b2ShapeType.e_polygonShape: {
-                //const poly = ((shape instanceof b2PolygonShape ? shape : null));
-                const poly: b2PolygonShape = fixture.GetShape() as b2PolygonShape;
-                const vertexCount = poly.m_count;
-                const vertices = [];
-
-                for (let i = 0; i < vertexCount; ++i) {
-                    vertices[i] = b2Transform.MulXV(xf, poly.m_vertices[i], new b2Vec2());
-                }
-
-                g_debugDraw.DrawPolygon(vertices, vertexCount, color);
-            }
-                break;
-
-            default:
-                break;
-        }
+    if (overlap) {
+      this.DrawFixture(fixture);
+      ++this.m_count;
     }
+
+    return true;
+  }
+
+  public DrawFixture(fixture: b2Fixture) {
+    const color = new b2Color(0.95, 0.95, 0.6);
+    const xf = fixture.GetBody().GetTransform();
+
+    switch (fixture.GetType()) {
+      case b2ShapeType.e_circleShape:
+        {
+          //const circle = ((shape instanceof b2CircleShape ? shape : null));
+          const circle: b2CircleShape = fixture.GetShape() as b2CircleShape;
+
+          const center = b2Transform.MulXV(xf, circle.m_p, new b2Vec2());
+          const radius = circle.m_radius;
+
+          g_debugDraw.DrawCircle(center, radius, color);
+        }
+        break;
+
+      case b2ShapeType.e_polygonShape:
+        {
+          //const poly = ((shape instanceof b2PolygonShape ? shape : null));
+          const poly: b2PolygonShape = fixture.GetShape() as b2PolygonShape;
+          const vertexCount = poly.m_count;
+          const vertices = [];
+
+          for (let i = 0; i < vertexCount; ++i) {
+            vertices[i] = b2Transform.MulXV(xf, poly.m_vertices[i], new b2Vec2());
+          }
+
+          g_debugDraw.DrawPolygon(vertices, vertexCount, color);
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
 }
 
 export class PolyShapes extends Test {
@@ -215,15 +232,15 @@ export class PolyShapes extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "1":
-      case "2":
-      case "3":
-      case "4":
-      case "5":
-        this.CreateBody(key.charCodeAt(0) - "1".charCodeAt(0));
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+        this.CreateBody(key.charCodeAt(0) - '1'.charCodeAt(0));
         break;
 
-      case "a":
+      case 'a':
         for (let i = 0; i < PolyShapes.e_maxBodies; i += 2) {
           if (this.m_bodies[i]) {
             const active = this.m_bodies[i].IsActive();
@@ -232,7 +249,7 @@ export class PolyShapes extends Test {
         }
         break;
 
-      case "d":
+      case 'd':
         this.DestroyBody();
         break;
     }
@@ -254,7 +271,7 @@ export class PolyShapes extends Test {
     const color = new b2Color(0.4, 0.7, 0.8);
     g_debugDraw.DrawCircle(callback.m_circle.m_p, callback.m_circle.m_radius, color);
 
-    g_debugDraw.DrawString(5, this.m_textLine, "Press 1-5 to drop stuff");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Press 1-5 to drop stuff');
     this.m_textLine += DRAW_STRING_NEW_LINE;
     g_debugDraw.DrawString(5, this.m_textLine, "Press 'a' to (de)activate some bodies");
     this.m_textLine += DRAW_STRING_NEW_LINE;

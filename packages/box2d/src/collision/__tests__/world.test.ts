@@ -1,16 +1,22 @@
-import {b2BodyDef, b2BodyType, b2CircleShape, b2Contact, b2ContactListener, b2Vec2, b2World} from "../..";
+import {
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2Contact,
+  b2ContactListener,
+  b2Vec2,
+  b2World,
+} from '../..';
 
 let begin_contact = false;
 
-class MyContactListener extends b2ContactListener
-{
-  BeginContact(contact:b2Contact) {
+class MyContactListener extends b2ContactListener {
+  BeginContact(contact: b2Contact) {
     begin_contact = true;
   }
 }
 
-test("begin contact", ()=>
-{
+test('begin contact', () => {
   const world = new b2World(new b2Vec2());
   world.SetContactListener(new MyContactListener());
 
@@ -42,5 +48,5 @@ test("begin contact", ()=>
   world.Step(timeStep, velocityIterations, positionIterations);
 
   expect(world.GetContactList()).not.toBeNull();
-  expect(begin_contact).toBe( true);
+  expect(begin_contact).toBe(true);
 });

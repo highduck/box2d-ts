@@ -18,8 +18,15 @@
 
 // #if B2_ENABLE_PARTICLE
 
-import {b2BodyDef, b2ChainShape, b2ParticleFlag, b2ParticleGroupDef, b2PolygonShape, b2Vec2} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2ChainShape,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class Impulse extends Test {
   public static readonly kBoxLeft = -2;
@@ -69,11 +76,16 @@ export class Impulse extends Test {
     super.MouseUp(p);
 
     // Apply an impulse to the particles.
-    const isInsideBox = Impulse.kBoxLeft <= p.x && p.x <= Impulse.kBoxRight &&
-      Impulse.kBoxBottom <= p.y && p.y <= Impulse.kBoxTop;
+    const isInsideBox =
+      Impulse.kBoxLeft <= p.x &&
+      p.x <= Impulse.kBoxRight &&
+      Impulse.kBoxBottom <= p.y &&
+      p.y <= Impulse.kBoxTop;
     if (isInsideBox) {
-      const kBoxCenter = new b2Vec2(0.5 * (Impulse.kBoxLeft + Impulse.kBoxRight),
-        0.5 * (Impulse.kBoxBottom + Impulse.kBoxTop));
+      const kBoxCenter = new b2Vec2(
+        0.5 * (Impulse.kBoxLeft + Impulse.kBoxRight),
+        0.5 * (Impulse.kBoxBottom + Impulse.kBoxTop),
+      );
       const direction = b2Vec2.SubVV(p, kBoxCenter, new b2Vec2());
       direction.Normalize();
       this.ApplyImpulseOrForce(direction);
@@ -84,10 +96,10 @@ export class Impulse extends Test {
     super.Keyboard(key);
 
     switch (key) {
-      case "l":
+      case 'l':
         this.m_useLinearImpulse = true;
         break;
-      case "f":
+      case 'f':
         this.m_useLinearImpulse = false;
         break;
     }
@@ -95,9 +107,13 @@ export class Impulse extends Test {
 
   public ApplyImpulseOrForce(direction: b2Vec2) {
     const particleSystem = this.m_world.GetParticleSystemList();
-    if (!particleSystem) { throw new Error(); }
+    if (!particleSystem) {
+      throw new Error();
+    }
     const particleGroup = particleSystem.GetParticleGroupList();
-    if (!particleGroup) { throw new Error(); }
+    if (!particleGroup) {
+      throw new Error();
+    }
     const numParticles = particleGroup.GetParticleCount();
 
     if (this.m_useLinearImpulse) {

@@ -1,7 +1,7 @@
-import {b2_epsilon, b2Abs, b2MassData, b2PolygonShape, b2Vec2} from "../..";
+import { b2_epsilon, b2Abs, b2MassData, b2PolygonShape, b2Vec2 } from '../..';
 
-describe("collision test", ()=> {
-  it("polygon mass data", ()=> {
+describe('collision test', () => {
+  it('polygon mass data', () => {
     const center = new b2Vec2(100.0, -50.0);
     const hx = 0.5;
     const hy = 1.5;
@@ -18,11 +18,14 @@ describe("collision test", ()=> {
     const absTol = 2.0 * b2_epsilon;
     const relTol = 2.0 * b2_epsilon;
 
-    expect(b2Abs(polygon1.m_centroid.x - center.x) < absTol + relTol * b2Abs(center.x))
-      .toStrictEqual(true);
-    expect(b2Abs(polygon1.m_centroid.y - center.y) < absTol + relTol * b2Abs(center.y));
+    expect(
+      b2Abs(polygon1.m_centroid.x - center.x) < absTol + relTol * b2Abs(center.x),
+    ).toStrictEqual(true);
+    expect(
+      b2Abs(polygon1.m_centroid.y - center.y) < absTol + relTol * b2Abs(center.y),
+    ).toStrictEqual(true);
 
-    const vertices:b2Vec2[] = [
+    const vertices: b2Vec2[] = [
       new b2Vec2(center.x - hx, center.y - hy),
       new b2Vec2(center.x + hx, center.y - hy),
       new b2Vec2(center.x - hx, center.y + hy),
@@ -32,8 +35,12 @@ describe("collision test", ()=> {
     const polygon2 = new b2PolygonShape();
     polygon2.Set(vertices, 4);
 
-    expect(b2Abs(polygon2.m_centroid.x - center.x) < absTol + relTol * b2Abs(center.x));
-    expect(b2Abs(polygon2.m_centroid.y - center.y) < absTol + relTol * b2Abs(center.y));
+    expect(
+      b2Abs(polygon2.m_centroid.x - center.x) < absTol + relTol * b2Abs(center.x),
+    ).toStrictEqual(true);
+    expect(
+      b2Abs(polygon2.m_centroid.y - center.y) < absTol + relTol * b2Abs(center.y),
+    ).toStrictEqual(true);
 
     const mass = 4.0 * hx * hy;
     const inertia = (mass / 3.0) * (hx * hx + hy * hy) + mass * center.Dot(center);
@@ -41,17 +48,25 @@ describe("collision test", ()=> {
     const massData1 = new b2MassData();
     polygon1.ComputeMass(massData1, 1.0);
 
-    expect(b2Abs(massData1.center.x - center.x) < absTol + relTol * b2Abs(center.x));
-    expect(b2Abs(massData1.center.y - center.y) < absTol + relTol * b2Abs(center.y));
-    expect(b2Abs(massData1.mass - mass) < 20.0 * (absTol + relTol * mass));
-    expect(b2Abs(massData1.I - inertia) < 40.0 * (absTol + relTol * inertia));
+    expect(b2Abs(massData1.center.x - center.x) < absTol + relTol * b2Abs(center.x)).toStrictEqual(
+      true,
+    );
+    expect(b2Abs(massData1.center.y - center.y) < absTol + relTol * b2Abs(center.y)).toStrictEqual(
+      true,
+    );
+    expect(b2Abs(massData1.mass - mass) < 20.0 * (absTol + relTol * mass)).toStrictEqual(true);
+    expect(b2Abs(massData1.I - inertia) < 40.0 * (absTol + relTol * inertia)).toStrictEqual(true);
 
     const massData2 = new b2MassData();
     polygon2.ComputeMass(massData2, 1.0);
 
-    expect(b2Abs(massData2.center.x - center.x) < absTol + relTol * b2Abs(center.x));
-    expect(b2Abs(massData2.center.y - center.y) < absTol + relTol * b2Abs(center.y));
-    expect(b2Abs(massData2.mass - mass) < 20.0 * (absTol + relTol * mass));
-    expect(b2Abs(massData2.I - inertia) < 40.0 * (absTol + relTol * inertia));
+    expect(b2Abs(massData2.center.x - center.x) < absTol + relTol * b2Abs(center.x)).toStrictEqual(
+      true,
+    );
+    expect(b2Abs(massData2.center.y - center.y) < absTol + relTol * b2Abs(center.y)).toStrictEqual(
+      true,
+    );
+    expect(b2Abs(massData2.mass - mass) < 20.0 * (absTol + relTol * mass)).toStrictEqual(true);
+    expect(b2Abs(massData2.I - inertia) < 40.0 * (absTol + relTol * inertia)).toStrictEqual(true);
   });
 });

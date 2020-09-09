@@ -18,8 +18,15 @@
 
 // #if B2_ENABLE_PARTICLE
 
-import {b2BodyDef, b2CircleShape, b2ParticleFlag, b2ParticleGroupDef, b2PolygonShape, b2Vec2} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2CircleShape,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class Ramp extends Test {
   constructor() {
@@ -32,7 +39,8 @@ export class Ramp extends Test {
       // Construct a ramp out of many polygons to ensure there's no
       // issue with particles moving across vertices
 
-      const xstep = 5.0, ystep = 5.0;
+      const xstep = 5.0,
+        ystep = 5.0;
 
       for (let y = 30.0; y > 0.0; y -= ystep) {
         const shape = new b2PolygonShape();
@@ -47,11 +55,7 @@ export class Ramp extends Test {
 
       for (let x = -25.0; x < 25.0; x += xstep) {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(x, 0.0),
-          new b2Vec2(x + xstep, 0.0),
-          new b2Vec2(0.0, 15.0),
-        ];
+        const vertices = [new b2Vec2(x, 0.0), new b2Vec2(x + xstep, 0.0), new b2Vec2(0.0, 15.0)];
         shape.Set(vertices, 3);
         ground.CreateFixture(shape, 0.0);
       }

@@ -1,34 +1,40 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 // Inspired by a contribution by roman_m
 // Dimensions scooped from APE (http://www.cove.org/ape/index.htm)
 
 import {
-    b2_pi,
-    b2Body, b2BodyDef, b2BodyType, b2CircleShape, b2DistanceJointDef, b2EdgeShape,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2RevoluteJoint,
-    b2RevoluteJointDef,
-    b2Vec2, b2Vec2_zero
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2_pi,
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2DistanceJointDef,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2RevoluteJoint,
+  b2RevoluteJointDef,
+  b2Vec2,
+  b2Vec2_zero,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class TheoJansen extends Test {
   public m_offset = new b2Vec2();
@@ -115,16 +121,36 @@ export class TheoJansen extends Test {
     djd.dampingRatio = 0.5;
     djd.frequencyHz = 10.0;
 
-    djd.Initialize(body1, body2, b2Vec2.AddVV(p2, this.m_offset, new b2Vec2()), b2Vec2.AddVV(p5, this.m_offset, new b2Vec2()));
+    djd.Initialize(
+      body1,
+      body2,
+      b2Vec2.AddVV(p2, this.m_offset, new b2Vec2()),
+      b2Vec2.AddVV(p5, this.m_offset, new b2Vec2()),
+    );
     this.m_world.CreateJoint(djd);
 
-    djd.Initialize(body1, body2, b2Vec2.AddVV(p3, this.m_offset, new b2Vec2()), b2Vec2.AddVV(p4, this.m_offset, new b2Vec2()));
+    djd.Initialize(
+      body1,
+      body2,
+      b2Vec2.AddVV(p3, this.m_offset, new b2Vec2()),
+      b2Vec2.AddVV(p4, this.m_offset, new b2Vec2()),
+    );
     this.m_world.CreateJoint(djd);
 
-    djd.Initialize(body1, this.m_wheel, b2Vec2.AddVV(p3, this.m_offset, new b2Vec2()), b2Vec2.AddVV(wheelAnchor, this.m_offset, new b2Vec2()));
+    djd.Initialize(
+      body1,
+      this.m_wheel,
+      b2Vec2.AddVV(p3, this.m_offset, new b2Vec2()),
+      b2Vec2.AddVV(wheelAnchor, this.m_offset, new b2Vec2()),
+    );
     this.m_world.CreateJoint(djd);
 
-    djd.Initialize(body2, this.m_wheel, b2Vec2.AddVV(p6, this.m_offset, new b2Vec2()), b2Vec2.AddVV(wheelAnchor, this.m_offset, new b2Vec2()));
+    djd.Initialize(
+      body2,
+      this.m_wheel,
+      b2Vec2.AddVV(p6, this.m_offset, new b2Vec2()),
+      b2Vec2.AddVV(wheelAnchor, this.m_offset, new b2Vec2()),
+    );
     this.m_world.CreateJoint(djd);
 
     const rjd = new b2RevoluteJointDef();
@@ -214,37 +240,41 @@ export class TheoJansen extends Test {
     this.CreateLeg(-1.0, wheelAnchor);
     this.CreateLeg(1.0, wheelAnchor);
 
-    this.m_wheel.SetTransformVec(this.m_wheel.GetPosition(), 120.0 * b2_pi / 180.0);
+    this.m_wheel.SetTransformVec(this.m_wheel.GetPosition(), (120.0 * b2_pi) / 180.0);
     this.CreateLeg(-1.0, wheelAnchor);
     this.CreateLeg(1.0, wheelAnchor);
 
-    this.m_wheel.SetTransformVec(this.m_wheel.GetPosition(), -120.0 * b2_pi / 180.0);
+    this.m_wheel.SetTransformVec(this.m_wheel.GetPosition(), (-120.0 * b2_pi) / 180.0);
     this.CreateLeg(-1.0, wheelAnchor);
     this.CreateLeg(1.0, wheelAnchor);
   }
 
   public Keyboard(key: string) {
     switch (key) {
-      case "a":
+      case 'a':
         this.m_motorJoint.SetMotorSpeed(-this.m_motorSpeed);
         break;
 
-      case "s":
+      case 's':
         this.m_motorJoint.SetMotorSpeed(0.0);
         break;
 
-      case "d":
+      case 'd':
         this.m_motorJoint.SetMotorSpeed(this.m_motorSpeed);
         break;
 
-      case "m":
+      case 'm':
         this.m_motorJoint.EnableMotor(!this.m_motorJoint.IsMotorEnabled());
         break;
     }
   }
 
   public Step(settings: Settings): void {
-    g_debugDraw.DrawString(5, this.m_textLine, "Keys: left = a, brake = s, right = d, toggle motor = m");
+    g_debugDraw.DrawString(
+      5,
+      this.m_textLine,
+      'Keys: left = a, brake = s, right = d, toggle motor = m',
+    );
     this.m_textLine += DRAW_STRING_NEW_LINE;
 
     super.Step(settings);

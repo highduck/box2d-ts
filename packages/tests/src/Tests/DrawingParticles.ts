@@ -19,27 +19,32 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2BodyDef, b2CircleShape,
-    b2ParticleFlag,
-    b2ParticleGroup,
-    b2ParticleGroupDef,
-    b2ParticleGroupFlag, b2PolygonShape,
-    b2Transform,
-    b2Vec2
-} from "@highduck/box2d";
+  b2BodyDef,
+  b2CircleShape,
+  b2ParticleFlag,
+  b2ParticleGroup,
+  b2ParticleGroupDef,
+  b2ParticleGroupFlag,
+  b2PolygonShape,
+  b2Transform,
+  b2Vec2,
+} from '@highduck/box2d';
 import {
-    DRAW_STRING_NEW_LINE,
-    g_debugDraw,
-    ParticleParameter,
-    ParticleParameterDefinition, ParticleParameterValue, Settings, Test
-} from "@highduck/box2d-testbed";
+  DRAW_STRING_NEW_LINE,
+  g_debugDraw,
+  ParticleParameter,
+  ParticleParameterDefinition,
+  ParticleParameterValue,
+  Settings,
+  Test,
+} from '@highduck/box2d-testbed';
 
 export class DrawingParticles extends Test {
   /**
    * Set bit 31 to distiguish these values from particle flags.
    */
   public static readonly Parameters = {
-    e_parameterBegin: (1 << 31), // Start of this parameter namespace.
+    e_parameterBegin: 1 << 31, // Start of this parameter namespace.
     e_parameterMove: (1 << 31) | (1 << 0),
     e_parameterRigid: (1 << 31) | (1 << 1),
     e_parameterRigidBarrier: (1 << 31) | (1 << 2),
@@ -55,13 +60,41 @@ export class DrawingParticles extends Test {
   public m_colorIndex = 0;
 
   public static readonly k_paramValues = [
-    new ParticleParameterValue(b2ParticleFlag.b2_zombieParticle, ParticleParameter.k_DefaultOptions, "erase"),
-    new ParticleParameterValue(DrawingParticles.Parameters.e_parameterMove, ParticleParameter.k_DefaultOptions, "move"),
-    new ParticleParameterValue(DrawingParticles.Parameters.e_parameterRigid, ParticleParameter.k_DefaultOptions, "rigid"),
-    new ParticleParameterValue(DrawingParticles.Parameters.e_parameterRigidBarrier, ParticleParameter.k_DefaultOptions, "rigid barrier"),
-    new ParticleParameterValue(DrawingParticles.Parameters.e_parameterElasticBarrier, ParticleParameter.k_DefaultOptions, "elastic barrier"),
-    new ParticleParameterValue(DrawingParticles.Parameters.e_parameterSpringBarrier, ParticleParameter.k_DefaultOptions, "spring barrier"),
-    new ParticleParameterValue(DrawingParticles.Parameters.e_parameterRepulsive, ParticleParameter.k_DefaultOptions, "repulsive wall"),
+    new ParticleParameterValue(
+      b2ParticleFlag.b2_zombieParticle,
+      ParticleParameter.k_DefaultOptions,
+      'erase',
+    ),
+    new ParticleParameterValue(
+      DrawingParticles.Parameters.e_parameterMove,
+      ParticleParameter.k_DefaultOptions,
+      'move',
+    ),
+    new ParticleParameterValue(
+      DrawingParticles.Parameters.e_parameterRigid,
+      ParticleParameter.k_DefaultOptions,
+      'rigid',
+    ),
+    new ParticleParameterValue(
+      DrawingParticles.Parameters.e_parameterRigidBarrier,
+      ParticleParameter.k_DefaultOptions,
+      'rigid barrier',
+    ),
+    new ParticleParameterValue(
+      DrawingParticles.Parameters.e_parameterElasticBarrier,
+      ParticleParameter.k_DefaultOptions,
+      'elastic barrier',
+    ),
+    new ParticleParameterValue(
+      DrawingParticles.Parameters.e_parameterSpringBarrier,
+      ParticleParameter.k_DefaultOptions,
+      'spring barrier',
+    ),
+    new ParticleParameterValue(
+      DrawingParticles.Parameters.e_parameterRepulsive,
+      ParticleParameter.k_DefaultOptions,
+      'repulsive wall',
+    ),
   ];
 
   public static readonly k_paramDef = [
@@ -103,24 +136,14 @@ export class DrawingParticles extends Test {
 
       {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(2, -2),
-          new b2Vec2(4, -2),
-          new b2Vec2(4, 6),
-          new b2Vec2(2, 6),
-        ];
+        const vertices = [new b2Vec2(2, -2), new b2Vec2(4, -2), new b2Vec2(4, 6), new b2Vec2(2, 6)];
         shape.Set(vertices, 4);
         ground.CreateFixture(shape, 0.0);
       }
 
       {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(-4, 4),
-          new b2Vec2(4, 4),
-          new b2Vec2(4, 6),
-          new b2Vec2(-4, 6),
-        ];
+        const vertices = [new b2Vec2(-4, 4), new b2Vec2(4, 4), new b2Vec2(4, 6), new b2Vec2(-4, 6)];
         shape.Set(vertices, 4);
         ground.CreateFixture(shape, 0.0);
       }
@@ -143,19 +166,34 @@ export class DrawingParticles extends Test {
   // group flags.
   public DetermineParticleParameter() {
     if (this.m_drawing) {
-      if (this.m_groupFlags === (b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup)) {
+      if (
+        this.m_groupFlags ===
+        (b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup)
+      ) {
         return DrawingParticles.Parameters.e_parameterRigid;
       }
-      if (this.m_groupFlags === b2ParticleGroupFlag.b2_rigidParticleGroup && this.m_particleFlags === b2ParticleFlag.b2_barrierParticle) {
+      if (
+        this.m_groupFlags === b2ParticleGroupFlag.b2_rigidParticleGroup &&
+        this.m_particleFlags === b2ParticleFlag.b2_barrierParticle
+      ) {
         return DrawingParticles.Parameters.e_parameterRigidBarrier;
       }
-      if (this.m_particleFlags === (b2ParticleFlag.b2_elasticParticle | b2ParticleFlag.b2_barrierParticle)) {
+      if (
+        this.m_particleFlags ===
+        (b2ParticleFlag.b2_elasticParticle | b2ParticleFlag.b2_barrierParticle)
+      ) {
         return DrawingParticles.Parameters.e_parameterElasticBarrier;
       }
-      if (this.m_particleFlags === (b2ParticleFlag.b2_springParticle | b2ParticleFlag.b2_barrierParticle)) {
+      if (
+        this.m_particleFlags ===
+        (b2ParticleFlag.b2_springParticle | b2ParticleFlag.b2_barrierParticle)
+      ) {
         return DrawingParticles.Parameters.e_parameterSpringBarrier;
       }
-      if (this.m_particleFlags === (b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_repulsiveParticle)) {
+      if (
+        this.m_particleFlags ===
+        (b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_repulsiveParticle)
+      ) {
         return DrawingParticles.Parameters.e_parameterRepulsive;
       }
       return this.m_particleFlags;
@@ -164,56 +202,58 @@ export class DrawingParticles extends Test {
   }
 
   public Keyboard(key: string) {
-    this.m_drawing = key !== "x";
+    this.m_drawing = key !== 'x';
     this.m_particleFlags = 0;
     this.m_groupFlags = 0;
     switch (key) {
-      case "e":
+      case 'e':
         this.m_particleFlags = b2ParticleFlag.b2_elasticParticle;
         this.m_groupFlags = b2ParticleGroupFlag.b2_solidParticleGroup;
         break;
-      case "p":
+      case 'p':
         this.m_particleFlags = b2ParticleFlag.b2_powderParticle;
         break;
-      case "r":
-        this.m_groupFlags = b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
+      case 'r':
+        this.m_groupFlags =
+          b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
         break;
-      case "s":
+      case 's':
         this.m_particleFlags = b2ParticleFlag.b2_springParticle;
         this.m_groupFlags = b2ParticleGroupFlag.b2_solidParticleGroup;
         break;
-      case "t":
+      case 't':
         this.m_particleFlags = b2ParticleFlag.b2_tensileParticle;
         break;
-      case "v":
+      case 'v':
         this.m_particleFlags = b2ParticleFlag.b2_viscousParticle;
         break;
-      case "w":
+      case 'w':
         this.m_particleFlags = b2ParticleFlag.b2_wallParticle;
         this.m_groupFlags = b2ParticleGroupFlag.b2_solidParticleGroup;
         break;
-      case "b":
+      case 'b':
         this.m_particleFlags = b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_wallParticle;
         break;
-      case "h":
+      case 'h':
         this.m_particleFlags = b2ParticleFlag.b2_barrierParticle;
         this.m_groupFlags = b2ParticleGroupFlag.b2_rigidParticleGroup;
         break;
-      case "n":
-        this.m_particleFlags = b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_elasticParticle;
+      case 'n':
+        this.m_particleFlags =
+          b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_elasticParticle;
         this.m_groupFlags = b2ParticleGroupFlag.b2_solidParticleGroup;
         break;
-      case "m":
+      case 'm':
         this.m_particleFlags = b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_springParticle;
         this.m_groupFlags = b2ParticleGroupFlag.b2_solidParticleGroup;
         break;
-      case "f":
+      case 'f':
         this.m_particleFlags = b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_repulsiveParticle;
         break;
-      case "c":
+      case 'c':
         this.m_particleFlags = b2ParticleFlag.b2_colorMixingParticle;
         break;
-      case "z":
+      case 'z':
         this.m_particleFlags = b2ParticleFlag.b2_zombieParticle;
         break;
       default:
@@ -241,8 +281,14 @@ export class DrawingParticles extends Test {
       const pd = new b2ParticleGroupDef();
       pd.shape = shape;
       pd.flags = this.m_particleFlags;
-      if ((this.m_particleFlags & (b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_springParticle | b2ParticleFlag.b2_elasticParticle)) ||
-        (this.m_particleFlags === (b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_barrierParticle))) {
+      if (
+        this.m_particleFlags &
+          (b2ParticleFlag.b2_wallParticle |
+            b2ParticleFlag.b2_springParticle |
+            b2ParticleFlag.b2_elasticParticle) ||
+        this.m_particleFlags ===
+          (b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_barrierParticle)
+      ) {
         pd.flags |= b2ParticleFlag.b2_reactiveParticle;
       }
       pd.groupFlags = this.m_groupFlags;
@@ -267,9 +313,11 @@ export class DrawingParticles extends Test {
 
   public SplitParticleGroups() {
     for (let group = this.m_particleSystem.GetParticleGroupList(); group; group = group.GetNext()) {
-      if (group !== this.m_lastGroup &&
-        (group.GetGroupFlags() & b2ParticleGroupFlag.b2_rigidParticleGroup) &&
-        (group.GetAllParticleFlags() & b2ParticleFlag.b2_zombieParticle)) {
+      if (
+        group !== this.m_lastGroup &&
+        group.GetGroupFlags() & b2ParticleGroupFlag.b2_rigidParticleGroup &&
+        group.GetAllParticleFlags() & b2ParticleFlag.b2_zombieParticle
+      ) {
         // Split a rigid particle group which may be disconnected
         // by destroying particles.
         this.m_particleSystem.SplitParticleGroup(group);
@@ -279,7 +327,9 @@ export class DrawingParticles extends Test {
 
   public Step(settings: Settings) {
     const parameterValue = Test.GetParticleParameterValue();
-    this.m_drawing = (parameterValue & DrawingParticles.Parameters.e_parameterMove) !== DrawingParticles.Parameters.e_parameterMove;
+    this.m_drawing =
+      (parameterValue & DrawingParticles.Parameters.e_parameterMove) !==
+      DrawingParticles.Parameters.e_parameterMove;
     if (this.m_drawing) {
       switch (parameterValue) {
         case b2ParticleFlag.b2_elasticParticle:
@@ -292,22 +342,26 @@ export class DrawingParticles extends Test {
           // b2_waterParticle is the default particle type in
           // LiquidFun.
           this.m_particleFlags = b2ParticleFlag.b2_waterParticle;
-          this.m_groupFlags = b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
+          this.m_groupFlags =
+            b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup;
           break;
         case DrawingParticles.Parameters.e_parameterRigidBarrier:
           this.m_particleFlags = b2ParticleFlag.b2_barrierParticle;
           this.m_groupFlags = b2ParticleGroupFlag.b2_rigidParticleGroup;
           break;
         case DrawingParticles.Parameters.e_parameterElasticBarrier:
-          this.m_particleFlags = b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_elasticParticle;
+          this.m_particleFlags =
+            b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_elasticParticle;
           this.m_groupFlags = 0;
           break;
         case DrawingParticles.Parameters.e_parameterSpringBarrier:
-          this.m_particleFlags = b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_springParticle;
+          this.m_particleFlags =
+            b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_springParticle;
           this.m_groupFlags = 0;
           break;
         case DrawingParticles.Parameters.e_parameterRepulsive:
-          this.m_particleFlags = b2ParticleFlag.b2_repulsiveParticle | b2ParticleFlag.b2_wallParticle;
+          this.m_particleFlags =
+            b2ParticleFlag.b2_repulsiveParticle | b2ParticleFlag.b2_wallParticle;
           this.m_groupFlags = b2ParticleGroupFlag.b2_solidParticleGroup;
           break;
         default:
@@ -322,15 +376,19 @@ export class DrawingParticles extends Test {
     }
 
     super.Step(settings);
-    g_debugDraw.DrawString(5, this.m_textLine, "Keys: (L) liquid, (E) elastic, (S) spring");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Keys: (L) liquid, (E) elastic, (S) spring');
     this.m_textLine += DRAW_STRING_NEW_LINE;
-    g_debugDraw.DrawString(5, this.m_textLine, "(R) rigid, (W) wall, (V) viscous, (T) tensile");
+    g_debugDraw.DrawString(5, this.m_textLine, '(R) rigid, (W) wall, (V) viscous, (T) tensile');
     this.m_textLine += DRAW_STRING_NEW_LINE;
-    g_debugDraw.DrawString(5, this.m_textLine, "(F) repulsive wall, (B) wall barrier");
+    g_debugDraw.DrawString(5, this.m_textLine, '(F) repulsive wall, (B) wall barrier');
     this.m_textLine += DRAW_STRING_NEW_LINE;
-    g_debugDraw.DrawString(5, this.m_textLine, "(H) rigid barrier, (N) elastic barrier, (M) spring barrier");
+    g_debugDraw.DrawString(
+      5,
+      this.m_textLine,
+      '(H) rigid barrier, (N) elastic barrier, (M) spring barrier',
+    );
     this.m_textLine += DRAW_STRING_NEW_LINE;
-    g_debugDraw.DrawString(5, this.m_textLine, "(C) color mixing, (Z) erase, (X) move");
+    g_debugDraw.DrawString(5, this.m_textLine, '(C) color mixing, (Z) erase, (X) move');
     this.m_textLine += DRAW_STRING_NEW_LINE;
   }
 

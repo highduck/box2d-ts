@@ -1,34 +1,39 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2BodyDef, b2BodyType, b2CircleShape,
-    b2Color,
-    b2Contact,
-    b2ParticleFlag,
-    b2ParticleGroup, b2ParticleGroupDef,
-    b2ParticleSystem, b2PolygonShape,
-    b2Vec2,
-    b2WorldManifold, RGBA
-} from "@highduck/box2d";
-import {RandomFloat, Settings, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2Color,
+  b2Contact,
+  b2ParticleFlag,
+  b2ParticleGroup,
+  b2ParticleGroupDef,
+  b2ParticleSystem,
+  b2PolygonShape,
+  b2Vec2,
+  b2WorldManifold,
+  RGBA,
+} from '@highduck/box2d';
+import { RandomFloat, Settings, Test } from '@highduck/box2d-testbed';
 
 class ParticleVFX {
   private m_initialLifetime = 0.0;
@@ -37,7 +42,14 @@ class ParticleVFX {
   private m_pg: b2ParticleGroup;
   private m_particleSystem: b2ParticleSystem;
   private m_origColor: b2Color = new b2Color();
-  constructor(particleSystem: b2ParticleSystem, origin: b2Vec2, size: number, speed: number, lifetime: number, particleFlags: b2ParticleFlag) {
+  constructor(
+    particleSystem: b2ParticleSystem,
+    origin: b2Vec2,
+    size: number,
+    speed: number,
+    lifetime: number,
+    particleFlags: b2ParticleFlag,
+  ) {
     // Create a circle to house the particles of size size
     const shape = new b2CircleShape();
     shape.m_p.Copy(origin);
@@ -53,14 +65,24 @@ class ParticleVFX {
     //   Math.random(),
     //   1.0);
     function hue2rgb(p: number, q: number, t: number) {
-      if (t < 0) { t += 1; }
-      if (t > 1) { t -= 1; }
-      if (t < 1 / 6) { return p + (q - p) * 6 * t; }
-      if (t < 1 / 2) { return q; }
-      if (t < 2 / 3) { return p + (q - p) * (2 / 3 - t) * 6; }
+      if (t < 0) {
+        t += 1;
+      }
+      if (t > 1) {
+        t -= 1;
+      }
+      if (t < 1 / 6) {
+        return p + (q - p) * 6 * t;
+      }
+      if (t < 1 / 2) {
+        return q;
+      }
+      if (t < 2 / 3) {
+        return p + (q - p) * (2 / 3 - t) * 6;
+      }
       return p;
     }
-    function hslToRgb(h: number, s: number, l: number, a: number = 1): RGBA {
+    function hslToRgb(h: number, s: number, l: number, a = 1): RGBA {
       let r, g, b;
       if (s === 0) {
         r = g = b = l; // achromatic
@@ -103,7 +125,7 @@ class ParticleVFX {
     if (this.m_remainingLifetime >= this.m_halfLifetime) {
       return 1.0;
     }
-    return 1.0 - ((this.m_halfLifetime - this.m_remainingLifetime) / this.m_halfLifetime);
+    return 1.0 - (this.m_halfLifetime - this.m_remainingLifetime) / this.m_halfLifetime;
   }
   public Step(dt: number) {
     if (dt > 0 && this.m_remainingLifetime > 0.0) {
@@ -133,9 +155,9 @@ export class Sparky extends Test {
   private static c_maxVFX = 20; ///50;
   private static SHAPE_HEIGHT_OFFSET = 7;
   private static SHAPE_OFFSET = 4.5;
-  private m_VFXIndex: number = 0;
+  private m_VFXIndex = 0;
   private m_VFX: Array<ParticleVFX | null> = [];
-  private m_contact: boolean = false;
+  private m_contact = false;
   private m_contactPoint: b2Vec2 = new b2Vec2();
   constructor() {
     super();
@@ -156,8 +178,7 @@ export class Sparky extends Test {
       bd.type = b2BodyType.b2_dynamicBody;
       const body = this.m_world.CreateBody(bd);
       const shape = new b2CircleShape();
-      shape.m_p.Set(3.0 * RandomFloat(),
-        Sparky.SHAPE_HEIGHT_OFFSET + Sparky.SHAPE_OFFSET * i);
+      shape.m_p.Set(3.0 * RandomFloat(), Sparky.SHAPE_HEIGHT_OFFSET + Sparky.SHAPE_OFFSET * i);
       shape.m_radius = 2;
       const f = body.CreateFixture(shape, 0.5);
       // Tag this as a sparkable body.
@@ -175,8 +196,7 @@ export class Sparky extends Test {
     // Check to see if these are two circles hitting one another.
     const userA = contact.GetFixtureA().GetUserData();
     const userB = contact.GetFixtureB().GetUserData();
-    if ((userA && userA.spark) ||
-      (userB && userB.spark)) {
+    if ((userA && userA.spark) || (userB && userB.spark)) {
       const worldManifold = new b2WorldManifold();
       contact.GetWorldManifold(worldManifold);
 
@@ -228,8 +248,13 @@ export class Sparky extends Test {
       this.m_VFX[this.m_VFXIndex] = null;
     }
     this.m_VFX[this.m_VFXIndex] = new ParticleVFX(
-      this.m_particleSystem, p, RandomFloat(1.0, 2.0), RandomFloat(10.0, 20.0),
-      RandomFloat(0.5, 1.0), particleFlags);
+      this.m_particleSystem,
+      p,
+      RandomFloat(1.0, 2.0),
+      RandomFloat(10.0, 20.0),
+      RandomFloat(0.5, 1.0),
+      particleFlags,
+    );
     if (++this.m_VFXIndex >= Sparky.c_maxVFX) {
       this.m_VFXIndex = 0;
     }

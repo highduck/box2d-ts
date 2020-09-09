@@ -19,15 +19,15 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2BodyDef,
-    b2BodyType,
-    b2CircleShape,
-    b2ParticleFlag,
-    b2ParticleGroupDef,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class Particles extends Test {
   constructor() {

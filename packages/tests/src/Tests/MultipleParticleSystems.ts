@@ -19,15 +19,16 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2BodyDef, b2BodyType,
-    b2Color,
-    b2MassData,
-    b2ParticleSystem,
-    b2ParticleSystemDef,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {RadialEmitter, Settings, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2Color,
+  b2MassData,
+  b2ParticleSystem,
+  b2ParticleSystemDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { RadialEmitter, Settings, Test } from '@highduck/box2d-testbed';
 
 export class MultipleParticleSystems extends Test {
   public m_particleSystem2: b2ParticleSystem;
@@ -76,10 +77,7 @@ export class MultipleParticleSystems extends Test {
   constructor() {
     super();
 
-    this.m_emitters = [
-      new RadialEmitter(),
-      new RadialEmitter(),
-    ];
+    this.m_emitters = [new RadialEmitter(), new RadialEmitter()];
 
     // Configure the default particle system's parameters.
     this.m_particleSystem.SetRadius(0.05);
@@ -112,7 +110,12 @@ export class MultipleParticleSystems extends Test {
       const body = this.m_world.CreateBody(bd);
       const shape = new b2PolygonShape();
       const center = new b2Vec2(0.0, 1.2);
-      shape.SetAsBox(MultipleParticleSystems.k_dynamicBoxSize.x, MultipleParticleSystems.k_dynamicBoxSize.y, center, 0.0);
+      shape.SetAsBox(
+        MultipleParticleSystems.k_dynamicBoxSize.x,
+        MultipleParticleSystems.k_dynamicBoxSize.y,
+        center,
+        0.0,
+      );
       body.CreateFixture(shape, 0.0);
       ///  b2MassData massData = { MultipleParticleSystems.k_boxMass, center, 0.0 };
       const massData = new b2MassData();
@@ -127,14 +130,24 @@ export class MultipleParticleSystems extends Test {
       const mirrorAlongY = i & 1 ? -1.0 : 1.0;
       const emitter = this.m_emitters[i];
       emitter.SetPosition(
-        new b2Vec2(MultipleParticleSystems.k_emitterPosition.x * mirrorAlongY,
-          MultipleParticleSystems.k_emitterPosition.y));
+        new b2Vec2(
+          MultipleParticleSystems.k_emitterPosition.x * mirrorAlongY,
+          MultipleParticleSystems.k_emitterPosition.y,
+        ),
+      );
       emitter.SetSize(MultipleParticleSystems.k_emitterSize);
       emitter.SetVelocity(
-        new b2Vec2(MultipleParticleSystems.k_emitterVelocity.x * mirrorAlongY,
-          MultipleParticleSystems.k_emitterVelocity.y));
+        new b2Vec2(
+          MultipleParticleSystems.k_emitterVelocity.x * mirrorAlongY,
+          MultipleParticleSystems.k_emitterVelocity.y,
+        ),
+      );
       emitter.SetEmitRate(MultipleParticleSystems.k_emitRate);
-      emitter.SetColor(i & 1 ? MultipleParticleSystems.k_rightEmitterColor : MultipleParticleSystems.k_leftEmitterColor);
+      emitter.SetColor(
+        i & 1
+          ? MultipleParticleSystems.k_rightEmitterColor
+          : MultipleParticleSystems.k_leftEmitterColor,
+      );
       emitter.SetParticleSystem(i & 1 ? this.m_particleSystem2 : this.m_particleSystem);
     }
   }

@@ -18,8 +18,15 @@
 
 // #if B2_ENABLE_PARTICLE
 
-import {b2BodyDef, b2CircleShape, b2ParticleFlag, b2ParticleGroupDef, b2PolygonShape, b2Vec2} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2CircleShape,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class CornerCase extends Test {
   constructor() {
@@ -53,37 +60,24 @@ export class CornerCase extends Test {
 
       {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(-25.0, 0.0),
-          new b2Vec2(20.0, 15.0),
-          new b2Vec2(25.0, 0.0),
-        ];
+        const vertices = [new b2Vec2(-25.0, 0.0), new b2Vec2(20.0, 15.0), new b2Vec2(25.0, 0.0)];
         shape.Set(vertices);
         ground.CreateFixture(shape, 0.0);
       }
 
       for (let x = -xrange; x < xrange; x += xstep) {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(-25.0, 0.0),
-          new b2Vec2(x, 15.0),
-          new b2Vec2(x + xstep, 15.0),
-        ];
+        const vertices = [new b2Vec2(-25.0, 0.0), new b2Vec2(x, 15.0), new b2Vec2(x + xstep, 15.0)];
         shape.Set(vertices);
         ground.CreateFixture(shape, 0.0);
       }
 
       for (let y = 0.0; y < yrange; y += ystep) {
         const shape = new b2PolygonShape();
-        const vertices = [
-          new b2Vec2(25.0, y),
-          new b2Vec2(25.0, y + ystep),
-          new b2Vec2(20.0, 15.0),
-        ];
+        const vertices = [new b2Vec2(25.0, y), new b2Vec2(25.0, y + ystep), new b2Vec2(20.0, 15.0)];
         shape.Set(vertices);
         ground.CreateFixture(shape, 0.0);
       }
-
     }
 
     this.m_particleSystem.SetRadius(1.0);

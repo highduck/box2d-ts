@@ -16,8 +16,15 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {b2BodyDef, b2BodyType, b2PolygonShape, b2PrismaticJointDef, b2RevoluteJointDef, b2Vec2} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2BodyType,
+  b2PolygonShape,
+  b2PrismaticJointDef,
+  b2RevoluteJointDef,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class BasicSliderCrank extends Test {
   constructor() {

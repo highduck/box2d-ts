@@ -19,16 +19,18 @@
 // #if B2_ENABLE_PARTICLE
 
 import {
-    b2Body,
-    b2BodyDef,
-    b2BodyType, b2CircleShape,
-    b2EdgeShape,
-    b2MassData,
-    b2ParticleFlag, b2ParticleGroupDef,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2EdgeShape,
+  b2MassData,
+  b2ParticleFlag,
+  b2ParticleGroupDef,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class Soup extends Test {
   public m_ground: b2Body;
@@ -37,7 +39,9 @@ export class Soup extends Test {
     super();
 
     // Disable the selection of wall and barrier particles for this test.
-    this.InitializeParticleParameters(b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_barrierParticle);
+    this.InitializeParticleParameters(
+      b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_barrierParticle,
+    );
 
     {
       const bd = new b2BodyDef();

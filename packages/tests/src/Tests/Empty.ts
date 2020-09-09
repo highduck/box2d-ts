@@ -1,5 +1,5 @@
-import {Test} from "@highduck/box2d-testbed";
-import {b2_version} from "@highduck/box2d";
+import { Test } from '@highduck/box2d-testbed';
+import { b2_version } from '@highduck/box2d';
 
 export class Empty extends Test {
   constructor() {

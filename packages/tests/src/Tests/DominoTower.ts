@@ -1,11 +1,11 @@
-import {b2BodyDef, b2BodyType, b2FixtureDef, b2PolygonShape, b2Vec2} from "@highduck/box2d";
-import {Test} from "@highduck/box2d-testbed";
+import { b2BodyDef, b2BodyType, b2FixtureDef, b2PolygonShape, b2Vec2 } from '@highduck/box2d';
+import { Test } from '@highduck/box2d-testbed';
 
 export class DominoTower extends Test {
   constructor() {
     super();
 
-    const DOMINO_WIDTH = .2;
+    const DOMINO_WIDTH = 0.2;
     const DOMINO_FRICTION = 0.1;
     const DOMINO_HEIGHT = 1.0;
     const BASE_COUNT = 25;
@@ -27,7 +27,7 @@ export class DominoTower extends Test {
       fd.friction = DOMINO_FRICTION;
       fd.restitution = 0.65;
       bd.position.Set(x, y);
-      bd.angle = horizontal ? (Math.PI / 2.0) : 0;
+      bd.angle = horizontal ? Math.PI / 2.0 : 0;
       const myBody = world.CreateBody(bd);
       myBody.CreateFixture(fd);
     }
@@ -52,7 +52,7 @@ export class DominoTower extends Test {
       dominoDensity = 10;
       // Make bullet
       const sd = new b2PolygonShape();
-      sd.SetAsBox(.7, .7);
+      sd.SetAsBox(0.7, 0.7);
       const fd = new b2FixtureDef();
       fd.density = 35.0;
       const bd = new b2BodyDef();
@@ -61,7 +61,7 @@ export class DominoTower extends Test {
       fd.friction = 0.0;
       fd.restitution = 0.85;
       bd.bullet = true;
-      bd.position.Set(30.0, 5.00);
+      bd.position.Set(30.0, 5.0);
       let b = world.CreateBody(bd);
       b.CreateFixture(fd);
       b.SetLinearVelocity(new b2Vec2(-25.0, -25.0));
@@ -76,37 +76,46 @@ export class DominoTower extends Test {
     }
 
     {
-
       let currX;
       // Make base
       for (let i = 0; i < BASE_COUNT; ++i) {
-        currX = i * 1.5 * DOMINO_HEIGHT - (1.5 * DOMINO_HEIGHT * BASE_COUNT / 2);
+        currX = i * 1.5 * DOMINO_HEIGHT - (1.5 * DOMINO_HEIGHT * BASE_COUNT) / 2;
         makeDomino(currX, DOMINO_HEIGHT / 2.0, false);
         makeDomino(currX, DOMINO_HEIGHT + DOMINO_WIDTH / 2.0, true);
       }
-      currX = BASE_COUNT * 1.5 * DOMINO_HEIGHT - (1.5 * DOMINO_HEIGHT * BASE_COUNT / 2);
+      currX = BASE_COUNT * 1.5 * DOMINO_HEIGHT - (1.5 * DOMINO_HEIGHT * BASE_COUNT) / 2;
 
       // Make 'I's
       for (let j = 1; j < BASE_COUNT; ++j) {
-        if (j > 3) { dominoDensity *= .8; }
+        if (j > 3) {
+          dominoDensity *= 0.8;
+        }
 
         // The y at the center of the I structure.
-        const currY = DOMINO_HEIGHT * 0.5 + (DOMINO_HEIGHT + 2 * DOMINO_WIDTH) * .99 * j;
+        const currY = DOMINO_HEIGHT * 0.5 + (DOMINO_HEIGHT + 2 * DOMINO_WIDTH) * 0.99 * j;
 
         for (let i = 0; i < BASE_COUNT - j; ++i) {
-          currX = i * 1.5 * DOMINO_HEIGHT - (1.5 * DOMINO_HEIGHT * (BASE_COUNT - j) / 2);
+          currX = i * 1.5 * DOMINO_HEIGHT - (1.5 * DOMINO_HEIGHT * (BASE_COUNT - j)) / 2;
           dominoDensity *= 2.5;
           if (i === 0) {
-            makeDomino(currX - (1.25 * DOMINO_HEIGHT) + .5 * DOMINO_WIDTH, currY - DOMINO_WIDTH, false);
+            makeDomino(
+              currX - 1.25 * DOMINO_HEIGHT + 0.5 * DOMINO_WIDTH,
+              currY - DOMINO_WIDTH,
+              false,
+            );
           }
           if (i === BASE_COUNT - j - 1) {
-            makeDomino(currX + (1.25 * DOMINO_HEIGHT) - .5 * DOMINO_WIDTH, currY - DOMINO_WIDTH, false);
+            makeDomino(
+              currX + 1.25 * DOMINO_HEIGHT - 0.5 * DOMINO_WIDTH,
+              currY - DOMINO_WIDTH,
+              false,
+            );
           }
 
           dominoDensity /= 2.5;
           makeDomino(currX, currY, false);
-          makeDomino(currX, currY + .5 * (DOMINO_WIDTH + DOMINO_HEIGHT), true);
-          makeDomino(currX, currY - .5 * (DOMINO_WIDTH + DOMINO_HEIGHT), true);
+          makeDomino(currX, currY + 0.5 * (DOMINO_WIDTH + DOMINO_HEIGHT), true);
+          makeDomino(currX, currY - 0.5 * (DOMINO_WIDTH + DOMINO_HEIGHT), true);
         }
       }
     }

@@ -1,32 +1,32 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2Body,
-    b2BodyDef,
-    b2BodyType,
-    b2DistanceJointDef,
-    b2EdgeShape,
-    b2Joint,
-    b2PolygonShape,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2Body,
+  b2BodyDef,
+  b2BodyType,
+  b2DistanceJointDef,
+  b2EdgeShape,
+  b2Joint,
+  b2PolygonShape,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class Web extends Test {
   public m_bodies: Array<b2Body | null>;
@@ -55,19 +55,19 @@ export class Web extends Test {
       bd.type = b2BodyType.b2_dynamicBody;
 
       bd.position.Set(-5.0, 5.0);
-      const body0 = this.m_bodies[0] = this.m_world.CreateBody(bd);
+      const body0 = (this.m_bodies[0] = this.m_world.CreateBody(bd));
       body0.CreateFixture(shape, 5.0);
 
       bd.position.Set(5.0, 5.0);
-      const body1 = this.m_bodies[1] = this.m_world.CreateBody(bd);
+      const body1 = (this.m_bodies[1] = this.m_world.CreateBody(bd));
       body1.CreateFixture(shape, 5.0);
 
       bd.position.Set(5.0, 15.0);
-      const body2 = this.m_bodies[2] = this.m_world.CreateBody(bd);
+      const body2 = (this.m_bodies[2] = this.m_world.CreateBody(bd));
       body2.CreateFixture(shape, 5.0);
 
       bd.position.Set(-5.0, 15.0);
-      const body3 = this.m_bodies[3] = this.m_world.CreateBody(bd);
+      const body3 = (this.m_bodies[3] = this.m_world.CreateBody(bd));
       body3.CreateFixture(shape, 5.0);
 
       const jd = new b2DistanceJointDef();
@@ -169,7 +169,7 @@ export class Web extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "b":
+      case 'b':
         for (let i = 0; i < 4; ++i) {
           const body = this.m_bodies[i];
           if (body) {
@@ -180,7 +180,7 @@ export class Web extends Test {
         }
         break;
 
-      case "j":
+      case 'j':
         for (let i = 0; i < 8; ++i) {
           const joint = this.m_joints[i];
           if (joint) {
@@ -195,9 +195,13 @@ export class Web extends Test {
 
   public Step(settings: Settings): void {
     super.Step(settings);
-    g_debugDraw.DrawString(5, this.m_textLine, "This demonstrates a soft distance joint.");
+    g_debugDraw.DrawString(5, this.m_textLine, 'This demonstrates a soft distance joint.');
     this.m_textLine += DRAW_STRING_NEW_LINE;
-    g_debugDraw.DrawString(5, this.m_textLine, "Press: (b) to delete a body, (j) to delete a joint");
+    g_debugDraw.DrawString(
+      5,
+      this.m_textLine,
+      'Press: (b) to delete a body, (j) to delete a joint',
+    );
     this.m_textLine += DRAW_STRING_NEW_LINE;
   }
 

@@ -1,31 +1,33 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2BodyDef, b2BodyType,
-    b2ChainShape, b2CircleShape,
-    b2DegToRad,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2RevoluteJointDef,
-    b2Vec2
-} from "@highduck/box2d";
-import {Settings, Test} from "@highduck/box2d-testbed";
+  b2BodyDef,
+  b2BodyType,
+  b2ChainShape,
+  b2CircleShape,
+  b2DegToRad,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2RevoluteJointDef,
+  b2Vec2,
+} from '@highduck/box2d';
+import { Settings, Test } from '@highduck/box2d-testbed';
 
 export class TestRagdoll extends Test {
   constructor() {
@@ -68,7 +70,10 @@ export class TestRagdoll extends Test {
       head.CreateFixture(fd);
       //if (i === 0)
       //{
-      head.ApplyLinearImpulse(new b2Vec2(Math.random() * 1000.0 - 500.0, Math.random() * 1000.0 - 500.0), head.GetWorldCenter());
+      head.ApplyLinearImpulse(
+        new b2Vec2(Math.random() * 1000.0 - 500.0, Math.random() * 1000.0 - 500.0),
+        head.GetWorldCenter(),
+      );
       //}
 
       // Torso1
@@ -78,17 +83,17 @@ export class TestRagdoll extends Test {
       fd.density = 1.0;
       fd.friction = 0.4;
       fd.restitution = 0.1;
-      bd.position.Set(startX, (startY - 2.8));
+      bd.position.Set(startX, startY - 2.8);
       const torso1 = this.m_world.CreateBody(bd);
       torso1.CreateFixture(fd);
       // Torso2
       shape.SetAsBox(1.5, 1.0);
-      bd.position.Set(startX, (startY - 4.3));
+      bd.position.Set(startX, startY - 4.3);
       const torso2 = this.m_world.CreateBody(bd);
       torso2.CreateFixture(fd);
       // Torso3
       shape.SetAsBox(1.5, 1.0);
-      bd.position.Set(startX, (startY - 5.8));
+      bd.position.Set(startX, startY - 5.8);
       const torso3 = this.m_world.CreateBody(bd);
       torso3.CreateFixture(fd);
 
@@ -98,12 +103,12 @@ export class TestRagdoll extends Test {
       fd.restitution = 0.1;
       // L
       shape.SetAsBox(1.8, 0.65);
-      bd.position.Set((startX - 3.0), (startY - 2.0));
+      bd.position.Set(startX - 3.0, startY - 2.0);
       const upperArmL = this.m_world.CreateBody(bd);
       upperArmL.CreateFixture(fd);
       // R
       shape.SetAsBox(1.8, 0.65);
-      bd.position.Set((startX + 3.0), (startY - 2.0));
+      bd.position.Set(startX + 3.0, startY - 2.0);
       const upperArmR = this.m_world.CreateBody(bd);
       upperArmR.CreateFixture(fd);
 
@@ -113,12 +118,12 @@ export class TestRagdoll extends Test {
       fd.restitution = 0.1;
       // L
       shape.SetAsBox(1.7, 0.6);
-      bd.position.Set((startX - 5.7), (startY - 2.0));
+      bd.position.Set(startX - 5.7, startY - 2.0);
       const lowerArmL = this.m_world.CreateBody(bd);
       lowerArmL.CreateFixture(fd);
       // R
       shape.SetAsBox(1.7, 0.6);
-      bd.position.Set((startX + 5.7), (startY - 2.0));
+      bd.position.Set(startX + 5.7, startY - 2.0);
       const lowerArmR = this.m_world.CreateBody(bd);
       lowerArmR.CreateFixture(fd);
 
@@ -128,12 +133,12 @@ export class TestRagdoll extends Test {
       fd.restitution = 0.1;
       // L
       shape.SetAsBox(0.75, 2.2);
-      bd.position.Set((startX - 0.8), (startY - 8.5));
+      bd.position.Set(startX - 0.8, startY - 8.5);
       const upperLegL = this.m_world.CreateBody(bd);
       upperLegL.CreateFixture(fd);
       // R
       shape.SetAsBox(0.75, 2.2);
-      bd.position.Set((startX + 0.8), (startY - 8.5));
+      bd.position.Set(startX + 0.8, startY - 8.5);
       const upperLegR = this.m_world.CreateBody(bd);
       upperLegR.CreateFixture(fd);
 
@@ -143,12 +148,12 @@ export class TestRagdoll extends Test {
       fd.restitution = 0.1;
       // L
       shape.SetAsBox(0.6, 2.0);
-      bd.position.Set((startX - 0.8), (startY - 12.0));
+      bd.position.Set(startX - 0.8, startY - 12.0);
       const lowerLegL = this.m_world.CreateBody(bd);
       lowerLegL.CreateFixture(fd);
       // R
       shape.SetAsBox(0.6, 2.0);
-      bd.position.Set((startX + 0.8), (startY - 12.0));
+      bd.position.Set(startX + 0.8, startY - 12.0);
       const lowerLegR = this.m_world.CreateBody(bd);
       lowerLegR.CreateFixture(fd);
 
@@ -158,64 +163,64 @@ export class TestRagdoll extends Test {
       // Head to shoulders
       jd.lowerAngle = b2DegToRad(-40.0);
       jd.upperAngle = b2DegToRad(40.0);
-      jd.Initialize(torso1, head, new b2Vec2(startX, (startY - 1.5)));
+      jd.Initialize(torso1, head, new b2Vec2(startX, startY - 1.5));
       this.m_world.CreateJoint(jd);
 
       // Upper arm to shoulders
       // L
       jd.lowerAngle = b2DegToRad(-85.0);
       jd.upperAngle = b2DegToRad(130.0);
-      jd.Initialize(torso1, upperArmL, new b2Vec2((startX - 1.8), (startY - 2.0)));
+      jd.Initialize(torso1, upperArmL, new b2Vec2(startX - 1.8, startY - 2.0));
       this.m_world.CreateJoint(jd);
       // R
       jd.lowerAngle = b2DegToRad(-130.0);
       jd.upperAngle = b2DegToRad(85.0);
-      jd.Initialize(torso1, upperArmR, new b2Vec2((startX + 1.8), (startY - 2.0)));
+      jd.Initialize(torso1, upperArmR, new b2Vec2(startX + 1.8, startY - 2.0));
       this.m_world.CreateJoint(jd);
 
       // Lower arm to upper arm
       // L
       jd.lowerAngle = b2DegToRad(-130.0);
       jd.upperAngle = b2DegToRad(10.0);
-      jd.Initialize(upperArmL, lowerArmL, new b2Vec2((startX - 4.5), (startY - 2.0)));
+      jd.Initialize(upperArmL, lowerArmL, new b2Vec2(startX - 4.5, startY - 2.0));
       this.m_world.CreateJoint(jd);
       // R
       jd.lowerAngle = b2DegToRad(-10.0);
       jd.upperAngle = b2DegToRad(130.0);
-      jd.Initialize(upperArmR, lowerArmR, new b2Vec2((startX + 4.5), (startY - 2.0)));
+      jd.Initialize(upperArmR, lowerArmR, new b2Vec2(startX + 4.5, startY - 2.0));
       this.m_world.CreateJoint(jd);
 
       // Shoulders/stomach
       jd.lowerAngle = b2DegToRad(-15.0);
       jd.upperAngle = b2DegToRad(15.0);
-      jd.Initialize(torso1, torso2, new b2Vec2(startX, (startY - 3.5)));
+      jd.Initialize(torso1, torso2, new b2Vec2(startX, startY - 3.5));
       this.m_world.CreateJoint(jd);
       // Stomach/hips
-      jd.Initialize(torso2, torso3, new b2Vec2(startX, (startY - 5.0)));
+      jd.Initialize(torso2, torso3, new b2Vec2(startX, startY - 5.0));
       this.m_world.CreateJoint(jd);
 
       // Torso to upper leg
       // L
       jd.lowerAngle = b2DegToRad(-25.0);
       jd.upperAngle = b2DegToRad(45.0);
-      jd.Initialize(torso3, upperLegL, new b2Vec2((startX - 0.8), (startY - 7.2)));
+      jd.Initialize(torso3, upperLegL, new b2Vec2(startX - 0.8, startY - 7.2));
       this.m_world.CreateJoint(jd);
       // R
       jd.lowerAngle = b2DegToRad(-45.0);
       jd.upperAngle = b2DegToRad(25.0);
-      jd.Initialize(torso3, upperLegR, new b2Vec2((startX + 0.8), (startY - 7.2)));
+      jd.Initialize(torso3, upperLegR, new b2Vec2(startX + 0.8, startY - 7.2));
       this.m_world.CreateJoint(jd);
 
       // Upper leg to lower leg
       // L
       jd.lowerAngle = b2DegToRad(-25.0);
       jd.upperAngle = b2DegToRad(115.0);
-      jd.Initialize(upperLegL, lowerLegL, new b2Vec2((startX - 0.8), (startY - 10.5)));
+      jd.Initialize(upperLegL, lowerLegL, new b2Vec2(startX - 0.8, startY - 10.5));
       this.m_world.CreateJoint(jd);
       // R
       jd.lowerAngle = b2DegToRad(-115.0);
       jd.upperAngle = b2DegToRad(25.0);
-      jd.Initialize(upperLegR, lowerLegR, new b2Vec2((startX + 0.8), (startY - 10.5)));
+      jd.Initialize(upperLegR, lowerLegR, new b2Vec2(startX + 0.8, startY - 10.5));
       this.m_world.CreateJoint(jd);
     }
 
@@ -229,15 +234,15 @@ export class TestRagdoll extends Test {
 
     // Add stairs on the left
     for (let j = 1; j <= 10; ++j) {
-      shape.SetAsBox((1.0 * j), 1.0);
-      bd.position.Set((1.0 * j - 30.0), (21.0 - 2.0 * j));
+      shape.SetAsBox(1.0 * j, 1.0);
+      bd.position.Set(1.0 * j - 30.0, 21.0 - 2.0 * j);
       this.m_world.CreateBody(bd).CreateFixture(fd);
     }
 
     // Add stairs on the right
     for (let k = 1; k <= 10; ++k) {
-      shape.SetAsBox((1.0 * k), 1.0);
-      bd.position.Set((30.0 - 1.0 * k), (21.0 - 2.0 * k));
+      shape.SetAsBox(1.0 * k, 1.0);
+      bd.position.Set(30.0 - 1.0 * k, 21.0 - 2.0 * k);
       this.m_world.CreateBody(bd).CreateFixture(fd);
     }
 

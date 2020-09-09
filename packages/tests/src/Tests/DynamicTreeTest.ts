@@ -1,32 +1,35 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2AABB,
-    b2Color, b2DynamicTree,
-    b2MakeArray,
-    b2Max, b2RandomRange,
-    b2RayCastInput, b2RayCastOutput,
-    b2TestOverlapAABB,
-    b2TreeNode,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2AABB,
+  b2Color,
+  b2DynamicTree,
+  b2MakeArray,
+  b2Max,
+  b2RandomRange,
+  b2RayCastInput,
+  b2RayCastOutput,
+  b2TestOverlapAABB,
+  b2TreeNode,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class DynamicTreeTest extends Test {
   public static readonly e_actorCount = 128;
@@ -39,7 +42,10 @@ export class DynamicTreeTest extends Test {
   public m_rayCastInput = new b2RayCastInput();
   public m_rayCastOutput = new b2RayCastOutput();
   public m_rayActor: DynamicTreeTest_Actor | null = null;
-  public m_actors: DynamicTreeTest_Actor[] = b2MakeArray(DynamicTreeTest.e_actorCount, () => new DynamicTreeTest_Actor());
+  public m_actors: DynamicTreeTest_Actor[] = b2MakeArray(
+    DynamicTreeTest.e_actorCount,
+    () => new DynamicTreeTest_Actor(),
+  );
   public m_stepCount = 0;
   public m_automated = false;
 
@@ -118,7 +124,15 @@ export class DynamicTreeTest extends Test {
     if (this.m_rayActor) {
       const cr = new b2Color(0.2, 0.2, 0.9);
       //b2Vec2 p = this.m_rayCastInput.p1 + this.m_rayActor.fraction * (this.m_rayCastInput.p2 - this.m_rayCastInput.p1);
-      const p = b2Vec2.AddVV(this.m_rayCastInput.p1, b2Vec2.MulSV(this.m_rayActor.fraction, b2Vec2.SubVV(this.m_rayCastInput.p2, this.m_rayCastInput.p1, new b2Vec2()), new b2Vec2()), new b2Vec2());
+      const p = b2Vec2.AddVV(
+        this.m_rayCastInput.p1,
+        b2Vec2.MulSV(
+          this.m_rayActor.fraction,
+          b2Vec2.SubVV(this.m_rayCastInput.p2, this.m_rayCastInput.p1, new b2Vec2()),
+          new b2Vec2(),
+        ),
+        new b2Vec2(),
+      );
       g_debugDraw.DrawPoint(p, 6.0, cr);
     }
 
@@ -133,19 +147,19 @@ export class DynamicTreeTest extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "a":
+      case 'a':
         this.m_automated = !this.m_automated;
         break;
 
-      case "c":
+      case 'c':
         this.CreateProxy();
         break;
 
-      case "d":
+      case 'd':
         this.DestroyProxy();
         break;
 
-      case "m":
+      case 'm':
         this.MoveProxy();
         break;
     }
@@ -172,7 +186,11 @@ export class DynamicTreeTest extends Test {
     aabb.upperBound.SelfAdd(d);
 
     //b2Vec2 c0 = 0.5 * (aabb.lowerBound + aabb.upperBound);
-    const c0 = b2Vec2.MulSV(0.5, b2Vec2.AddVV(aabb.lowerBound, aabb.upperBound, b2Vec2.s_t0), new b2Vec2());
+    const c0 = b2Vec2.MulSV(
+      0.5,
+      b2Vec2.AddVV(aabb.lowerBound, aabb.upperBound, b2Vec2.s_t0),
+      new b2Vec2(),
+    );
     const min = new b2Vec2(-this.m_worldExtent, 0.0);
     const max = new b2Vec2(this.m_worldExtent, 2.0 * this.m_worldExtent);
     const c = b2Vec2.ClampV(c0, min, max, new b2Vec2());
@@ -272,21 +290,24 @@ export class DynamicTreeTest extends Test {
     input.Copy(this.m_rayCastInput);
 
     // Ray cast against the dynamic tree.
-    this.m_tree.RayCast(input, (input: b2RayCastInput, proxyId: b2TreeNode<DynamicTreeTest_Actor>): number => {
-      const actor: DynamicTreeTest_Actor = proxyId.userData; // this.m_tree.GetUserData(proxyId);
+    this.m_tree.RayCast(
+      input,
+      (input: b2RayCastInput, proxyId: b2TreeNode<DynamicTreeTest_Actor>): number => {
+        const actor: DynamicTreeTest_Actor = proxyId.userData; // this.m_tree.GetUserData(proxyId);
 
-      const output = new b2RayCastOutput();
-      const hit = actor.aabb.RayCast(output, input);
+        const output = new b2RayCastOutput();
+        const hit = actor.aabb.RayCast(output, input);
 
-      if (hit) {
-        this.m_rayCastOutput = output;
-        this.m_rayActor = actor;
-        this.m_rayActor.fraction = output.fraction;
-        return output.fraction;
-      }
+        if (hit) {
+          this.m_rayCastOutput = output;
+          this.m_rayActor = actor;
+          this.m_rayActor.fraction = output.fraction;
+          return output.fraction;
+        }
 
-      return input.maxFraction;
-    });
+        return input.maxFraction;
+      },
+    );
 
     // Brute force ray cast.
     let bruteActor = null;

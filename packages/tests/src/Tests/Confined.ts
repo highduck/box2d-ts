@@ -1,23 +1,31 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
-import {b2BodyDef, b2BodyType, b2CircleShape, b2EdgeShape, b2FixtureDef, b2Random, b2Vec2} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+import {
+  b2BodyDef,
+  b2BodyType,
+  b2CircleShape,
+  b2EdgeShape,
+  b2FixtureDef,
+  b2Random,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 export class Confined extends Test {
   public static readonly e_columnCount = 0;
@@ -96,7 +104,7 @@ export class Confined extends Test {
 
   public Keyboard(key: string) {
     switch (key) {
-      case "c":
+      case 'c':
         this.CreateCircle();
         break;
     }
@@ -124,16 +132,15 @@ export class Confined extends Test {
 
     super.Step(settings);
 
-    for (let b = this.m_world.GetBodyList(); b; b = b.m_next) {
-      if (b.GetType() !== b2BodyType.b2_dynamicBody) {
+    // for (let b = this.m_world.GetBodyList(); b; b = b.m_next) {
+    // if (b.GetType() !== b2BodyType.b2_dynamicBody) {
+    // }
 
-      }
-
-      // const p = b.GetPosition();
-      // if (p.x <= -10.0 || 10.0 <= p.x || p.y <= 0.0 || 20.0 <= p.y) {
-      //   p.x += 0.0;
-      // }
-    }
+    // const p = b.GetPosition();
+    // if (p.x <= -10.0 || 10.0 <= p.x || p.y <= 0.0 || 20.0 <= p.y) {
+    //   p.x += 0.0;
+    // }
+    // }
 
     g_debugDraw.DrawString(5, this.m_textLine, "Press 'c' to create a circle.");
     this.m_textLine += DRAW_STRING_NEW_LINE;

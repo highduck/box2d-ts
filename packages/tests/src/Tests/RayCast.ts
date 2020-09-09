@@ -1,43 +1,53 @@
 /*
-* Copyright (c) 2006-2012 Erin Catto http://www.org
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+ * Copyright (c) 2006-2012 Erin Catto http://www.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 import {
-    b2_pi,
-    b2Body, b2BodyDef, b2CircleShape,
-    b2Color,
-    b2Cos, b2EdgeShape,
-    b2Fixture,
-    b2FixtureDef,
-    b2PolygonShape, b2RandomRange, b2RayCastCallback,
-    b2Sin,
-    b2Sqrt,
-    b2Vec2
-} from "@highduck/box2d";
-import {DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test} from "@highduck/box2d-testbed";
+  b2_pi,
+  b2Body,
+  b2BodyDef,
+  b2CircleShape,
+  b2Color,
+  b2Cos,
+  b2EdgeShape,
+  b2Fixture,
+  b2FixtureDef,
+  b2PolygonShape,
+  b2RandomRange,
+  b2RayCastCallback,
+  b2Sin,
+  b2Sqrt,
+  b2Vec2,
+} from '@highduck/box2d';
+import { DRAW_STRING_NEW_LINE, g_debugDraw, Settings, Test } from '@highduck/box2d-testbed';
 
 class RayCastClosestCallback extends b2RayCastCallback {
-  public m_hit: boolean = false;
+  public m_hit = false;
   public readonly m_point: b2Vec2 = new b2Vec2();
   public readonly m_normal: b2Vec2 = new b2Vec2();
   constructor() {
     super();
   }
-  public ReportFixture(fixture: b2Fixture, point: b2Vec2, normal: b2Vec2, fraction: number): number {
+  public ReportFixture(
+    fixture: b2Fixture,
+    point: b2Vec2,
+    normal: b2Vec2,
+    fraction: number,
+  ): number {
     const body: b2Body = fixture.GetBody();
     const userData: any = body.GetUserData();
     if (userData) {
@@ -63,13 +73,18 @@ class RayCastClosestCallback extends b2RayCastCallback {
 // This callback finds any hit. Polygon 0 is filtered. For this type of query we are usually
 // just checking for obstruction, so the actual fixture and hit point are irrelevant.
 class RayCastAnyCallback extends b2RayCastCallback {
-  public m_hit: boolean = false;
+  public m_hit = false;
   public readonly m_point: b2Vec2 = new b2Vec2();
   public readonly m_normal: b2Vec2 = new b2Vec2();
   constructor() {
     super();
   }
-  public ReportFixture(fixture: b2Fixture, point: b2Vec2, normal: b2Vec2, fraction: number): number {
+  public ReportFixture(
+    fixture: b2Fixture,
+    point: b2Vec2,
+    normal: b2Vec2,
+    fraction: number,
+  ): number {
     const body: b2Body = fixture.GetBody();
     const userData: any = body.GetUserData();
     if (userData) {
@@ -95,14 +110,19 @@ class RayCastAnyCallback extends b2RayCastCallback {
 // The fixtures are not necessary reported in order, so we might not capture
 // the closest fixture.
 class RayCastMultipleCallback extends b2RayCastCallback {
-  private static e_maxCount: number = 3;
+  private static e_maxCount = 3;
   public m_points: b2Vec2[] = b2Vec2.MakeArray(RayCastMultipleCallback.e_maxCount);
   public m_normals: b2Vec2[] = b2Vec2.MakeArray(RayCastMultipleCallback.e_maxCount);
-  public m_count: number = 0;
+  public m_count = 0;
   constructor() {
     super();
   }
-  public ReportFixture(fixture: b2Fixture, point: b2Vec2, normal: b2Vec2, fraction: number): number {
+  public ReportFixture(
+    fixture: b2Fixture,
+    point: b2Vec2,
+    normal: b2Vec2,
+    fraction: number,
+  ): number {
     const body: b2Body = fixture.GetBody();
     const userData: any = body.GetUserData();
     if (userData) {
@@ -138,15 +158,15 @@ enum RayCastMode {
 }
 
 export class RayCast extends Test {
-  private static e_maxBodies: number = 256;
+  private static e_maxBodies = 256;
 
-  private m_bodyIndex: number = 0;
+  private m_bodyIndex = 0;
   private m_bodies: Array<b2Body | null> = [];
   private m_polygons: b2PolygonShape[] = [];
   private m_circle: b2CircleShape = new b2CircleShape();
   private m_edge: b2EdgeShape = new b2EdgeShape();
 
-  private m_angle: number = 0;
+  private m_angle = 0;
 
   private m_mode: RayCastMode = RayCastMode.e_closest;
 
@@ -168,7 +188,9 @@ export class RayCast extends Test {
     }
 
     {
-      const vertices: b2Vec2[] = [/*3*/];
+      const vertices: b2Vec2[] = [
+        /*3*/
+      ];
       vertices[0] = new b2Vec2(-0.5, 0.0);
       vertices[1] = new b2Vec2(0.5, 0.0);
       vertices[2] = new b2Vec2(0.0, 1.5);
@@ -176,7 +198,9 @@ export class RayCast extends Test {
     }
 
     {
-      const vertices: b2Vec2[] = [/*3*/];
+      const vertices: b2Vec2[] = [
+        /*3*/
+      ];
       vertices[0] = new b2Vec2(-0.1, 0.0);
       vertices[1] = new b2Vec2(0.1, 0.0);
       vertices[2] = new b2Vec2(0.0, 1.5);
@@ -188,7 +212,9 @@ export class RayCast extends Test {
       const b = w / (2.0 + b2Sqrt(2.0));
       const s = b2Sqrt(2.0) * b;
 
-      const vertices: b2Vec2[] = [/*8*/];
+      const vertices: b2Vec2[] = [
+        /*8*/
+      ];
       vertices[0] = new b2Vec2(0.5 * s, 0.0);
       vertices[1] = new b2Vec2(0.5 * w, b);
       vertices[2] = new b2Vec2(0.5 * w, b + s);
@@ -244,7 +270,7 @@ export class RayCast extends Test {
       bd.angularDamping = 0.02;
     }
 
-    const new_body = this.m_bodies[this.m_bodyIndex] = this.m_world.CreateBody(bd);
+    const new_body = (this.m_bodies[this.m_bodyIndex] = this.m_world.CreateBody(bd));
 
     if (index < 4) {
       const fd: b2FixtureDef = new b2FixtureDef();
@@ -279,20 +305,20 @@ export class RayCast extends Test {
 
   public Keyboard(key: string): void {
     switch (key) {
-      case "1":
-      case "2":
-      case "3":
-      case "4":
-      case "5":
-      case "6":
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
         this.CreateBody(parseInt(key, 10) - 1);
         break;
 
-      case "d":
+      case 'd':
         this.DestroyBody();
         break;
 
-      case "m":
+      case 'm':
         if (this.m_mode === RayCastMode.e_closest) {
           this.m_mode = RayCastMode.e_any;
         } else if (this.m_mode === RayCastMode.e_any) {
@@ -307,19 +333,27 @@ export class RayCast extends Test {
     const advanceRay: boolean = !settings.pause || settings.singleStep;
 
     super.Step(settings);
-    g_debugDraw.DrawString(5, this.m_textLine, "Press 1-6 to drop stuff, m to change the mode");
+    g_debugDraw.DrawString(5, this.m_textLine, 'Press 1-6 to drop stuff, m to change the mode');
     this.m_textLine += DRAW_STRING_NEW_LINE;
     switch (this.m_mode) {
       case RayCastMode.e_closest:
-        g_debugDraw.DrawString(5, this.m_textLine, "Ray-cast mode: closest - find closest fixture along the ray");
+        g_debugDraw.DrawString(
+          5,
+          this.m_textLine,
+          'Ray-cast mode: closest - find closest fixture along the ray',
+        );
         break;
 
       case RayCastMode.e_any:
-        g_debugDraw.DrawString(5, this.m_textLine, "Ray-cast mode: any - check for obstruction");
+        g_debugDraw.DrawString(5, this.m_textLine, 'Ray-cast mode: any - check for obstruction');
         break;
 
       case RayCastMode.e_multiple:
-        g_debugDraw.DrawString(5, this.m_textLine, "Ray-cast mode: multiple - gather multiple fixtures");
+        g_debugDraw.DrawString(
+          5,
+          this.m_textLine,
+          'Ray-cast mode: multiple - gather multiple fixtures',
+        );
         break;
     }
 
@@ -337,7 +371,11 @@ export class RayCast extends Test {
       if (callback.m_hit) {
         g_debugDraw.DrawPoint(callback.m_point, 5.0, new b2Color(0.4, 0.9, 0.4));
         g_debugDraw.DrawSegment(point1, callback.m_point, new b2Color(0.8, 0.8, 0.8));
-        const head = b2Vec2.AddVV(callback.m_point, b2Vec2.MulSV(0.5, callback.m_normal, b2Vec2.s_t0), new b2Vec2());
+        const head = b2Vec2.AddVV(
+          callback.m_point,
+          b2Vec2.MulSV(0.5, callback.m_normal, b2Vec2.s_t0),
+          new b2Vec2(),
+        );
         g_debugDraw.DrawSegment(callback.m_point, head, new b2Color(0.9, 0.9, 0.4));
       } else {
         g_debugDraw.DrawSegment(point1, point2, new b2Color(0.8, 0.8, 0.8));
@@ -349,7 +387,11 @@ export class RayCast extends Test {
       if (callback.m_hit) {
         g_debugDraw.DrawPoint(callback.m_point, 5.0, new b2Color(0.4, 0.9, 0.4));
         g_debugDraw.DrawSegment(point1, callback.m_point, new b2Color(0.8, 0.8, 0.8));
-        const head = b2Vec2.AddVV(callback.m_point, b2Vec2.MulSV(0.5, callback.m_normal, b2Vec2.s_t0), new b2Vec2());
+        const head = b2Vec2.AddVV(
+          callback.m_point,
+          b2Vec2.MulSV(0.5, callback.m_normal, b2Vec2.s_t0),
+          new b2Vec2(),
+        );
         g_debugDraw.DrawSegment(callback.m_point, head, new b2Color(0.9, 0.9, 0.4));
       } else {
         g_debugDraw.DrawSegment(point1, point2, new b2Color(0.8, 0.8, 0.8));
@@ -370,7 +412,7 @@ export class RayCast extends Test {
     }
 
     if (advanceRay) {
-      this.m_angle += 0.25 * b2_pi / 180.0;
+      this.m_angle += (0.25 * b2_pi) / 180.0;
     }
 
     /*
