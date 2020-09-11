@@ -41,8 +41,8 @@ import {
   b2Vec2,
   b2World,
   b2WorldManifold,
+  drawDebugData,
 } from '@highduck/box2d';
-import { drawDebugData } from '@highduck/box2d';
 
 export const DRAW_STRING_NEW_LINE = 16;
 
@@ -88,13 +88,7 @@ export class Settings {
 }
 
 export class TestEntry {
-  public name = 'unknown';
-  public createFcn: () => Test;
-
-  constructor(name: string, createFcn: () => Test) {
-    this.name = name;
-    this.createFcn = createFcn;
-  }
+  constructor(readonly category: string, readonly name: string, readonly createFcn: () => Test) {}
 }
 
 export class DestructionListener extends b2DestructionListener {

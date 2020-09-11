@@ -16,7 +16,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { acos, cos, sin } from '@eliasku/fast-math';
 import { b2_epsilon, b2_pi, b2Assert } from './b2Settings';
 
 export const b2_pi_over_180: number = b2_pi / 180;
@@ -88,7 +87,9 @@ export function b2RadToDeg(radians: number): number {
   return radians * b2_180_over_pi;
 }
 
-export { cos as b2Cos, sin as b2Sin, acos as b2Acos };
+export const b2Sin = Math.sin;
+export const b2Cos = Math.cos;
+export const b2Acos = Math.acos;
 export const b2Asin = Math.asin;
 export const b2Atan2 = Math.atan2;
 
@@ -242,8 +243,8 @@ export class b2Vec2 implements XY {
   }
 
   SelfRotate(radians: number): this {
-    const c: number = cos(radians);
-    const s: number = sin(radians);
+    const c: number = Math.cos(radians);
+    const s: number = Math.sin(radians);
     const x: number = this.x;
     this.x = c * x - s * this.y;
     this.y = s * x + c * this.y;
@@ -341,8 +342,8 @@ export class b2Vec2 implements XY {
   static RotateV<T extends XY>(v: XY, radians: number, out: T): T {
     const v_x = v.x;
     const v_y = v.y;
-    const c = cos(radians);
-    const s = sin(radians);
+    const c = Math.cos(radians);
+    const s = Math.sin(radians);
     out.x = c * v_x - s * v_y;
     out.y = s * v_x + c * v_y;
     return out;
@@ -605,8 +606,8 @@ export class b2Mat22 {
   }
 
   SetAngle(radians: number): this {
-    const c: number = cos(radians);
-    const s: number = sin(radians);
+    const c: number = Math.cos(radians);
+    const s: number = Math.sin(radians);
     this.ex.Set(c, s);
     this.ey.Set(-s, c);
     return this;
@@ -944,8 +945,8 @@ export class b2Rot {
   c = NaN;
 
   constructor(angle = 0.0) {
-    this.s = sin(angle);
-    this.c = cos(angle);
+    this.s = Math.sin(angle);
+    this.c = Math.cos(angle);
   }
 
   Clone(): b2Rot {
@@ -959,8 +960,8 @@ export class b2Rot {
   }
 
   SetAngle(angle: number): this {
-    this.s = sin(angle);
-    this.c = cos(angle);
+    this.s = Math.sin(angle);
+    this.c = Math.cos(angle);
     return this;
   }
 
@@ -1153,9 +1154,9 @@ export class b2Transform {
 /// no coincide with the center of mass. However, to support dynamics
 /// we must interpolate the center of mass position.
 export class b2Sweep {
-  readonly localCenter: b2Vec2 = new b2Vec2();
-  readonly c0: b2Vec2 = new b2Vec2();
-  readonly c: b2Vec2 = new b2Vec2();
+  readonly localCenter = new b2Vec2();
+  readonly c0 = new b2Vec2();
+  readonly c = new b2Vec2();
   a0 = NaN;
   a = NaN;
   alpha0 = NaN;
@@ -1192,8 +1193,8 @@ export class b2Sweep {
   }
 
   Advance(alpha: number): void {
-    !!B2_DEBUG && b2Assert(this.alpha0 < 1);
-    const beta: number = (alpha - this.alpha0) / (1 - this.alpha0);
+    !!B2_DEBUG && b2Assert(this.alpha0 < 1.0);
+    const beta: number = (alpha - this.alpha0) / (1.0 - this.alpha0);
     const one_minus_beta: number = 1 - beta;
     this.c0.x = one_minus_beta * this.c0.x + beta * this.c.x;
     this.c0.y = one_minus_beta * this.c0.y + beta * this.c.y;
@@ -1202,7 +1203,7 @@ export class b2Sweep {
   }
 
   Normalize(): void {
-    const d: number = b2_two_pi * Math.floor(this.a0 / b2_two_pi);
+    const d = b2_two_pi * Math.floor(this.a0 / b2_two_pi);
     this.a0 -= d;
     this.a -= d;
   }

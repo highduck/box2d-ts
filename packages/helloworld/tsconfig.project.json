@@ -19,7 +19,5 @@
       "path": "../box2d/tsconfig.project.json"
     }
   ],
-  "include": [
-    "./src/**/*.ts"
-  ]
+  "include": ["./src/**/*.ts"]
 }

@@ -1,5 +1,10 @@
 import { Main } from '@highduck/box2d-testbed';
-import { g_testEntries } from './TestEntries';
+
+import './liquidfun';
+import './tests';
+import './controller';
+
+import { g_testEntries } from './test';
 
 let app: Main;
 const init = function (time: number) {

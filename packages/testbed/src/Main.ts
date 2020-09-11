@@ -12,7 +12,8 @@ export class Main {
   readonly m_settings: Settings = new Settings();
   m_test?: Test;
   m_test_index = 0;
-  m_test_select: HTMLSelectElement;
+  testSelect: HTMLSelectElement;
+  categorySelect: HTMLSelectElement;
   m_shift = false;
   m_ctrl = false;
   m_lMouseDown = false;
@@ -27,7 +28,23 @@ export class Main {
   m_ctx: CanvasRenderingContext2D | null = null;
   m_demo_button: HTMLInputElement;
 
+  table: Map<string, Map<string, number>> = new Map();
+
   constructor(time: number, readonly tests: TestEntry[]) {
+    tests.sort((a, b) => {
+      const r = a.category.localeCompare(b.category);
+      if (r === 0) {
+        return a.name.localeCompare(b.name);
+      }
+      return r;
+    });
+    for (let i = 0; i < tests.length; ++i) {
+      let s = this.table.get(tests[i].category);
+      if (!s) {
+        this.table.set(tests[i].category, (s = new Map()));
+      }
+      s.set(tests[i].name, i);
+    }
     const fps_div: HTMLDivElement = (this.m_fps_div = document.body.appendChild(
       document.createElement('div'),
     ));
@@ -118,7 +135,9 @@ export class Main {
     });
     resize_canvas();
 
-    g_debugDraw.m_ctx = this.m_ctx = this.m_canvas_2d.getContext('2d');
+    g_debugDraw.m_ctx = this.m_ctx = this.m_canvas_2d.getContext('2d', {
+      alpha: false,
+    });
 
     const controls_div: HTMLDivElement = view_div.appendChild(document.createElement('div'));
     controls_div.style.position = 'absolute'; // relative to view_div
@@ -132,20 +151,31 @@ export class Main {
     // tests select box
     controls_div.appendChild(document.createTextNode('Tests'));
     controls_div.appendChild(document.createElement('br'));
+    const categorySelect: HTMLSelectElement = document.createElement('select');
     const test_select: HTMLSelectElement = document.createElement('select');
-    for (let i = 0; i < this.tests.length; ++i) {
-      const option: HTMLOptionElement = document.createElement('option');
-      option.text = this.tests[i].name;
-      option.value = i.toString();
-      test_select.add(option);
-    }
+    this.testSelect = test_select;
+    this.categorySelect = categorySelect;
     test_select.selectedIndex = this.m_test_index;
     test_select.addEventListener('change', (e: Event): void => {
-      this.m_test_index = test_select.selectedIndex;
+      this.m_test_index = parseInt(test_select.value);
       this.LoadTest();
     });
+
+    categorySelect.addEventListener('change', () => this.onCategoryChanged());
+
+    for (const category of this.table.keys()) {
+      const option = document.createElement('option');
+      option.text = category;
+      option.value = category;
+      categorySelect.add(option);
+    }
+
+    controls_div.appendChild(categorySelect);
+    controls_div.appendChild(document.createElement('br'));
     controls_div.appendChild(test_select);
-    this.m_test_select = test_select;
+    categorySelect.selectedIndex = 0;
+    this.onCategoryChanged();
+
     controls_div.appendChild(document.createElement('br'));
 
     controls_div.appendChild(document.createElement('hr'));
@@ -486,6 +516,26 @@ export class Main {
   ///  g_camera.m_roll.SetAngle(angle + roll);
   ///}
 
+  private updateTestsForCategory() {
+    this.testSelect.innerHTML = '';
+    const tests = this.table.get(this.categorySelect.value);
+    if (tests) {
+      for (const test of tests.keys()) {
+        const option = document.createElement('option');
+        option.text = test;
+        option.value = tests.get(test)!.toString();
+        this.testSelect.add(option);
+      }
+    }
+  }
+
+  private onCategoryChanged() {
+    this.updateTestsForCategory();
+    this.testSelect.selectedIndex = 0;
+    this.m_test_index = parseInt(this.testSelect.options[0].value);
+    this.LoadTest();
+  }
+
   public ZoomCamera(zoom: number): void {
     g_camera.m_zoom *= zoom;
     g_camera.m_zoom = b2Clamp(g_camera.m_zoom, 0.02, 20);
@@ -733,8 +783,33 @@ export class Main {
       this.m_test_index = this.tests.length;
     }
     this.m_test_index--;
-    this.m_test_select.selectedIndex = this.m_test_index;
+    this.updateSelectors();
     this.LoadTest();
+  }
+
+  private updateSelectors() {
+    const test = this.tests[this.m_test_index];
+    let opts = this.categorySelect.options;
+    for (let i = 0; i < opts.length; ++i) {
+      const item = opts.item(i);
+      if (item && item.text === test.category) {
+        if (this.categorySelect.selectedIndex !== i) {
+          this.categorySelect.selectedIndex = i;
+          this.updateTestsForCategory();
+        }
+        break;
+      }
+    }
+    opts = this.testSelect.options;
+    for (let i = 0; i < opts.length; ++i) {
+      const item = opts.item(i);
+      if (item && item.text === test.name) {
+        if (this.testSelect.selectedIndex !== i) {
+          this.testSelect.selectedIndex = i;
+        }
+        break;
+      }
+    }
   }
 
   public IncrementTest(): void {
@@ -742,7 +817,7 @@ export class Main {
     if (this.m_test_index >= this.tests.length) {
       this.m_test_index = 0;
     }
-    this.m_test_select.selectedIndex = this.m_test_index;
+    this.updateSelectors();
     this.LoadTest();
   }
 

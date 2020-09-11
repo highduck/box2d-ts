@@ -9,17 +9,17 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
+    "sourceMap": false,
     "inlineSourceMap": true,
+    "inlineSources": true,
     "rootDir": "./src",
     "baseUrl": ".",
-    "outDir": "./dist/esm"
+    "outDir": "./dist"
   },
   "references": [
     {
       "path": "../testbed/tsconfig.project.json"
     }
   ],
-  "include": [
-    "./src/**/*.ts"
-  ]
+  "include": ["./src/**/*.ts"]
 }

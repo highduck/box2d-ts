@@ -41,14 +41,14 @@ export class b2ContactManager {
     !!B2_DEBUG && b2Assert(proxyA instanceof b2FixtureProxy);
     !!B2_DEBUG && b2Assert(proxyB instanceof b2FixtureProxy);
 
-    let fixtureA: b2Fixture = proxyA.fixture;
-    let fixtureB: b2Fixture = proxyB.fixture;
+    let fixtureA = proxyA.fixture;
+    let fixtureB = proxyB.fixture;
 
-    let indexA: number = proxyA.childIndex;
-    let indexB: number = proxyB.childIndex;
+    const indexA = proxyA.childIndex;
+    const indexB = proxyB.childIndex;
 
-    let bodyA: b2Body = fixtureA.GetBody();
-    let bodyB: b2Body = fixtureB.GetBody();
+    let bodyA = fixtureA.GetBody();
+    let bodyB = fixtureB.GetBody();
 
     // Are the fixtures on the same body?
     if (bodyA === bodyB) {
@@ -59,12 +59,12 @@ export class b2ContactManager {
     // bodies have a lot of contacts.
     // Does a contact already exist?
     let edge: b2ContactEdge | null = bodyB.GetContactList();
-    while (edge) {
+    while (edge !== null) {
       if (edge.other === bodyA) {
-        const fA: b2Fixture = edge.contact.GetFixtureA();
-        const fB: b2Fixture = edge.contact.GetFixtureB();
-        const iA: number = edge.contact.GetChildIndexA();
-        const iB: number = edge.contact.GetChildIndexB();
+        const fA = edge.contact.GetFixtureA();
+        const fB = edge.contact.GetFixtureB();
+        const iA = edge.contact.GetChildIndexA();
+        const iB = edge.contact.GetChildIndexB();
 
         if (fA === fixtureA && fB === fixtureB && iA === indexA && iB === indexB) {
           // A contact already exists.
@@ -78,6 +78,11 @@ export class b2ContactManager {
       }
 
       edge = edge.next;
+    }
+
+    // Does a joint override collision? Is at least one body dynamic?
+    if (!bodyB.ShouldCollide(bodyA)) {
+      return;
     }
 
     // Check user filtering.
@@ -94,8 +99,8 @@ export class b2ContactManager {
     // Contact creation may swap fixtures.
     fixtureA = c.GetFixtureA();
     fixtureB = c.GetFixtureB();
-    indexA = c.GetChildIndexA();
-    indexB = c.GetChildIndexB();
+    //indexA = c.GetChildIndexA();
+    //indexB = c.GetChildIndexB();
     bodyA = fixtureA.m_body;
     bodyB = fixtureB.m_body;
 

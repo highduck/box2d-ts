@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "upgrade": "pnpm update -i -r -L",
-    "clean:solution": "rimraf packages/**/*.tsbuildinfo",
-    "watch:solution": "pnpm clean:solution && tsc -b -w -v tsconfig.solution.json",
-    "build:solution": "pnpm clean:solution && tsc -b -v tsconfig.solution.json",
+    "upgrade:interactive": "pnpm update -i -r -L",
+    "clean:solution": "pnpm -r clean",
+    "watch:solution": "tsc -b -w -v tsconfig.solution.json",
+    "build:solution": "pnpm -r build",
     "release": "changeset publish",
     "version": "changeset version && pnpm update-lock",
     "update-lock": "pnpm i --frozen-lockfile=false && git add pnpm-lock.yaml",

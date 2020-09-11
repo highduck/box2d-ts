@@ -12,13 +12,9 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@highduck/box2d": [
-        "../box2d/src/index.ts"
-      ]
+      "@highduck/box2d": ["../box2d/src/index.ts"]
     },
     "outDir": "./dist/esm"
   },
-  "include": [
-    "**/*.ts"
-  ]
+  "include": ["**/*.ts"]
 }

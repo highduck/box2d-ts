@@ -118,7 +118,7 @@ export class b2FixtureDef implements b2IFixtureDef {
   isSensor = false;
 
   /// Contact filtering data.
-  readonly filter: b2Filter = new b2Filter();
+  readonly filter = new b2Filter();
 
   constructor() {
     this.friction = 0.2;

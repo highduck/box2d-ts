@@ -9,9 +9,9 @@ import replace from '@rollup/plugin-replace';
 const debug = false;
 
 export default {
-  input: 'dist/esm/index.js',
+  input: 'dist/index.js',
   output: {
-    file: 'dist/bundle.js',
+    file: 'public/dist/bundle.js',
     name: 'tests',
     format: 'iife',
     sourcemap: true,
@@ -78,7 +78,7 @@ export default {
       },
     }),
     visualizer({
-      filename: `dist/stats.html`,
+      filename: `public/dist/stats.html`,
       sourcemap: true,
     }),
   ],

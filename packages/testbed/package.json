@@ -6,8 +6,8 @@
   "types": "./dist/esm/index.d.ts",
   "type": "module",
   "scripts": {
-    "clean": "rimraf dist",
-    "watch": "tsc -b -w -v tsconfig.project.json"
+    "clean": "rimraf dist/ *.tsbuildinfo",
+    "build": "tsc -b -v tsconfig.project.json"
   },
   "publishConfig": {
     "access": "public"

@@ -7,9 +7,10 @@
   "type": "module",
   "sideEffects": false,
   "scripts": {
-    "clean": "rimraf dist/ *.tsbuildinfo",
+    "clean": "rimraf dist/ coverage/ *.tsbuildinfo",
+    "build": "tsc -b -v tsconfig.project.json",
     "watch": "tsc -b -w -v tsconfig.project.json",
-    "test": "jest --coverage"
+    "test": "jest --bail"
   },
   "repository": {
     "type": "git",
@@ -26,9 +27,7 @@
     "README.md"
   ],
   "homepage": "https://github.com/highduck/box2d-ts#readme",
-  "dependencies": {
-    "@eliasku/fast-math": "^1.1.7"
-  },
+  "dependencies": {},
   "devDependencies": {
     "regenerator-runtime": "^0.13.7",
     "@babel/core": "^7.11.6",
