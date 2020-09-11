@@ -1,5 +1,12 @@
 # box2d-helloworld
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [0e8b41f]
+  - @highduck/box2d@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes
