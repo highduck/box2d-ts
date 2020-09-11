@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [7a04ee0]
+- Updated dependencies [0e8b41f]
   - @highduck/box2d@1.0.3
 
 ## 1.0.2

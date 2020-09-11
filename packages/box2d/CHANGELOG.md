@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- 7a04ee0: Remove `@eliasku/fast-math` dependency and sin-cos lookup tables
+Remove `@eliasku/fast-math` dependency and sin-cos lookup tables
 
 ## 1.0.2
 
