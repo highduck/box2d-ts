@@ -1,5 +1,11 @@
 # @highduck/box2d
 
+## 1.0.3
+
+### Patch Changes
+
+- 0e8b41f: Remove `@eliasku/fast-math` dependency and sin-cos lookup tables
+
 ## 1.0.2
 
 ### Patch Changes
